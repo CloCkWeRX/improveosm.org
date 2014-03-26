@@ -335,7 +335,7 @@ window.iD = function () {
     return d3.rebind(context, dispatch, 'on');
 };
 
-iD.version = '1.8.5';
+iD.version = '1.8.5-slide';
 
 (function() {
     var detected = {};
