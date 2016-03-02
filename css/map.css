@@ -1551,6 +1551,62 @@ text.gpx {
     fill-opacity: 0.6;
 }
 
+/* Telenav Layer */
+
+.layer-telenav {
+    pointer-events: none;
+}
+
+.layer-telenav g {
+    pointer-events: visible;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
+}
+
+.layer-telenav g * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+
+.layer-telenav g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+
+.turnRestriction circle {
+    stroke: red;
+    fill: white;
+    stroke-opacity: .6;
+    fill-opacity: .6;
+}
+
+.turnRestriction polyline {
+    display: none;
+}
+.turnRestriction:hover circle {
+    fill: white;
+    stroke-opacity: 1;
+    fill-opacity: 1;
+}
+.turnRestriction:hover polyline {
+    display: block;
+}
+
+.layer-telenav g.selected  * {
+    stroke-width: 2;
+    stroke: #222;
+    fill: #ff5800;
+}
+
+.layer-telenav g:hover path.viewfield,
+.layer-telenav g.selected path.viewfield,
+.layer-telenav g path.viewfield {
+    stroke-width: 0;
+    fill-opacity: 0.6;
+}
+
 /* Modes */
 
 .mode-draw-line .vertex.active,

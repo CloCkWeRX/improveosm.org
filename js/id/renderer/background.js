@@ -5,6 +5,7 @@ iD.Background = function(context) {
         gpxLayer = iD.GpxLayer(context, dispatch)
             .projection(context.projection),
         mapillaryLayer = iD.MapillaryLayer(context),
+        telenavLayer = iD.TelenavLayer(context),
         overlayLayers = [];
 
     var backgroundSources;
@@ -92,6 +93,14 @@ iD.Background = function(context) {
             .attr('class', 'layer-layer layer-mapillary');
 
         mapillary.call(mapillaryLayer);
+
+        var telenav = selection.selectAll('.layer-telenav')
+            .data([0]);
+
+        telenav.enter().insert('div')
+            .attr('class', 'layer-layer layer-telenav');
+
+        telenav.call(telenavLayer);
     }
 
     background.sources = function(extent) {
@@ -104,6 +113,7 @@ iD.Background = function(context) {
         baseLayer.dimensions(_);
         gpxLayer.dimensions(_);
         mapillaryLayer.dimensions(_);
+        telenavLayer.dimensions(_);
 
         overlayLayers.forEach(function(layer) {
             layer.dimensions(_);
@@ -178,6 +188,15 @@ iD.Background = function(context) {
 
     background.toggleMapillaryLayer = function() {
         mapillaryLayer.enable(!mapillaryLayer.enable());
+        dispatch.change();
+    };
+
+    background.showsTelenavLayer = function() {
+        return telenavLayer.enable();
+    };
+
+    background.toggleTelenavLayer = function() {
+        telenavLayer.enable(!telenavLayer.enable());
         dispatch.change();
     };
 

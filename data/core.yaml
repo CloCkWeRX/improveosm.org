@@ -419,6 +419,10 @@ en:
     tooltip: "Street-level photos from Mapillary"
     title: "Photo Overlay (Mapillary)"
     view_on_mapillary: "View this image on Mapillary"
+  telenav:
+    tooltip: "Direction of flow data from Telenav"
+    title: "Direction of flow (Telenav)"
+    view_on_telenav: "View this image on Telenav's ImproveOSM"
   help:
     title: "Help"
     help: |
