@@ -1553,56 +1553,115 @@ text.gpx {
 
 /* Telenav Layer */
 
-.layer-telenav {
+.layer-telenav-tr {
     pointer-events: none;
 }
 
-.layer-telenav g {
+.layer-telenav-mr {
+    pointer-events: none;
+}
+
+.layer-telenav-dof {
+    pointer-events: none;
+}
+
+.layer-telenav-tr g {
     pointer-events: visible;
     cursor: pointer; /* Opera */
     cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
 }
 
-.layer-telenav g * {
+.layer-telenav-mr g {
+    pointer-events: visible;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
+}
+
+.layer-telenav-dof g {
+    pointer-events: visible;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
+}
+
+.layer-telenav-tr g * {
     stroke-width: 3;
     stroke: red;
     fill: none;
 }
 
-.layer-telenav g:hover * {
+.layer-telenav-mr g * {
     stroke-width: 3;
     stroke: red;
     fill: none;
 }
 
-.turnRestriction circle {
+.layer-telenav-dof g * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+
+.layer-telenav-tr g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+
+.layer-telenav-mr g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+.layer-telenav-dof g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
+
+.turnRestriction circle,
+.missingRoads circle,
+.directionOfFlow circle {
     stroke: red;
     fill: white;
     stroke-opacity: .6;
     fill-opacity: .6;
 }
 
-.turnRestriction polyline {
+.turnRestriction polyline,
+.missingRoads polyline,
+.directionOfFlow polyline {
     display: none;
 }
-.turnRestriction:hover circle {
+.turnRestriction:hover circle,
+.missingRoads:hover circle,
+.directionOfFlow:hover circle {
     fill: white;
     stroke-opacity: 1;
     fill-opacity: 1;
 }
-.turnRestriction:hover polyline {
+.turnRestriction:hover polyline,
+.missingRoads:hover polyline,
+.directionOfFlow:hover polyline {
     display: block;
 }
 
-.layer-telenav g.selected  * {
+.layer-telenav-tr g.selected *,
+.layer-telenav-mr g.selected *,
+.layer-telenav-dof g.selected * {
     stroke-width: 2;
     stroke: #222;
     fill: #ff5800;
 }
 
-.layer-telenav g:hover path.viewfield,
-.layer-telenav g.selected path.viewfield,
-.layer-telenav g path.viewfield {
+.layer-telenav-tr g:hover path.viewfield,
+.layer-telenav-mr g:hover path.viewfield,
+.layer-telenav-dof g:hover path.viewfield,
+.layer-telenav-tr g.selected path.viewfield,
+.layer-telenav-mr g.selected path.viewfield,
+.layer-telenav-dof g.selected path.viewfield,
+.layer-telenav-tr g path.viewfield,
+.layer-telenav-mr g path.viewfield,
+.layer-telenav-dof g path.viewfield {
     stroke-width: 0;
     fill-opacity: 0.6;
 }

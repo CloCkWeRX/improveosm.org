@@ -1,4 +1,4 @@
-iD.TelenavLayer = function (context) {
+iD.TelenavLayerDOF = function (context) {
     var enable = false,
         svg,
         request;
@@ -41,11 +41,11 @@ iD.TelenavLayer = function (context) {
             return;
         }
 
-        var turnRestrictionCircles = svg.selectAll('.turnRestriction > circle');
+        var turnRestrictionCircles = svg.selectAll('.directionOfFlow > circle');
         turnRestrictionCircles.attr('cx', transformX);
         turnRestrictionCircles.attr('cy', transformY);
 
-        var turnRestrictionPolylines = svg.selectAll('.turnRestriction > polyline');
+        var turnRestrictionPolylines = svg.selectAll('.directionOfFlow > polyline');
         turnRestrictionPolylines.attr('points', transformLinePoints);
 
         var extent = context.map().extent();
@@ -78,7 +78,7 @@ iD.TelenavLayer = function (context) {
                         });
 
                     var enter = g.enter().append('g')
-                        .attr('class', 'turnRestriction');
+                        .attr('class', 'directionOfFlow');
 
                     var firstPoly = enter.append('polyline');
                     firstPoly.attr('points', transformLinePoints);
