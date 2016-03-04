@@ -1627,21 +1627,15 @@ text.gpx {
     fill-opacity: .6;
 }
 
-.turnRestriction polyline,
-.missingRoads polyline,
-.directionOfFlow polyline {
+.turnRestriction polyline {
     display: none;
 }
-.turnRestriction:hover circle,
-.missingRoads:hover circle,
-.directionOfFlow:hover circle {
+.turnRestriction:hover circle {
     fill: white;
     stroke-opacity: 1;
     fill-opacity: 1;
 }
-.turnRestriction:hover polyline,
-.missingRoads:hover polyline,
-.directionOfFlow:hover polyline {
+.turnRestriction:hover polyline {
     display: block;
 }
 

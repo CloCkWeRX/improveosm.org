@@ -60,7 +60,7 @@ iD.TelenavLayerTR = function (context) {
                 extent[0][1] + '&north=' + extent[1][1] + '&west=' +
                 extent[0][0] + '&east=' + extent[1][0] + '&zoom=' + zoom,
                 function (error, data) {
-                    if (error) {
+                    if (error || typeof data.entities == 'undefined') {
                         svg.selectAll('g')
                             .remove();
                         return;
