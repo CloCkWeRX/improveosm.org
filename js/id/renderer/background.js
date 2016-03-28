@@ -8,6 +8,7 @@ iD.Background = function(context) {
         telenavLayerTR = iD.TelenavLayerTR(context),
         telenavLayerMR = iD.TelenavLayerMR(context),
         telenavLayerDOF = iD.TelenavLayerDOF(context),
+        telenavLayer = iD.TelenavLayer(context),
         overlayLayers = [];
 
     var backgroundSources;
@@ -119,6 +120,14 @@ iD.Background = function(context) {
             .attr('class', 'layer-layer layer-telenav-dof');
 
         telenavDOF.call(telenavLayerDOF);
+
+        var telenav = selection.selectAll('.layer-telenav')
+            .data([0]);
+
+        telenav.enter().insert('div')
+            .attr('class', 'layer-layer layer-telenav');
+
+        telenav.call(telenavLayer);
     }
 
     background.sources = function(extent) {
@@ -134,6 +143,7 @@ iD.Background = function(context) {
         telenavLayerTR.dimensions(_);
         telenavLayerMR.dimensions(_);
         telenavLayerDOF.dimensions(_);
+        telenavLayer.dimensions(_);
 
         overlayLayers.forEach(function(layer) {
             layer.dimensions(_);
@@ -235,6 +245,15 @@ iD.Background = function(context) {
 
     background.toggleTelenavLayerDOF = function() {
         telenavLayerDOF.enable(!telenavLayerDOF.enable());
+        dispatch.change();
+    };
+
+    background.showsTelenavLayer = function() {
+        return telenavLayer.enable();
+    };
+
+    background.toggleTelenavLayer = function() {
+        telenavLayer.enable(!telenavLayer.enable());
         dispatch.change();
     };
 

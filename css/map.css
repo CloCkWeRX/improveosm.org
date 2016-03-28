@@ -1565,6 +1565,10 @@ text.gpx {
     pointer-events: none;
 }
 
+.layer-telenav {
+    pointer-events: none;
+}
+
 .layer-telenav-tr g {
     pointer-events: visible;
     cursor: pointer; /* Opera */
@@ -1578,6 +1582,12 @@ text.gpx {
 }
 
 .layer-telenav-dof g {
+    pointer-events: visible;
+    cursor: pointer; /* Opera */
+    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
+}
+
+.layer-telenav g {
     pointer-events: visible;
     cursor: pointer; /* Opera */
     cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
@@ -1601,12 +1611,17 @@ text.gpx {
     fill: none;
 }
 
-.layer-telenav-tr g:hover * {
+.layer-telenav g * {
     stroke-width: 3;
     stroke: red;
     fill: none;
 }
 
+.layer-telenav-tr g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
 .layer-telenav-mr g:hover * {
     stroke-width: 3;
     stroke: red;
@@ -1617,10 +1632,16 @@ text.gpx {
     stroke: red;
     fill: none;
 }
+.layer-telenav g:hover * {
+    stroke-width: 3;
+    stroke: red;
+    fill: none;
+}
 
 .turnRestriction circle,
 .missingRoads circle,
-.directionOfFlow circle {
+.directionOfFlow circle,
+.telenavDrawing circle {
     stroke: red;
     fill: white;
     stroke-opacity: .6;
@@ -1641,7 +1662,8 @@ text.gpx {
 
 .layer-telenav-tr g.selected *,
 .layer-telenav-mr g.selected *,
-.layer-telenav-dof g.selected * {
+.layer-telenav-dof g.selected *,
+.layer-telenav g.selected * {
     stroke-width: 2;
     stroke: #222;
     fill: #ff5800;
@@ -1650,12 +1672,15 @@ text.gpx {
 .layer-telenav-tr g:hover path.viewfield,
 .layer-telenav-mr g:hover path.viewfield,
 .layer-telenav-dof g:hover path.viewfield,
+.layer-telenav g:hover path.viewfield,
 .layer-telenav-tr g.selected path.viewfield,
 .layer-telenav-mr g.selected path.viewfield,
 .layer-telenav-dof g.selected path.viewfield,
+.layer-telenav g.selected path.viewfield,
 .layer-telenav-tr g path.viewfield,
 .layer-telenav-mr g path.viewfield,
-.layer-telenav-dof g path.viewfield {
+.layer-telenav-dof g path.viewfield,
+.layer-telenav g path.viewfield {
     stroke-width: 0;
     fill-opacity: 0.6;
 }

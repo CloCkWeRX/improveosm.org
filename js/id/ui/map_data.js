@@ -62,6 +62,11 @@ iD.ui.MapData = function(context) {
             update();
         }
 
+        function clickTelenav() {
+            context.background().toggleTelenavLayer();
+            update();
+        }
+
         function drawList(selection, data, type, name, change, active) {
             var items = selection.selectAll('li')
                 .data(data);
@@ -118,6 +123,7 @@ iD.ui.MapData = function(context) {
                 showsTelenavTR = context.background().showsTelenavLayerTR(),
                 showsTelenavMR = context.background().showsTelenavLayerMR(),
                 showsTelenavDOF = context.background().showsTelenavLayerDOF();
+                showsTelenav = context.background().showsTelenavLayer();
 
             gpxLayerItem
                 .classed('active', showsGpx)
@@ -144,6 +150,11 @@ iD.ui.MapData = function(context) {
                 .classed('active', showsTelenavDOF)
                 .selectAll('input')
                 .property('checked', showsTelenavDOF);
+
+            telenavLayerItem
+                .classed('active', showsTelenav)
+                .selectAll('input')
+                .property('checked', showsTelenav);
         }
 
         function hidePanel() { setVisible(false); }
@@ -291,6 +302,22 @@ iD.ui.MapData = function(context) {
 
         label.append('span')
             .text(t('telenav_dof.title'));
+
+        var telenavLayerItem = layerContainer.append('ul')
+            .attr('class', 'layer-list')
+            .append('li');
+
+        label = telenavLayerItem.append('label')
+            .call(bootstrap.tooltip()
+                .title(t('telenav.tooltip'))
+                .placement('top'));
+
+        label.append('input')
+            .attr('type', 'checkbox')
+            .on('change', clickTelenav);
+
+        label.append('span')
+            .text(t('telenav.title'));
 
         // gpx
         var gpxLayerItem = layerContainer.append('ul')

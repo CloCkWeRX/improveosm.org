@@ -428,6 +428,9 @@ en:
   telenav_dof:
     tooltip: "Direction of flow data from Telenav"
     title: "Direction of flow (Telenav)"
+  telenav:
+    tooltip: "ImproveOSM metrics from Telenav"
+    title: "ImproveOSM metrics (Telenav)"
   help:
     title: "Help"
     help: |
