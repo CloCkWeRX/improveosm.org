@@ -67,7 +67,8 @@ iD.TelenavLayerMR = function (context) {
                             items.push({
                                 lat: data.tiles[i].points[j].lat,
                                 lon: data.tiles[i].points[j].lon,
-                                id: guid()
+                                //id: guid()
+                                id: data.tiles[i].points[j].lat + ':' + data.tiles[i].points[j].lon
                             });
                         }
                     }
