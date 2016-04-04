@@ -47,6 +47,26 @@ iD.ui.MapData = function(context) {
             update();
         }
 
+        function clickTelenavTR() {
+            context.background().toggleTelenavLayerTR();
+            update();
+        }
+
+        function clickTelenavMR() {
+            context.background().toggleTelenavLayerMR();
+            update();
+        }
+
+        function clickTelenavDOF() {
+            context.background().toggleTelenavLayerDOF();
+            update();
+        }
+
+        function clickTelenav() {
+            context.background().toggleTelenavLayer();
+            update();
+        }
+
         function drawList(selection, data, type, name, change, active) {
             var items = selection.selectAll('li')
                 .data(data);
@@ -99,7 +119,11 @@ iD.ui.MapData = function(context) {
 
             var hasGpx = context.background().hasGpxLayer(),
                 showsGpx = context.background().showsGpxLayer(),
-                showsMapillary = context.background().showsMapillaryLayer();
+                showsMapillary = context.background().showsMapillaryLayer(),
+                showsTelenavTR = context.background().showsTelenavLayerTR(),
+                showsTelenavMR = context.background().showsTelenavLayerMR(),
+                showsTelenavDOF = context.background().showsTelenavLayerDOF();
+                showsTelenav = context.background().showsTelenavLayer();
 
             gpxLayerItem
                 .classed('active', showsGpx)
@@ -111,6 +135,26 @@ iD.ui.MapData = function(context) {
                 .classed('active', showsMapillary)
                 .selectAll('input')
                 .property('checked', showsMapillary);
+
+            telenavLayerItemTR
+                .classed('active', showsTelenavTR)
+                .selectAll('input')
+                .property('checked', showsTelenavTR);
+
+            telenavLayerItemMR
+                .classed('active', showsTelenavMR)
+                .selectAll('input')
+                .property('checked', showsTelenavMR);
+
+            telenavLayerItemDOF
+                .classed('active', showsTelenavDOF)
+                .selectAll('input')
+                .property('checked', showsTelenavDOF);
+
+            telenavLayerItem
+                .classed('active', showsTelenav)
+                .selectAll('input')
+                .property('checked', showsTelenav);
         }
 
         function hidePanel() { setVisible(false); }
@@ -209,6 +253,71 @@ iD.ui.MapData = function(context) {
 
         label.append('span')
             .text(t('mapillary.title'));
+
+        // telenav
+        var telenavLayerItemTR = layerContainer.append('ul')
+            .attr('class', 'layer-list')
+            .append('li');
+
+        label = telenavLayerItemTR.append('label')
+            .call(bootstrap.tooltip()
+                .title(t('telenav_tr.tooltip'))
+                .placement('top'));
+
+        label.append('input')
+            .attr('type', 'checkbox')
+            .on('change', clickTelenavTR);
+
+        label.append('span')
+            .text(t('telenav_tr.title'));
+
+        var telenavLayerItemMR = layerContainer.append('ul')
+            .attr('class', 'layer-list')
+            .append('li');
+
+        label = telenavLayerItemMR.append('label')
+            .call(bootstrap.tooltip()
+                .title(t('telenav_mr.tooltip'))
+                .placement('top'));
+
+        label.append('input')
+            .attr('type', 'checkbox')
+            .on('change', clickTelenavMR);
+
+        label.append('span')
+            .text(t('telenav_mr.title'));
+
+        var telenavLayerItemDOF = layerContainer.append('ul')
+            .attr('class', 'layer-list')
+            .append('li');
+
+        label = telenavLayerItemDOF.append('label')
+            .call(bootstrap.tooltip()
+                .title(t('telenav_dof.tooltip'))
+                .placement('top'));
+
+        label.append('input')
+            .attr('type', 'checkbox')
+            .on('change', clickTelenavDOF);
+
+        label.append('span')
+            .text(t('telenav_dof.title'));
+
+        var telenavLayerItem = layerContainer.append('ul')
+            .attr('class', 'layer-list')
+            .append('li');
+
+        label = telenavLayerItem.append('label')
+            .call(bootstrap.tooltip()
+                .title(t('telenav.tooltip'))
+                .placement('top'));
+
+        label.append('input')
+            .attr('type', 'checkbox')
+            .on('change', clickTelenav);
+
+        label.append('span')
+            .text(t('telenav.title'));
 
         // gpx
         var gpxLayerItem = layerContainer.append('ul')

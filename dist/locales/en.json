@@ -506,6 +506,22 @@
         "title": "Photo Overlay (Mapillary)",
         "view_on_mapillary": "View this image on Mapillary"
     },
+    "telenav_tr": {
+        "tooltip": "Turn restrictions data from Telenav",
+        "title": "Turn restrictions (Telenav)"
+    },
+    "telenav_mr": {
+        "tooltip": "Missing roads data from Telenav",
+        "title": "Missing roads (Telenav)"
+    },
+    "telenav_dof": {
+        "tooltip": "Direction of flow data from Telenav",
+        "title": "Direction of flow (Telenav)"
+    },
+    "telenav": {
+        "tooltip": "ImproveOSM metrics from Telenav",
+        "title": "ImproveOSM metrics (Telenav)"
+    },
     "help": {
         "title": "Help",
         "help": "# Help\n\nThis is an editor for [OpenStreetMap](http://www.openstreetmap.org/), the\nfree and editable map of the world. You can use it to add and update\ndata in your area, making an open-source and open-data map of the world\nbetter for everyone.\n\nEdits that you make on this map will be visible to everyone who uses\nOpenStreetMap. In order to make an edit, you'll need to\n[log in](https://www.openstreetmap.org/login).\n\nThe [iD editor](http://ideditor.com/) is a collaborative project with [source\ncode available on GitHub](https://github.com/openstreetmap/iD).\n",
