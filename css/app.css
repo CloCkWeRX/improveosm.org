@@ -653,6 +653,34 @@ button.save.has-count .count::before {
     bottom: 0;
 }
 
+/* Telenav pane
+------------------------------------------------------- */
+
+.telenavPane {
+    position: absolute;
+    bottom: 35px;
+    padding: 5px 20px 5px 20px;
+    border-top: 1px solid #ccc;
+    background-color: #fafafa;
+    width: 100%;
+}
+.tel_displayInline{
+    display: inline;
+    float: left;
+    margin-right: 15px;
+}
+.tel_displayBlock {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+}
+.sectionHeader {
+    font-weight: bold;
+}
+.typeForm > div {
+    margin-left: 5px;
+}
+
 .mapillary-image {
     position: absolute;
     right: 0;
