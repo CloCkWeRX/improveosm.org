@@ -12,7 +12,7 @@ iD.TelenavPane = function(context) {
             .data([0]);
 
         var enter = div.enter().append('div')
-            .attr('class', 'pane-telenav');
+            .attr('class', 'pane-telenav hidden');
 
         var toggleEditModeContainer = enter.append('div')
             .attr('class', 'toggleEditModeContainer');
