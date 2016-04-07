@@ -1588,6 +1588,10 @@ text.gpx {
 }
 
 .layer-telenav g {
+    pointer-events: none;
+}
+
+.layer-telenav.editMode g {
     pointer-events: visible;
     cursor: pointer; /* Opera */
     cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
