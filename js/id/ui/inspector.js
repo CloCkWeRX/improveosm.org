@@ -45,18 +45,6 @@ iD.ui.Inspector = function(context) {
             $presetPane.call(presetList);
         }
 
-        /***    START Telenav Pane UI   ***/
-        var $telenavPane = selection.selectAll('.telenavPane')
-            .data([0]);
-
-        $telenavPane.enter().append('div')
-            .attr('class', 'telenavPane');
-
-        selection.select('.telenavPane')
-            .call(iD.ui.TelenavPane(context)
-                .entityID(entityID));
-        /***    END Telenav Pane UI   ***/
-
         var $footer = selection.selectAll('.footer')
             .data([0]);
 

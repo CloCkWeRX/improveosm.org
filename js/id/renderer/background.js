@@ -9,6 +9,7 @@ iD.Background = function(context) {
         telenavLayerMR = iD.TelenavLayerMR(context),
         telenavLayerDOF = iD.TelenavLayerDOF(context),
         telenavLayer = iD.TelenavLayer(context),
+        telenavPane = iD.TelenavPane(context),
         overlayLayers = [];
 
     var backgroundSources;
@@ -97,6 +98,11 @@ iD.Background = function(context) {
 
         mapillary.call(mapillaryLayer);
 
+        var telenavPaneLayer = selection.selectAll('.pane_telenav')
+            .data([0]);
+
+        telenavPaneLayer.call(telenavPane);
+
         var telenavTR = selection.selectAll('.layer-telenav-tr')
             .data([0]);
 
@@ -144,6 +150,7 @@ iD.Background = function(context) {
         telenavLayerMR.dimensions(_);
         telenavLayerDOF.dimensions(_);
         telenavLayer.dimensions(_);
+        telenavPane.dimensions(_);
 
         overlayLayers.forEach(function(layer) {
             layer.dimensions(_);
@@ -214,6 +221,10 @@ iD.Background = function(context) {
 
     background.showsMapillaryLayer = function() {
         return mapillaryLayer.enable();
+    };
+
+    background.showsTelenavPane = function() {
+        return telenavPane.enable();
     };
 
     background.toggleMapillaryLayer = function() {

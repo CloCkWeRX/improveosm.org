@@ -1,16 +1,31 @@
-iD.ui.TelenavPane = function(context) {
-    var id;
+iD.TelenavPane = function(context) {
+    //var id;
+    var enable = false,
+        div;
 
-    function telenavPane(selection) {
-        var entity = context.entity(id);
+    function render(selection) {
+        //var entity = context.entity(id);
 
-        selection.style('display', entity.isNew() ? 'none' : null);
+        //selection.style('display', entity.isNew() ? 'none' : null);
 
-        var $statusContainer = selection.selectAll('#STATUS')
+        div = context.container().selectAll('.pane-telenav')
             .data([0]);
 
-        $statusContainer.enter()
-            .append('div')
+        var enter = div.enter().append('div')
+            .attr('class', 'pane-telenav');
+
+        var toggleEditModeContainer = enter.append('div')
+            .attr('class', 'toggleEditModeContainer');
+
+        toggleEditModeContainer.append('input')
+            .attr('type', 'checkbox')
+            .attr('id', 'toggleEditMode')
+            .attr('class', 'tel_displayBlock');
+        toggleEditModeContainer.append('label')
+            .attr('for', 'toggleEditMode')
+            .text('Toggle Edit Mode');
+
+        var $statusContainer = enter.append('div')
             .attr('id', 'STATUS')
             .attr('class', 'tel_displayBlock')
             .text('Reported Status');
@@ -53,14 +68,13 @@ iD.ui.TelenavPane = function(context) {
             .attr('class', 'filterItem')
             .attr('name', 'filter');
 
-        var $directionFilterContainer = selection.selectAll('#DIRECTION_FILTER')
-            .data([0]);
-        $directionFilterContainer.enter()
-            .append('div')
-            .attr('id', 'DIRECTION_FILTER')
-            .attr('class', 'tel_displayBlock')
 
-            .append('input')
+
+        var $directionFilterContainer = enter.append('div')
+            .attr('id', 'DIRECTION_FILTER')
+            .attr('class', 'tel_displayBlock');
+
+        $directionFilterContainer.append('input')
             .attr('type', 'checkbox')
             .attr('class', 'filterActivation')
             .attr('id', 'oneWayConfidence');
@@ -97,14 +111,12 @@ iD.ui.TelenavPane = function(context) {
             .attr('for', 'C3')
             .text('Probable');
 
-        var $missingFilterContainer = selection.selectAll('#MISSING_FILTER')
-            .data([0]);
-        $missingFilterContainer.enter()
-            .append('div')
-            .attr('id', 'MISSING_FILTER')
-            .attr('class', 'tel_displayBlock')
 
-            .append('input')
+        var $missingFilterContainer = enter.append('div')
+            .attr('id', 'MISSING_FILTER')
+            .attr('class', 'tel_displayBlock');
+
+        $missingFilterContainer                    .append('input')
             .attr('type', 'checkbox')
             .attr('class', 'filterActivation')
             .attr('id', 'missingRoadType');
@@ -163,14 +175,12 @@ iD.ui.TelenavPane = function(context) {
             .attr('for', 'PATH')
             .text('Path Trail');
 
-        var $restrictionFilterContainer = selection.selectAll('#RESTRICTION_FILTER')
-            .data([0]);
-        $restrictionFilterContainer.enter()
-            .append('div')
-            .attr('id', 'RESTRICTION_FILTER')
-            .attr('class', 'tel_displayBlock')
 
-            .append('input')
+        var $restrictionFilterContainer = enter.append('div')
+            .attr('id', 'RESTRICTION_FILTER')
+            .attr('class', 'tel_displayBlock');
+
+        $restrictionFilterContainer                    .append('input')
             .attr('type', 'checkbox')
             .attr('class', 'filterActivation')
             .attr('id', 'turnRestrictionConfidence');
@@ -200,14 +210,29 @@ iD.ui.TelenavPane = function(context) {
         $restriction_probableContainer.append('label')
             .attr('for', 'C2')
             .text('Probable');
-
     }
 
-    telenavPane.entityID = function(_) {
-        if (!arguments.length) return id;
-        id = _;
-        return telenavPane;
+    render.enable = function(_) {
+        if (!arguments.length) return enable;
+        enable = _;
+        return render;
     };
 
+    render.dimensions = function(_) {
+        if (!arguments.length) return svg.dimensions();
+        //svg.dimensions(_);
+        return render;
+    };
+
+    return render;
+
+/*
+telenavPane.entityID = function(_) {
+    if (!arguments.length) return id;
+    id = _;
     return telenavPane;
+};
+
+return telenavPane;
+*/
 };
