@@ -8,8 +8,8 @@ iD.Background = function(context) {
         telenavLayerTR = iD.TelenavLayerTR(context),
         telenavLayerMR = iD.TelenavLayerMR(context),
         telenavLayerDOF = iD.TelenavLayerDOF(context),
-        telenavLayer = iD.TelenavLayer(context),
         telenavPane = iD.TelenavPane(context),
+        telenavLayer = iD.TelenavLayer(context),
         overlayLayers = [];
 
     var backgroundSources;
@@ -149,8 +149,8 @@ iD.Background = function(context) {
         telenavLayerTR.dimensions(_);
         telenavLayerMR.dimensions(_);
         telenavLayerDOF.dimensions(_);
-        telenavLayer.dimensions(_);
         telenavPane.dimensions(_);
+        telenavLayer.dimensions(_);
 
         overlayLayers.forEach(function(layer) {
             layer.dimensions(_);
