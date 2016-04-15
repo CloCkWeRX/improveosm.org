@@ -655,13 +655,37 @@ button.save.has-count .count::before {
 
 /* Telenav pane
 ------------------------------------------------------- */
-
+.telenavwrap {
+    position: absolute;
+    width: 200%;
+    height: 100%;
+}
 .pane-telenav {
     position: absolute;
     bottom: 15px;
-    left: 15px;
     z-index: 1000;
+    height: 250px;
 }
+#generalSettingsWindow .header {
+    border-top: 1px solid #eee;
+}
+.telenav-body{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 60px;
+}
+#toggleEditMode .preset-list-button:hover,
+#toggleEditMode .preset-list-button:focus {
+    background: transparent;
+}
+#toggleEditMode .preset-list-button:hover .label  {
+    background: #f6f6f6;
+}
+
 .tel_displayInline{
     display: inline;
     float: left;
@@ -682,7 +706,7 @@ button.save.has-count .count::before {
     display: none;
 }
 #sidebar.telenavPaneActive {
-    height: calc(100% - 250px)
+    height: calc(100% - 280px)
 }
 
 .mapillary-image {
