@@ -1667,9 +1667,23 @@ text.gpx {
 .layer-telenav-tr g.selected *,
 .layer-telenav-mr g.selected *,
 .layer-telenav-dof g.selected *,
-.layer-telenav g.selected * {
+.layer-telenav g.selected .highlight {
     stroke-width: 10;
+    stroke-opacity: .6;
     stroke: orange;
+}
+
+.layer-telenav g .highlightOff {
+    stroke-width: 10;
+    stroke-opacity: .0;
+    stroke: green;
+    cursor: pointer;
+}
+
+.layer-telenav g .highlightOn {
+    stroke-width: 10;
+    stroke-opacity: .6;
+    stroke: green;
 }
 
 .layer-telenav-tr g:hover path.viewfield,

@@ -74,6 +74,16 @@ iD.TelenavLayer = function (context) {
         }
         d3.event.stopPropagation();
     };
+    MapItem.handleMouseOver = function(item) {
+        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+            .classed('highlightOn', true)
+            .classed('highlightOff', false);
+    };
+    MapItem.handleMouseOut = function(item) {
+        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+            .classed('highlightOn', false)
+            .classed('highlightOff', true);
+    };
     // ==============================
     // ==============================
     // TurnRestrictionItem
@@ -90,6 +100,11 @@ iD.TelenavLayer = function (context) {
         this.getSegments = function() {
             return rawItemData.segments;
         };
+        this.getIdentifier = function() {
+            return [
+                rawItemData.id
+            ];
+        }
     };
     // static
     TurnRestrictionItem.prototype = new MapItem();
@@ -124,6 +139,12 @@ iD.TelenavLayer = function (context) {
         this.getLon = function() {
             return rawItemData.lon;
         };
+        this.getIdentifier = function() {
+            return [{
+                x: rawItemData.x,
+                y: rawItemData.y
+            }];
+        }
     };
     MissingRoadItem.prototype = new MapItem();
     MissingRoadItem.transformX = function(item) {
@@ -143,6 +164,13 @@ iD.TelenavLayer = function (context) {
         this.getPoints = function() {
             return rawItemData.points;
         };
+        this.getIdentifier = function() {
+            return [{
+                wayId: rawItemData.wayId,
+                fromNodeId: rawItemData.fromNodeId,
+                toNodeId: rawItemData.toNodeId
+            }];
+        }
     };
     DirectionOfFlowItem.prototype = new MapItem();
     DirectionOfFlowItem.transformLinePoints = function(item) {
@@ -153,14 +181,74 @@ iD.TelenavLayer = function (context) {
         }
         return stringPoints.join(' ');
     };
+
     // ==============================
     // ==============================
-    // SelectionHandler
+    // EditPanel
     // ==============================
     // ==============================
-    var SelectionHandler = function() {
+    var EditPanel = function() {
+
+        this.show = function() {
+
+        };
+
+        this.renderMessage = function() {
+
+        };
+
+        this.saveComment = function() {
+            var comment = d3.select('.telenavComments').property('value');
+
+            for (var i = 0; i < selectedItems.length; i++) {
+                var currentItem = selectedItems[i];
+
+                var dataToPost = {
+                    username: 'Tudor009',
+                    text: 'status changed'
+                };
+
+                var responseHandler = function(err, rawData){
+                    var data = JSON.parse(rawData.response);
+                    console.log("got response", data);
+                };
+
+                switch (currentItem.getClass()) {
+                    case 'DirectionOfFlowItem':
+                        dataToPost.roadSegments = currentItem.getIdentifier();
+                        d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                            .header("Content-Type", "application/json")
+                            .post(
+                                JSON.stringify(dataToPost),
+                                responseHandler
+                            );
+                        break;
+                    case 'MissingRoadItem':
+                        dataToPost.tiles = currentItem.getIdentifier();
+                        d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                            .header("Content-Type", "application/json")
+                            .post(
+                                JSON.stringify(dataToPost),
+                                responseHandler
+                            );
+                        break;
+                    case 'TurnRestrictionItem':
+                        dataToPost.targetIds = currentItem.getIdentifier();
+                        d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                            .header("Content-Type", "application/json")
+                            .post(
+                                JSON.stringify(dataToPost),
+                                responseHandler
+                            );
+                        break;
+                }
+
+            }
+        };
 
     };
+
+    var _editPanel = new EditPanel();
 
     var _synchCallbacks = function(error, data) {
 
@@ -218,6 +306,8 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
+            dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
             var mrCircle = mRs.append('circle');
             mrCircle.attr('cx', MissingRoadItem.transformX);
@@ -230,11 +320,24 @@ iD.TelenavLayer = function (context) {
             trCircle.attr('cx', TurnRestrictionItem.transformX);
             trCircle.attr('cy', TurnRestrictionItem.transformY);
             trCircle.attr('r', '10');
+            var trSelPoly = tRs.append('polyline').attr('class', 'highlight');
+            trSelPoly.attr('points', TurnRestrictionItem.transformLinePoints);
+            var trSelCircle = tRs.append('circle').attr('class', 'highlight');
+            trSelCircle.attr('cx', TurnRestrictionItem.transformX);
+            trSelCircle.attr('cy', TurnRestrictionItem.transformY);
+            trSelCircle.attr('r', '10');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);
             tRs.on('click', MapItem.handleSelection);
 
+            dOFs.on('mouseover', MapItem.handleMouseOver);
+            mRs.on('mouseover', MapItem.handleMouseOver);
+            tRs.on('mouseover', MapItem.handleMouseOver);
+
+            dOFs.on('mouseout', MapItem.handleMouseOut);
+            mRs.on('mouseout', MapItem.handleMouseOut);
+            tRs.on('mouseout', MapItem.handleMouseOut);
 
             g.exit()
                 .remove();
@@ -532,6 +635,17 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'C2')
             .text('Probable');
 
+        var toggleEditModeContainer = enter.append('textarea')
+            .attr('class', 'telenavComments');
+        var sendMessageButton = enter.append('button')
+            .attr('class', 'telenavSendComments')
+            .html('OK');
+
+        // ++++++++++++
+        // events
+        // ++++++++++++
+
+
         d3.select('.toggleEditModeContainer').on('click', function() {
             if (d3.select('.layer-telenav').classed('editMode')) {
                 d3.select('.layer-telenav').classed('editMode', false);
@@ -566,6 +680,8 @@ iD.TelenavLayer = function (context) {
             }
             render(d3.select('.layer-telenav'));
         });
+
+        d3.select('.telenavSendComments').on('click', _editPanel.saveComment);
 
     }();
 
