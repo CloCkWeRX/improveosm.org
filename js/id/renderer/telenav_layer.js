@@ -485,8 +485,52 @@ iD.TelenavLayer = function (context) {
             .data([0]);
 
         var enter = div.enter().append('div')
-            .attr('class', 'pane-telenav hidden');
+            .attr('class', 'pane-telenav col4 hidden');
+        var telenavWrapPanel = enter.append('div')
+            .attr('class', 'telenav-wrap');
+        var telenavWrap = telenavWrapPanel.append('div')
+            .attr('class', 'telenavwrap');
 
+        //  START 1st container div
+        var generalSettingsWindow = telenavWrap.append('div')
+            .attr('id', 'generalSettingsWindow')
+            .attr('class', 'entity-editor-pane pane');
+        generalSettingsWindow.append('div')
+            .attr('class', 'header fillL cf')
+            .append('h3')
+            .text('Telenav Pane');
+        var generalSettingsBody = generalSettingsWindow.append('div')
+            .attr('class', 'telenav-body');
+        var generalSettingsInner = generalSettingsBody.append('div')
+            .attr('class', 'preset-list-item inspector-inner');
+        var generalSettingsButtonWrap = generalSettingsInner.append('div')
+            .attr('class', 'preset-list-button-wrap')
+            .attr('id', 'toggleEditMode')
+            .on('click', function(){
+                var label = generalSettingsButtonWrap.select('.label')
+                if(label.classed('off')){
+                    generalSettingsButtonWrap.select('.label')
+                        .text('Edit Mode On')
+                        .classed('off', false)
+                } else {
+                    generalSettingsButtonWrap.select('.label')
+                        .text('Edit Mode Off')
+                        .classed('off', true)
+                }
+            });
+
+        var generalSettingsButton = generalSettingsButtonWrap.append('button')
+            .attr('class', 'preset-list-button preset-reset');
+        generalSettingsButton.append('div')
+            .attr('class', 'label off')
+            .text('Edit Mode Off');
+        generalSettingsButton.append('div')
+            .attr('class', 'preset-icon preset-icon-32')
+            .append('svg')
+            .attr('class', 'icon')
+            .call(iD.svg.Icon('#icon-apply'));
+
+        /*
         var toggleEditModeContainer = enter.append('div')
             .attr('class', 'toggleEditModeContainer');
 
@@ -682,7 +726,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox');
         $restriction_probableContainer.append('label')
             .attr('for', 'C2')
-            .text('Probable');
+            .text('Probable');*/
 
         var toggleEditModeContainer = enter.append('textarea')
             .attr('class', 'telenavComments');
