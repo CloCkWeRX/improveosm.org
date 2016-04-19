@@ -346,7 +346,11 @@ iD.TelenavLayer = function (context) {
         generalSettingsWindow.append('div')
             .attr('class', 'header fillL cf')
             .append('h3')
-            .text('Telenav Pane');
+            .text('Telenav Pane')
+            .on('click', function() {
+                telenavWrap.transition()
+                    .style('right', '0');
+            });
         var generalSettingsBody = generalSettingsWindow.append('div')
             .attr('class', 'telenav-body');
         var generalSettingsInner = generalSettingsBody.append('div')
@@ -377,6 +381,205 @@ iD.TelenavLayer = function (context) {
             .append('svg')
             .attr('class', 'icon')
             .call(iD.svg.Icon('#icon-apply'));
+
+        var containerBorder = generalSettingsBody.append('div')
+            .attr('class', 'inspector-border inspector-preset')
+            .append('div');
+        var presetFormContainer = containerBorder.append('div')
+            .attr('class', 'preset-form inspector-inner fillL3');
+
+        var presetForm = presetFormContainer.append('div')
+            .attr('class', 'form-field');
+        presetForm.append('label')
+            .attr('class', 'form-label')
+            .text('Reported Status');
+        var statusForm = presetForm.append('form')
+            .attr('class', 'filterForm optionsContainer');
+        var statusDivOpen = statusForm.append('div')
+            .attr('class', 'tel_displayInline');
+        statusDivOpen.append('label')
+            .attr('for', 'OPEN')
+            .text('open');
+        statusDivOpen.append('input')
+            .attr('type', 'radio')
+            .attr('id', 'OPEN')
+            .attr('class', 'filterItem')
+            .attr('name', 'filter');
+
+        var statusDivSolved = statusForm.append('div')
+            .attr('class', 'tel_displayInline');
+        statusDivSolved.append('label')
+            .attr('for', 'SOLVED')
+            .text('solved');
+        statusDivSolved.append('input')
+            .attr('type', 'radio')
+            .attr('id', 'SOLVED')
+            .attr('class', 'filterItem')
+            .attr('name', 'filter');
+
+        var statusDivInvalid = statusForm.append('div')
+            .attr('class', 'tel_displayInline');
+        statusDivInvalid.append('label')
+            .attr('for', 'INVALID')
+            .text('invalid');
+        statusDivInvalid.append('input')
+            .attr('type', 'radio')
+            .attr('id', 'INVALID')
+            .attr('class', 'filterItem')
+            .attr('name', 'filter');
+        //  END 1st container div
+
+        //  START 2st container div
+        var optionsWindow = telenavWrap.append('div')
+            .attr('id', 'optionsWindow')
+            .attr('class', 'entity-editor-pane pane');
+        optionsWindow.append('div')
+            .attr('class', 'header fillL cf')
+            .append('h3')
+            .text('Telenav Layers');
+        var optionsWindowBody = optionsWindow.append('div')
+            .attr('class', 'telenav-body');
+        var optionsWindowInner = optionsWindowBody.append('div')
+            .attr('class', 'inspector-border inspector-preset')
+            .append('div');
+        var optionsContainer = optionsWindowInner.append('div')
+            .attr('class', 'preset-form inspector-inner fillL3');
+
+        var direction_form = optionsContainer.append('div')
+            .attr('class', 'form-field');
+        direction_form.append('label')
+            .attr('class', 'form-label')
+            .attr('for', 'oneWayConfidence')
+            .text('One Way Confidence')
+            .append('div')
+            .attr('class', 'form-label-button-wrap')
+            .append('div')
+            .attr('class', 'input')
+            .append('input')
+            .attr('type', 'checkbox')
+            .attr('class', 'filterActivation')
+            .attr('id', 'oneWayConfidence');
+        var direction_formWrap = direction_form.append('form')
+            .attr('class', 'filterForm optionsContainer');
+        var direction_highlyProbableContainer = direction_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        direction_highlyProbableContainer.append('input')
+            .attr('id', 'C1')
+            .attr('type', 'checkbox');
+        direction_highlyProbableContainer.append('label')
+            .attr('for', 'C1')
+            .text('Highly Probable');
+        var $direction_mostLikelyContainer = direction_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        $direction_mostLikelyContainer.append('input')
+            .attr('id', 'C2')
+            .attr('type', 'checkbox');
+        $direction_mostLikelyContainer.append('label')
+            .attr('for', 'C2')
+            .text('Most Likely');
+        var $direction_probableContainer = direction_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        $direction_probableContainer.append('input')
+            .attr('id', 'C3')
+            .attr('type', 'checkbox');
+        $direction_probableContainer.append('label')
+            .attr('for', 'C3')
+            .text('Probable');
+
+        var missing_form = optionsContainer.append('div')
+            .attr('class', 'form-field');
+        missing_form.append('label')
+            .attr('class', 'form-label')
+            .attr('for', 'missingRoadType')
+            .text('Missing road type')
+            .append('div')
+            .attr('class', 'form-label-button-wrap')
+            .append('div')
+            .attr('class', 'input')
+            .append('input')
+            .attr('type', 'checkbox')
+            .attr('class', 'filterActivation')
+            .attr('id', 'missingRoadType');
+        var missing_formWrap = missing_form.append('form')
+            .attr('class', 'filterForm optionsContainer');
+        var missing_roadContainer = missing_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        missing_roadContainer.append('input')
+            .attr('id', 'ROAD')
+            .attr('type', 'checkbox');
+        missing_roadContainer.append('label')
+            .attr('for', 'ROAD')
+            .text('Road');
+        var missing_parkingContainer = missing_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        missing_parkingContainer.append('input')
+            .attr('id', 'PARKING')
+            .attr('type', 'checkbox');
+        missing_parkingContainer.append('label')
+            .attr('for', 'PARKING')
+            .text('Parking');
+        var missing_bothContainer = missing_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        missing_bothContainer.append('input')
+            .attr('id', 'BOTH')
+            .attr('type', 'checkbox');
+        missing_bothContainer.append('label')
+            .attr('for', 'BOTH')
+            .text('Both');
+        missing_formWrap.append('label')
+            .attr('class', 'form-subLabel tel_displayBlock')
+            .text('Filters');
+        var missing_waterContainer = missing_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        missing_waterContainer.append('input')
+            .attr('id', 'WATER')
+            .attr('type', 'checkbox');
+        missing_waterContainer.append('label')
+            .attr('for', 'WATER')
+            .text('Water Trail');
+        var missing_pathContainer = missing_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        missing_pathContainer.append('input')
+            .attr('id', 'PATH')
+            .attr('type', 'checkbox');
+        missing_pathContainer.append('label')
+            .attr('for', 'PATH')
+            .text('Path Trail');
+
+
+        var restriction_form = optionsContainer.append('div')
+            .attr('class', 'form-field');
+        restriction_form.append('label')
+            .attr('class', 'form-label')
+            .attr('for', 'missingRoadType')
+            .text('Missing road type')
+            .append('div')
+            .attr('class', 'form-label-button-wrap')
+            .append('div')
+            .attr('class', 'input')
+            .append('input')
+            .attr('type', 'checkbox')
+            .attr('class', 'filterActivation')
+            .attr('id', 'missingRoadType');
+        var restriction_formWrap = restriction_form.append('form')
+            .attr('class', 'filterForm optionsContainer');
+        var restriction_highlyProbableContainer = restriction_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        restriction_highlyProbableContainer.append('input')
+            .attr('id', 'C1')
+            .attr('type', 'checkbox');
+        restriction_highlyProbableContainer.append('label')
+            .attr('for', 'C1')
+            .text('Highly Probable');
+        var restriction_probableContainer = restriction_formWrap.append('div')
+            .attr('class', 'tel_displayInline');
+        restriction_probableContainer.append('input')
+            .attr('id', 'C2')
+            .attr('type', 'checkbox');
+        restriction_probableContainer.append('label')
+            .attr('for', 'C2')
+            .text('Probable');
+
 
         /*
         var toggleEditModeContainer = enter.append('div')
@@ -481,7 +684,8 @@ iD.TelenavLayer = function (context) {
             .attr('id', 'MISSING_FILTER')
             .attr('class', 'tel_displayBlock');
 
-        $missingFilterContainer                    .append('input')
+        $missingFilterContainer
+            .append('input')
             .attr('type', 'checkbox')
             .attr('class', 'filterActivation')
             .attr('id', 'missingRoadType');

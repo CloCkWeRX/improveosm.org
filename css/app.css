@@ -657,16 +657,23 @@ button.save.has-count .count::before {
 ------------------------------------------------------- */
 .telenavwrap {
     position: absolute;
-    width: 200%;
+    width: 300%;
     height: 100%;
+    right: -200%;
+    /*right: 0;*/
+    transition-duration: 0.3s;
+}
+.telenavwrap .pane {
+    width: 33.33%;
 }
 .pane-telenav {
     position: absolute;
     bottom: 15px;
     z-index: 1000;
     height: 250px;
+    overflow: hidden;
 }
-#generalSettingsWindow .header {
+.telenavwrap .header {
     border-top: 1px solid #eee;
 }
 .telenav-body{
@@ -684,6 +691,45 @@ button.save.has-count .count::before {
 }
 #toggleEditMode .preset-list-button:hover .label  {
     background: #f6f6f6;
+}
+.telenavwrap .optionsContainer{
+    overflow-y: hidden;
+    border-radius: 0 0 4px 4px;
+    border-width: 0 1px 1px;
+    border-color: #ccc;
+    border-style: none solid solid;
+    background-color: white;
+    padding: 0 0 0 10px;
+}
+label .form-label-button-wrap .input {
+    background: #f6f6f6;
+    border-left: 1px solid #ccc;
+    width: 10%;
+    font-size: 12px;
+    float: right;
+    padding: 5px 10px;
+}
+.form-subLabel {
+    background: #ECECEC;
+    padding: 3px 10px;
+    width: calc(100% + 10px)!important;
+    margin-left: -10px;
+}
+.filterForm div {
+    padding: 5px 6px;
+    margin-right: 0;
+}
+.filterForm div:first-child{
+    padding-left: 0;
+}
+.filterForm div:last-child{
+    padding-right: 0;
+}
+.filterForm div:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+.filterForm label {
+    font-size: 12px;
 }
 
 .tel_displayInline{
