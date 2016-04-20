@@ -379,7 +379,9 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         statusUpdate_openContainer.append('input')
             .attr('id', 'ch_open')
-            .attr('type', 'checkbox');
+            .attr('name', 'changeStatus')
+            .attr('value', 'OPEN')
+            .attr('type', 'radio');
         statusUpdate_openContainer.append('label')
             .attr('for', 'ch_open')
             .text('Open');
@@ -387,7 +389,9 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         statusUpdate_solvedContainer.append('input')
             .attr('id', 'ch_solved')
-            .attr('type', 'checkbox');
+            .attr('name', 'changeStatus')
+            .attr('value', 'SOLVED')
+            .attr('type', 'radio');
         statusUpdate_solvedContainer.append('label')
             .attr('for', 'ch_solved')
             .text('Solved');
@@ -395,10 +399,12 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         statusUpdate_invalidContainer.append('input')
             .attr('id', 'ch_invalid')
-            .attr('type', 'checkbox');
+            .attr('name', 'changeStatus')
+            .attr('value', 'INVALID')
+            .attr('type', 'radio');
         statusUpdate_invalidContainer.append('label')
             .attr('for', 'ch_invalid')
-            .text('Probable');
+            .text('Invalid');
 
         var comments_form = userContainer.append('div')
             .attr('class', 'form-field');
