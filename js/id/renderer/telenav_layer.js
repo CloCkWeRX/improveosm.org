@@ -12,7 +12,7 @@ iD.TelenavLayer = function (context) {
         tr: 'http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/search'
     };
 
-    var selectedTypes = [];
+    var selectedTypes = ['dof', 'mr', 'tr'];
 
     // ==============================
     // ==============================
@@ -604,10 +604,12 @@ iD.TelenavLayer = function (context) {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode On')
                         .classed('off', false)
+                    d3.select('.layer-telenav').classed('editMode', true);
                 } else {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode Off')
                         .classed('off', true)
+                    d3.select('.layer-telenav').classed('editMode', false);
                 }
             });
 
@@ -706,6 +708,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
             .attr('id', 'oneWayConfidence');
         var direction_formWrap = direction_form.append('form')
@@ -747,6 +750,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
             .attr('id', 'missingRoadType');
         var missing_formWrap = missing_form.append('form')
@@ -801,15 +805,16 @@ iD.TelenavLayer = function (context) {
         restriction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
-            .text('Missing road type')
+            .text('Turn restriction Confidence')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'missingRoadType');
+            .attr('id', 'turnRestrictionConfidence');
         var restriction_formWrap = restriction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var restriction_highlyProbableContainer = restriction_formWrap.append('div')
