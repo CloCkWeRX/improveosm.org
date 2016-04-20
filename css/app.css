@@ -659,12 +659,15 @@ button.save.has-count .count::before {
     position: absolute;
     width: 300%;
     height: 100%;
+    /*right: -100%;*/
     right: -200%;
-    /*right: 0;*/
-    transition-duration: 0.3s;
+    transition: transform .3s ease-in-out;
 }
 .telenavwrap .pane {
     width: 33.33%;
+}
+.pane-middle {
+    left: 33.33%
 }
 .pane-telenav {
     position: absolute;
@@ -752,7 +755,7 @@ label .form-label-button-wrap .input {
     display: none;
 }
 #sidebar.telenavPaneActive {
-    height: calc(100% - 280px)
+    height: calc(100% - 280px);
 }
 
 .mapillary-image {
