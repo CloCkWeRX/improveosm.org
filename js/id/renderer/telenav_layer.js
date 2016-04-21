@@ -14,6 +14,14 @@ iD.TelenavLayer = function (context) {
 
     var selectedTypes = ['dof', 'mr', 'tr'];
 
+    var dofDetails = ['C1', 'C2', 'C3'];
+    var mrDetails = ['ROAD', 'PARKING', 'BOTH', 'WATER', 'PATH'];
+    var trDetails = ['C1', 'C2'];
+
+    var dofSelectedDetails = ['C1', 'C2', 'C3'];
+    var mrSelectedDetails = ['ROAD', 'PARKING', 'BOTH', 'WATER', 'PATH'];
+    var trSelectedDetails = ['C1', 'C2'];
+
     // ==============================
     // ==============================
     // MapItem
@@ -247,7 +255,7 @@ iD.TelenavLayer = function (context) {
         };
 
         this.saveComment = function() {
-            var comment = d3.select('.telenavComments').property('value');
+            var comment = d3.select('#commentText').property('value');
 
             for (var i = 0; i < selectedItems.length; i++) {
                 var currentItem = selectedItems[i];
@@ -451,13 +459,28 @@ iD.TelenavLayer = function (context) {
 
         var requestUrlQueue = [];
         for (var i = 0; i < selectedTypes.length; i++) {
-            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments);
+            var typesFragments = '';
+            switch (selectedTypes[i]) {
+                case 'dof':
+                    typesFragments += '&confidenceLevel=';
+                    typesFragments += dofSelectedDetails.join('%2C');
+                    break;
+                case 'mr':
+                    typesFragments += '&type=';
+                    typesFragments += mrSelectedDetails.join('%2C');
+                    break;
+                case 'tr':
+                    typesFragments += '&confidenceLevel=';
+                    typesFragments += trSelectedDetails.join('%2C');
+                    break;
+            }
+            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments);
         }
 
         requestCount = requestUrlQueue.length;
         combinedItems.length = 0;
 
-        if (zoom > 14) {
+        if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
@@ -524,11 +547,13 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label-button-wrap')
             .append('button')
             .attr('class', 'save-icon')
+            .attr('id', 'saveStatus')
             .call(iD.svg.Icon('#icon-save'));
         var statusUpdate_formWrap = statusUpdate_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var statusUpdate_openContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setOpen');
         statusUpdate_openContainer.append('input')
             .attr('id', 'ch_open')
             .attr('name', 'changeStatus')
@@ -538,7 +563,8 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'ch_open')
             .text('Open');
         var statusUpdate_solvedContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setSolved');
         statusUpdate_solvedContainer.append('input')
             .attr('id', 'ch_solved')
             .attr('name', 'changeStatus')
@@ -548,7 +574,8 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'ch_solved')
             .text('Solved');
         var statusUpdate_invalidContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setInvalid');
         statusUpdate_invalidContainer.append('input')
             .attr('id', 'ch_invalid')
             .attr('name', 'changeStatus')
@@ -567,9 +594,11 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label-button-wrap')
             .append('button')
             .attr('class', 'save-icon')
+            .attr('id', 'saveComment')
             .call(iD.svg.Icon('#icon-save'));
         comments_form.append('textarea')
-            .attr('class', 'commentText');
+            .attr('class', 'commentText')
+            .attr('id', 'commentText');
 
         //  END 3rd container div
 
@@ -703,7 +732,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'preset-form inspector-inner fillL3');
 
         var direction_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'dofFilter');
         direction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'oneWayConfidence')
@@ -723,7 +753,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_highlyProbableContainer.append('input')
             .attr('id', 'C1')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_highlyProbableContainer.append('label')
             .attr('for', 'C1')
             .text('Highly Probable');
@@ -731,7 +762,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_mostLikelyContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_mostLikelyContainer.append('label')
             .attr('for', 'C2')
             .text('Most Likely');
@@ -739,13 +771,15 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_probableContainer.append('input')
             .attr('id', 'C3')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_probableContainer.append('label')
             .attr('for', 'C3')
             .text('Probable');
 
         var missing_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'mrFilter');
         missing_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
@@ -765,7 +799,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_roadContainer.append('input')
             .attr('id', 'ROAD')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_roadContainer.append('label')
             .attr('for', 'ROAD')
             .text('Road');
@@ -773,7 +808,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_parkingContainer.append('input')
             .attr('id', 'PARKING')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_parkingContainer.append('label')
             .attr('for', 'PARKING')
             .text('Parking');
@@ -781,7 +817,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_bothContainer.append('input')
             .attr('id', 'BOTH')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_bothContainer.append('label')
             .attr('for', 'BOTH')
             .text('Both');
@@ -792,7 +829,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_waterContainer.append('input')
             .attr('id', 'WATER')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_waterContainer.append('label')
             .attr('for', 'WATER')
             .text('Water Trail');
@@ -800,14 +838,16 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_pathContainer.append('input')
             .attr('id', 'PATH')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_pathContainer.append('label')
             .attr('for', 'PATH')
             .text('Path Trail');
 
 
         var restriction_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'trFilter');
         restriction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
@@ -827,7 +867,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         restriction_highlyProbableContainer.append('input')
             .attr('id', 'C1')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         restriction_highlyProbableContainer.append('label')
             .attr('for', 'C1')
             .text('Highly Probable');
@@ -835,7 +876,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         restriction_probableContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         restriction_probableContainer.append('label')
             .attr('for', 'C2')
             .text('Probable');
@@ -873,8 +915,78 @@ iD.TelenavLayer = function (context) {
         d3.select('#oneWayConfidence').on('click', function() {
             if (d3.select('#oneWayConfidence').property('checked')) {
                 selectedTypes.push('dof');
+                //---
+                dofSelectedDetails = dofDetails.slice(0);
+                d3.select('#dofFilter #C1').property('checked', true);
+                d3.select('#dofFilter #C2').property('checked', true);
+                d3.select('#dofFilter #C3').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                //---
+                dofSelectedDetails.length = 0;
+                d3.select('#dofFilter #C1').property('checked', false);
+                d3.select('#dofFilter #C2').property('checked', false);
+                d3.select('#dofFilter #C3').property('checked', false);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#dofFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
+            if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#oneWayConfidence').property('checked')) {
+                    d3.select('#oneWayConfidence').property('checked', true);
+                    selectedTypes.push('dof');
+                }
+                dofSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#oneWayConfidence').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                }
+                dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#mrFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
+            if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#missingRoadType').property('checked')) {
+                    d3.select('#missingRoadType').property('checked', true);
+                    selectedTypes.push('mr');
+                }
+                mrSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#missingRoadType').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                }
+                mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#trFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#trFilter form input')[0];
+            if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#turnRestrictionConfidence').property('checked')) {
+                    d3.select('#turnRestrictionConfidence').property('checked', true);
+                    selectedTypes.push('tr');
+                }
+                trSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#turnRestrictionConfidence').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                }
+                trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
             }
             render(d3.select('.layer-telenav'));
         });
@@ -882,8 +994,22 @@ iD.TelenavLayer = function (context) {
         d3.select('#missingRoadType').on('click', function() {
             if (d3.select('#missingRoadType').property('checked')) {
                 selectedTypes.push('mr');
+                //---
+                mrSelectedDetails = mrDetails.slice(0);
+                d3.select('#mrFilter #ROAD').property('checked', true);
+                d3.select('#mrFilter #PARKING').property('checked', true);
+                d3.select('#mrFilter #BOTH').property('checked', true);
+                d3.select('#mrFilter #WATER').property('checked', true);
+                d3.select('#mrFilter #PATH').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                //---
+                mrSelectedDetails.length = 0;
+                d3.select('#mrFilter #ROAD').property('checked', false);
+                d3.select('#mrFilter #PARKING').property('checked', false);
+                d3.select('#mrFilter #BOTH').property('checked', false);
+                d3.select('#mrFilter #WATER').property('checked', false);
+                d3.select('#mrFilter #PATH').property('checked', false);
             }
             render(d3.select('.layer-telenav'));
         });
@@ -891,21 +1017,29 @@ iD.TelenavLayer = function (context) {
         d3.select('#turnRestrictionConfidence').on('click', function() {
             if (d3.select('#turnRestrictionConfidence').property('checked')) {
                 selectedTypes.push('tr');
+                //---
+                trSelectedDetails = trDetails.slice(0);
+                d3.select('#trFilter #C1').property('checked', true);
+                d3.select('#trFilter #C2').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                //---
+                trSelectedDetails.length = 0;
+                d3.select('#trFilter #C1').property('checked', false);
+                d3.select('#trFilter #C2').property('checked', false);
             }
             render(d3.select('.layer-telenav'));
         });
 
-        d3.select('.telenavSendComments').on('click', _editPanel.saveComment);
+        d3.select('#saveComment').on('click', _editPanel.saveComment);
 
-        d3.select('.closedButton').on('click', function() {
+        d3.select('#setSolved').on('click', function() {
             _editPanel.setStatus.call(_editPanel, 'SOLVED');
         });
-        d3.select('.openedButton').on('click', function() {
+        d3.select('#setOpen').on('click', function() {
             _editPanel.setStatus.call(_editPanel, 'OPEN');
         });
-        d3.select('.invalidButton').on('click', function() {
+        d3.select('#setInvalid').on('click', function() {
             _editPanel.setStatus.call(_editPanel, 'INVALID');
         });
 
