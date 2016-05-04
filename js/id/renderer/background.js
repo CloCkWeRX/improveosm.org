@@ -5,9 +5,6 @@ iD.Background = function(context) {
         gpxLayer = iD.GpxLayer(context, dispatch)
             .projection(context.projection),
         mapillaryLayer = iD.MapillaryLayer(context),
-        telenavLayerTR = iD.TelenavLayerTR(context),
-        telenavLayerMR = iD.TelenavLayerMR(context),
-        telenavLayerDOF = iD.TelenavLayerDOF(context),
         telenavPane = iD.TelenavPane(context),
         telenavLayer = iD.TelenavLayer(context),
         overlayLayers = [];
@@ -103,30 +100,6 @@ iD.Background = function(context) {
 
         telenavPaneLayer.call(telenavPane);
 
-        var telenavTR = selection.selectAll('.layer-telenav-tr')
-            .data([0]);
-
-        telenavTR.enter().insert('div')
-            .attr('class', 'layer-layer layer-telenav-tr');
-
-        telenavTR.call(telenavLayerTR);
-
-        var telenavMR = selection.selectAll('.layer-telenav-mr')
-            .data([0]);
-
-        telenavMR.enter().insert('div')
-            .attr('class', 'layer-layer layer-telenav-mr');
-
-        telenavMR.call(telenavLayerMR);
-
-        var telenavDOF = selection.selectAll('.layer-telenav-dof')
-            .data([0]);
-
-        telenavDOF.enter().insert('div')
-            .attr('class', 'layer-layer layer-telenav-dof');
-
-        telenavDOF.call(telenavLayerDOF);
-
         var telenav = selection.selectAll('.layer-telenav')
             .data([0]);
 
@@ -146,9 +119,6 @@ iD.Background = function(context) {
         baseLayer.dimensions(_);
         gpxLayer.dimensions(_);
         mapillaryLayer.dimensions(_);
-        telenavLayerTR.dimensions(_);
-        telenavLayerMR.dimensions(_);
-        telenavLayerDOF.dimensions(_);
         telenavPane.dimensions(_);
         telenavLayer.dimensions(_);
 
@@ -229,33 +199,6 @@ iD.Background = function(context) {
 
     background.toggleMapillaryLayer = function() {
         mapillaryLayer.enable(!mapillaryLayer.enable());
-        dispatch.change();
-    };
-
-    background.showsTelenavLayerTR = function() {
-        return telenavLayerTR.enable();
-    };
-
-    background.toggleTelenavLayerTR = function() {
-        telenavLayerTR.enable(!telenavLayerTR.enable());
-        dispatch.change();
-    };
-
-    background.showsTelenavLayerMR = function() {
-        return telenavLayerMR.enable();
-    };
-
-    background.toggleTelenavLayerMR = function() {
-        telenavLayerMR.enable(!telenavLayerMR.enable());
-        dispatch.change();
-    };
-
-    background.showsTelenavLayerDOF = function() {
-        return telenavLayerDOF.enable();
-    };
-
-    background.toggleTelenavLayerDOF = function() {
-        telenavLayerDOF.enable(!telenavLayerDOF.enable());
         dispatch.change();
     };
 
