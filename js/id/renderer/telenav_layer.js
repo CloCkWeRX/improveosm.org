@@ -4,6 +4,7 @@ iD.TelenavLayer = function (context) {
         requestQueue = [],
         combinedItems = [],
         selectedItems = [],
+        status = 'OPEN',
         requestCount;
 
     var types = {
@@ -85,12 +86,14 @@ iD.TelenavLayer = function (context) {
     MapItem.handleMouseOver = function(item) {
         var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
             .classed('highlightOn', true)
-            .classed('highlightOff', false);
+            .classed('highlightOff', false)
+            .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
     };
     MapItem.handleMouseOut = function(item) {
         var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
             .classed('highlightOn', false)
-            .classed('highlightOff', true);
+            .classed('highlightOff', true)
+            .attr('marker-end', null);
     };
     // ==============================
     // ==============================
@@ -363,6 +366,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker)');
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -373,6 +377,7 @@ iD.TelenavLayer = function (context) {
 
             var trPoly = tRs.append('polyline');
             trPoly.attr('points', TurnRestrictionItem.transformLinePoints);
+            trPoly.attr('marker-end', 'url(#telenav-arrow-marker)');
             var trCircle = tRs.append('circle');
             trCircle.attr('cx', TurnRestrictionItem.transformX);
             trCircle.attr('cy', TurnRestrictionItem.transformY);
@@ -474,7 +479,7 @@ iD.TelenavLayer = function (context) {
                     typesFragments += trSelectedDetails.join('%2C');
                     break;
             }
-            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments);
+            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status);
         }
 
         requestCount = requestUrlQueue.length;
@@ -671,7 +676,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label')
             .text('Reported Status');
         var statusForm = presetForm.append('form')
-            .attr('class', 'filterForm optionsContainer');
+            .attr('class', 'filterForm optionsContainer')
+            .attr('id', 'statusFilter');
         var statusDivOpen = statusForm.append('div')
             .attr('class', 'tel_displayInline');
         statusDivOpen.append('label')
@@ -681,7 +687,8 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'radio')
             .attr('id', 'OPEN')
             .attr('class', 'filterItem')
-            .attr('name', 'filter');
+            .attr('name', 'filter')
+            .attr('checked', 'checked');
 
         var statusDivSolved = statusForm.append('div')
             .attr('class', 'tel_displayInline');
@@ -1028,6 +1035,11 @@ iD.TelenavLayer = function (context) {
                 d3.select('#trFilter #C1').property('checked', false);
                 d3.select('#trFilter #C2').property('checked', false);
             }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#statusFilter input').on('click', function() {
+            status = d3.event.currentTarget.id;
             render(d3.select('.layer-telenav'));
         });
 

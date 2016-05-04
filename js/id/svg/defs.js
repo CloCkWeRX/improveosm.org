@@ -37,6 +37,42 @@ iD.svg.Defs = function(context) {
             .attr('fill', '#000')
             .attr('opacity', '0.5');
 
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#f00')
+            .attr('opacity', '1');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-selected-arrow-marker',
+                viewBox: '0 0 3 3',
+                refY: 1,
+                refX: 0,
+                markerWidth: 3,
+                markerHeight: 3,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-selected-arrow-marker')
+            .attr('d', 'M0,0 L0,2 L3,1 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#008000')
+            .attr('opacity', '0.6');
+
         // patterns
         var patterns = defs.selectAll('pattern')
             .data([
