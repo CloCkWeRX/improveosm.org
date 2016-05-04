@@ -209,101 +209,134 @@ iD.TelenavLayer = function (context) {
         };
 
         this.setStatus = function(status) {
-            status = status.toUpperCase();
-            for (var i = 0; i < selectedItems.length; i++) {
-                var currentItem = selectedItems[i];
 
-                var dataToPost = {
-                    username: 'Tudor009',
-                    text: 'status changed',
-                    status: status
-                };
-
-                var responseHandler = function(err, rawData) {
-                    var data = JSON.parse(rawData.response);
-                    console.log("got response", data);
-                };
-
-                switch (currentItem.getClass()) {
-                    case 'DirectionOfFlowItem':
-                        dataToPost.roadSegments = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
-                    case 'MissingRoadItem':
-                        dataToPost.tiles = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
-                    case 'TurnRestrictionItem':
-                        dataToPost.targetIds = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
+            context.connection().userDetails(function(err, user) {
+                if (err) {
+                    alert('Please log in...');
+                    return;
                 }
 
-            }
+                //var userLink = d3.select(document.createElement('div'));
+                //
+                //if (user.image_url) {
+                //    userLink.append('img')
+                //        .attr('src', user.image_url)
+                //        .attr('class', 'icon pre-text user-icon');
+                //}
+                //
+                //userLink.append('a')
+                //    .attr('class','user-info')
+                //    .text(user.display_name)
+                //    .attr('href', context.connection().userURL(user.display_name))
+                //    .attr('tabindex', -1)
+                //    .attr('target', '_blank');
+                //
+                //prose.html(t('commit.upload_explanation_with_user', {user: userLink.html()}));
+
+                status = status.toUpperCase();
+                for (var i = 0; i < selectedItems.length; i++) {
+                    var currentItem = selectedItems[i];
+
+                    var dataToPost = {
+                        username: user.display_name,
+                        text: 'status changed',
+                        status: status
+                    };
+
+                    var responseHandler = function(err, rawData) {
+                        var data = JSON.parse(rawData.response);
+                        console.log("got response", data);
+                    };
+
+                    switch (currentItem.getClass()) {
+                        case 'DirectionOfFlowItem':
+                            dataToPost.roadSegments = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'MissingRoadItem':
+                            dataToPost.tiles = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'TurnRestrictionItem':
+                            dataToPost.targetIds = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                    }
+
+                }
+            });
+
         };
 
         this.saveComment = function() {
-            var comment = d3.select('#commentText').property('value');
 
-            for (var i = 0; i < selectedItems.length; i++) {
-                var currentItem = selectedItems[i];
-
-                var dataToPost = {
-                    username: 'Tudor009',
-                    text: comment
-                };
-
-                var responseHandler = function(err, rawData){
-                    var data = JSON.parse(rawData.response);
-                    console.log("got response", data);
-                };
-
-                switch (currentItem.getClass()) {
-                    case 'DirectionOfFlowItem':
-                        dataToPost.roadSegments = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
-                    case 'MissingRoadItem':
-                        dataToPost.tiles = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
-                    case 'TurnRestrictionItem':
-                        dataToPost.targetIds = currentItem.getIdentifier();
-                        d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
-                            .header("Content-Type", "application/json")
-                            .post(
-                                JSON.stringify(dataToPost),
-                                responseHandler
-                            );
-                        break;
+            context.connection().userDetails(function(err, user) {
+                if (err) {
+                    alert('Please log in...');
+                    return;
                 }
+                var comment = d3.select('#commentText').property('value');
 
-            }
+                for (var i = 0; i < selectedItems.length; i++) {
+                    var currentItem = selectedItems[i];
+
+                    var dataToPost = {
+                        username: 'Tudor009',
+                        text: comment
+                    };
+
+                    var responseHandler = function (err, rawData) {
+                        var data = JSON.parse(rawData.response);
+                        console.log("got response", data);
+                    };
+
+                    switch (currentItem.getClass()) {
+                        case 'DirectionOfFlowItem':
+                            dataToPost.roadSegments = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'MissingRoadItem':
+                            dataToPost.tiles = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'TurnRestrictionItem':
+                            dataToPost.targetIds = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                    }
+
+                }
+            });
         };
 
     };
