@@ -82,6 +82,11 @@ iD.TelenavLayer = function (context) {
             }
         }
         d3.event.stopPropagation();
+        if (selectedItems.length === 0) {
+            _editPanel.goToMain();
+        } else {
+            _editPanel.goToEdit();
+        }
     };
     MapItem.handleMouseOver = function(item) {
         var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
@@ -143,12 +148,13 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var MissingRoadItem = function(rawItemData) {
         this._className = 'MissingRoadItem';
-        this._id = ('mr_' + rawItemData.lat + '_' + rawItemData.lon).replace(/\./g,'_');
-        this.getLat = function() {
-            return rawItemData.lat;
+        this._id = ('mr_' + rawItemData.x + '_' + rawItemData.y).replace(/\./g,'_');
+        this._points = rawItemData.points;
+        this.getX = function() {
+            return rawItemData.x;
         };
-        this.getLon = function() {
-            return rawItemData.lon;
+        this.getY = function() {
+            return rawItemData.y;
         };
         this.getIdentifier = function() {
             return [{
@@ -158,12 +164,13 @@ iD.TelenavLayer = function (context) {
         }
     };
     MissingRoadItem.prototype = new MapItem();
-    MissingRoadItem.transformX = function(item) {
-        return Math.floor(context.projection([item.getLon(), item.getLat()])[0]);
+    MissingRoadItem.computeX = function(lat, lon) {
+        return Math.floor(context.projection([lon, lat])[0]);
     };
-    MissingRoadItem.transformY = function(item) {
-        return Math.floor(context.projection([item.getLon(), item.getLat()])[1]);
+    MissingRoadItem.computeY = function(lat, lon) {
+        return Math.floor(context.projection([lon, lat])[1]);
     };
+
     // ==============================
     // ==============================
     // DirectionOfFlowItem
@@ -200,12 +207,66 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var EditPanel = function() {
 
+        this._location = 'MAIN';
+
+        //get the width of the panel for animation effect
+        this._panelWidth = function(){
+            return parseInt(d3.select('.telenav-wrap').style('width'));
+        }
+
+        this.getLocation = function() {
+            return this._location;
+        };
+
         this.show = function() {
 
         };
 
         this.renderMessage = function() {
 
+        };
+
+        this.goToMain = function() {
+            d3.select('.telenavwrap')
+                .transition()
+                .style('transform', 'translate3d(0px, 0px,  0px)');
+            this._location = 'MAIN';
+        };
+
+        this.goToEdit = function() {
+            switch (this.getLocation()) {
+                case 'MAIN':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'EDIT':
+                    break;
+                case 'MORE':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+            }
+            this._location = 'EDIT';
+        };
+
+        this.goToMore = function() {
+            switch (this.getLocation()) {
+                case 'MAIN':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(-' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'EDIT':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(-' + 2 * this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'MORE':
+                    break;
+            }
+            this._location = 'MORE';
         };
 
         this.setStatus = function(status) {
@@ -354,11 +415,9 @@ iD.TelenavLayer = function (context) {
         }
         if (data.hasOwnProperty('tiles')) {
             for (var i = 0; i < data.tiles.length; i++) {
-                for (var j= 0; j < data.tiles[i].points.length; j++) {
-                    combinedItems.push(new MissingRoadItem(
-                        data.tiles[i].points[j]
-                    ));
-                }
+                combinedItems.push(new MissingRoadItem(
+                    data.tiles[i]
+                ));
             }
         }
         if (data.hasOwnProperty('entities')) {
@@ -403,10 +462,15 @@ iD.TelenavLayer = function (context) {
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
-            var mrCircle = mRs.append('circle');
-            mrCircle.attr('cx', MissingRoadItem.transformX);
-            mrCircle.attr('cy', MissingRoadItem.transformY);
-            mrCircle.attr('r', '2');
+            mRs.html(function(d) {
+                var html = '';
+                for (var i = 0; i < d._points.length; i++) {
+                    var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
+                    var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+                }
+                return html;
+            });
 
             var trPoly = tRs.append('polyline');
             trPoly.attr('points', TurnRestrictionItem.transformLinePoints);
@@ -471,9 +535,16 @@ iD.TelenavLayer = function (context) {
         var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline');
         directionOfFlowPolylines.attr('points', DirectionOfFlowItem.transformLinePoints);
 
-        var missingRoadsCircles = svg.selectAll('.MissingRoadItem > circle');
-        missingRoadsCircles.attr('cx', MissingRoadItem.transformX);
-        missingRoadsCircles.attr('cy', MissingRoadItem.transformY);
+        var missingRoadsCircles = svg.selectAll('.MissingRoadItem');
+        missingRoadsCircles.html(function(d) {
+            var html = '';
+            for (var i = 0; i < d._points.length; i++) {
+                var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
+                var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+            }
+            return html;
+        });
 
         var turnRestrictionCircles = svg.selectAll('.TurnRestrictionItem > circle');
         turnRestrictionCircles.attr('cx', TurnRestrictionItem.transformX);
@@ -649,16 +720,16 @@ iD.TelenavLayer = function (context) {
         generalWindowsWindowHeader.append('button')
             .attr('class', 'fl preset-reset preset-choose')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(' + panelWidth() + 'px, 0px,  0px)');
+
             })
             .append('span')
             .html('&#9668;');
         generalWindowsWindowHeader.append('button')
             .attr('class', 'fr preset-reset')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
+                _editPanel.goToMore();
+                //telenavWrap.transition()
+                //    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
             })
             .append('span')
             .html('&#9658;');
@@ -755,8 +826,7 @@ iD.TelenavLayer = function (context) {
         optionsWindowHeader.append('button')
             .attr('class', 'fl preset-reset preset-choose')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(0px, 0px, 0px)');
+                _editPanel.goToMain();
             })
             .append('span')
             .html('&#9668;');
@@ -1087,11 +1157,6 @@ iD.TelenavLayer = function (context) {
         d3.select('#setInvalid').on('click', function() {
             _editPanel.setStatus.call(_editPanel, 'INVALID');
         });
-
-        //get the width of the panel for animation effect
-        var panelWidth = function(){
-            return parseInt(d3.select('.telenav-wrap').style('width'));
-        }
 
     }();
 
