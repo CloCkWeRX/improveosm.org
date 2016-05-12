@@ -23,6 +23,23 @@ iD.TelenavLayer = function (context) {
     var mrSelectedDetails = ['ROAD', 'PARKING', 'BOTH', 'WATER', 'PATH'];
     var trSelectedDetails = ['C1', 'C2'];
 
+    var getTileSquare = function(x, y) {
+        var n = Math.pow(2, 18);// HARD CODING the 18
+        var longitudeMin = x/n * 360 - 180;
+        var lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y/n)));
+        var latitudeMin = lat_rad * 180/Math.PI;
+
+        var longitudeMax = (x + 1)/n * 360 -180;
+        lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1)/n)));
+        var latitudeMax = lat_rad * 180/Math.PI;
+        return {
+            latMax: latitudeMin,
+            latMin: latitudeMax,
+            lonMin: longitudeMin,
+            lonMax: longitudeMax
+        }
+    }
+
     // ==============================
     // ==============================
     // MapItem
@@ -169,6 +186,71 @@ iD.TelenavLayer = function (context) {
     };
     MissingRoadItem.computeY = function(lat, lon) {
         return Math.floor(context.projection([lon, lat])[1]);
+    };
+    MissingRoadItem.transformTileX = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[0]);
+    };
+    MissingRoadItem.transformTileY = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[1]);
+    };
+    MissingRoadItem.transformTileWidth = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startX = Math.floor(context.projection([startLon, startLat])[0]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endX = Math.floor(context.projection([endLon, endLat])[0]);
+        return Math.abs(endX - startX);
+    };
+    MissingRoadItem.transformTileHeight = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startY = Math.floor(context.projection([startLon, startLat])[1]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endY = Math.floor(context.projection([endLon, endLat])[1]);
+        return Math.abs(endY - startY);
+    };
+
+    MissingRoadItem.computeTileX = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[0]);
+    };
+    MissingRoadItem.computeTileY = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[1]);
+    };
+    MissingRoadItem.computeTileWidth = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startX = Math.floor(context.projection([startLon, startLat])[0]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endX = Math.floor(context.projection([endLon, endLat])[0]);
+        return Math.abs(endX - startX);
+    };
+    MissingRoadItem.computeTileHeight = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startY = Math.floor(context.projection([startLon, startLat])[1]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endY = Math.floor(context.projection([endLon, endLat])[1]);
+        return Math.abs(endY - startY);
     };
 
     // ==============================
@@ -472,6 +554,23 @@ iD.TelenavLayer = function (context) {
                 return html;
             });
 
+            var mrRect = mRs.append('rect');
+            mrRect.attr('x', MissingRoadItem.transformTileX);
+            mrRect.attr('y', MissingRoadItem.transformTileY);
+            mrRect.attr('width', MissingRoadItem.transformTileWidth);
+            mrRect.attr('height', MissingRoadItem.transformTileHeight);
+            mrRect.attr('fill', '#044B94');
+            mrRect.attr('fill-opacity', '0.4');
+
+            var mrSelRect = mRs.append('rect');
+            mrSelRect.attr('class', 'highlight')
+            mrSelRect.attr('x', MissingRoadItem.transformTileX);
+            mrSelRect.attr('y', MissingRoadItem.transformTileY);
+            mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
+            mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
+            mrSelRect.attr('fill', '#044B94');
+            mrSelRect.attr('fill-opacity', '0.4');
+
             var trPoly = tRs.append('polyline');
             trPoly.attr('points', TurnRestrictionItem.transformLinePoints);
             trPoly.attr('marker-end', 'url(#telenav-arrow-marker)');
@@ -543,6 +642,13 @@ iD.TelenavLayer = function (context) {
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
                 html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
             }
+            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                + ' fill=' + 'red'
+                + ' fill-opacity=' + '0.4'
+                + '></rect>';
             return html;
         });
 
