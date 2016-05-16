@@ -649,6 +649,14 @@ iD.TelenavLayer = function (context) {
                 + ' fill=' + 'red'
                 + ' fill-opacity=' + '0.4'
                 + '></rect>';
+            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                + ' fill=' + 'red'
+                + ' fill-opacity=' + '0.4'
+                + ' class="highlight"' + '0.4'
+                + '></rect>';
             return html;
         });
 
