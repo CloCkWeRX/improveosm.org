@@ -580,6 +580,7 @@ iD.TelenavLayer = function (context) {
             trCircle.attr('r', '10');
             var trSelPoly = tRs.append('polyline').attr('class', 'highlight');
             trSelPoly.attr('points', TurnRestrictionItem.transformLinePoints);
+            trSelPoly.attr('marker-end', 'url(#telenav-tr-marker)');
             var trSelCircle = tRs.append('circle').attr('class', 'highlight');
             trSelCircle.attr('cx', TurnRestrictionItem.transformX);
             trSelCircle.attr('cy', TurnRestrictionItem.transformY);

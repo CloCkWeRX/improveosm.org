@@ -57,6 +57,26 @@ iD.svg.Defs = function(context) {
 
         defs.append('marker')
             .attr({
+                id: 'telenav-tr-marker',
+                viewBox: '0 0 16 16',
+                refY: 9,
+                refX: 9,
+                markerWidth: 16,
+                markerHeight: 16,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('circle')
+            .attr('class', 'telenav-tr-marker')
+            .attr('cx', '9')
+            .attr('cy', '9')
+            .attr('r', '7')
+            .attr('stroke', 'none')
+            .attr('fill', '#f00')
+            .attr('opacity', '1');
+
+        defs.append('marker')
+            .attr({
                 id: 'telenav-selected-arrow-marker',
                 viewBox: '0 0 3 3',
                 refY: 1,
