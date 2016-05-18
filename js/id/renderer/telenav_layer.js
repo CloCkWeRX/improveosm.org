@@ -89,7 +89,8 @@ iD.TelenavLayer = function (context) {
             }
         } else {
             if (d3.event.ctrlKey) {
-                node.classed('selected', true);
+                node.classed('selected', true)
+                .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
                 selectedItems.push(item);
             } else {
                 svg.selectAll('g').classed('selected', false);
@@ -109,13 +110,15 @@ iD.TelenavLayer = function (context) {
         var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
             .classed('highlightOn', true)
             .classed('highlightOff', false)
-            .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
+            .attr('marker-end', 'url(#telenav-selected-arrow-marker)')
+            .attr('marker-start', 'url(#telenav-selected-arrow-marker)');
     };
     MapItem.handleMouseOut = function(item) {
         var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
             .classed('highlightOn', false)
             .classed('highlightOff', true)
-            .attr('marker-end', null);
+            .attr('marker-end', null)
+            .attr('marker-start', null);
     };
     // ==============================
     // ==============================
@@ -155,6 +158,24 @@ iD.TelenavLayer = function (context) {
                 stringPoints.push(point.toString());
             }
         }
+
+        return stringPoints.join(' ');
+    };
+    TurnRestrictionItem.transformLinePointsOut = function(item) {
+        var stringPoints = [];
+            for (var j = 0; j < item.getSegments()[1].points.length; j++) {
+                var point = context.projection([item.getSegments()[1].points[j].lon, item.getSegments()[1].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
+
+        return stringPoints.join(' ');
+    };
+    TurnRestrictionItem.transformLinePointsIn = function(item) {
+        var stringPoints = [];
+            for (var j = 0; j < item.getSegments()[0].points.length; j++) {
+                var point = context.projection([item.getSegments()[0].points[j].lon, item.getSegments()[0].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
 
         return stringPoints.join(' ');
     };
@@ -571,20 +592,17 @@ iD.TelenavLayer = function (context) {
             mrSelRect.attr('fill', '#044B94');
             mrSelRect.attr('fill-opacity', '0.4');
 
-            var trPoly = tRs.append('polyline');
-            trPoly.attr('points', TurnRestrictionItem.transformLinePoints);
-            trPoly.attr('marker-end', 'url(#telenav-arrow-marker)');
-            var trCircle = tRs.append('circle');
-            trCircle.attr('cx', TurnRestrictionItem.transformX);
-            trCircle.attr('cy', TurnRestrictionItem.transformY);
-            trCircle.attr('r', '10');
-            var trSelPoly = tRs.append('polyline').attr('class', 'highlight');
+            var trSelPoly = tRs.append('polyline').attr('class', 'highlight highlightOff');
             trSelPoly.attr('points', TurnRestrictionItem.transformLinePoints);
-            trSelPoly.attr('marker-end', 'url(#telenav-tr-marker)');
-            var trSelCircle = tRs.append('circle').attr('class', 'highlight');
-            trSelCircle.attr('cx', TurnRestrictionItem.transformX);
-            trSelCircle.attr('cy', TurnRestrictionItem.transformY);
-            trSelCircle.attr('r', '10');
+            var trPolyIn = tRs.append('polyline');
+            trPolyIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
+            trPolyIn.attr('marker-start', 'url(#telenav-arrow-marker)');
+            trPolyIn.attr('class', 'wayIn');
+            var trPolyOut = tRs.append('polyline');
+            trPolyOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+            trPolyOut.attr('marker-end', 'url(#telenav-arrow-marker)');
+            trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
+            trPolyOut.attr('class', 'wayOut');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);
@@ -661,12 +679,12 @@ iD.TelenavLayer = function (context) {
             return html;
         });
 
-        var turnRestrictionCircles = svg.selectAll('.TurnRestrictionItem > circle');
-        turnRestrictionCircles.attr('cx', TurnRestrictionItem.transformX);
-        turnRestrictionCircles.attr('cy', TurnRestrictionItem.transformY);
-
-        var turnRestrictionPolylines = svg.selectAll('.TurnRestrictionItem > polyline');
-        turnRestrictionPolylines.attr('points', TurnRestrictionItem.transformLinePoints);
+        var turnRestrictionPolylinesIn = svg.selectAll('.TurnRestrictionItem > polyline.wayIn');
+        turnRestrictionPolylinesIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
+        var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
+        turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+        var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
+        turnRestrictionPolylinesHighlight.attr('points', TurnRestrictionItem.transformLinePoints);
 
         var extent = context.map().extent();
 

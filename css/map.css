@@ -1600,21 +1600,21 @@ text.gpx {
 
 .layer-telenav g.selected .highlight {
     stroke-width: 10;
-    stroke-opacity: .6;
+    stroke-opacity: .5;
     stroke: orange;
 }
 
 .layer-telenav g .highlightOff {
     stroke-width: 10;
     stroke-opacity: .0;
-    stroke: green;
+    stroke: orange;
     cursor: pointer;
 }
 
 .layer-telenav g .highlightOn {
     stroke-width: 10;
     stroke-opacity: .6;
-    stroke: green;
+    stroke: orange;
 }
 
 .layer-telenav g:hover path.viewfield,
