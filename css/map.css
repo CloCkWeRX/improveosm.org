@@ -1553,38 +1553,8 @@ text.gpx {
 
 /* Telenav Layer */
 
-.layer-telenav-tr {
-    pointer-events: none;
-}
-
-.layer-telenav-mr {
-    pointer-events: none;
-}
-
-.layer-telenav-dof {
-    pointer-events: none;
-}
-
 .layer-telenav {
     pointer-events: none;
-}
-
-.layer-telenav-tr g {
-    pointer-events: visible;
-    cursor: pointer; /* Opera */
-    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
-}
-
-.layer-telenav-mr g {
-    pointer-events: visible;
-    cursor: pointer; /* Opera */
-    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
-}
-
-.layer-telenav-dof g {
-    pointer-events: visible;
-    cursor: pointer; /* Opera */
-    cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
 }
 
 .layer-telenav g {
@@ -1597,54 +1567,18 @@ text.gpx {
     cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
 }
 
-.layer-telenav-tr g * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-
-.layer-telenav-mr g * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-
-.layer-telenav-dof g * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-
 .layer-telenav g * {
     stroke-width: 3;
     stroke: red;
     fill: none;
 }
 
-.layer-telenav-tr g:hover * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-.layer-telenav-mr g:hover * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-.layer-telenav-dof g:hover * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
 .layer-telenav.selected {
     stroke-width: 3;
     stroke: red;
     fill: none;
 }
 
-.turnRestriction circle,
-.missingRoads circle,
-.directionOfFlow circle,
 .telenavDrawing circle {
     stroke: red;
     fill: white;
@@ -1664,25 +1598,27 @@ text.gpx {
     display: block;
 }
 
-.layer-telenav-tr g.selected *,
-.layer-telenav-mr g.selected *,
-.layer-telenav-dof g.selected *,
-.layer-telenav g.selected * {
+.layer-telenav g.selected .highlight {
     stroke-width: 10;
+    stroke-opacity: .5;
     stroke: orange;
 }
 
-.layer-telenav-tr g:hover path.viewfield,
-.layer-telenav-mr g:hover path.viewfield,
-.layer-telenav-dof g:hover path.viewfield,
+.layer-telenav g .highlightOff {
+    stroke-width: 10;
+    stroke-opacity: .0;
+    stroke: orange;
+    cursor: pointer;
+}
+
+.layer-telenav g .highlightOn {
+    stroke-width: 10;
+    stroke-opacity: .6;
+    stroke: orange;
+}
+
 .layer-telenav g:hover path.viewfield,
-.layer-telenav-tr g.selected path.viewfield,
-.layer-telenav-mr g.selected path.viewfield,
-.layer-telenav-dof g.selected path.viewfield,
 .layer-telenav g.selected path.viewfield,
-.layer-telenav-tr g path.viewfield,
-.layer-telenav-mr g path.viewfield,
-.layer-telenav-dof g path.viewfield,
 .layer-telenav g path.viewfield {
     stroke-width: 0;
     fill-opacity: 0.6;

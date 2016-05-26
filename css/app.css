@@ -659,8 +659,8 @@ button.save.has-count .count::before {
     position: absolute;
     width: 300%;
     height: 100%;
-    /*right: -100%;*/
-    right: -200%;
+    right: -100%;
+    /*right: -200%;*/
     transition: transform .3s ease-in-out;
 }
 .telenavwrap .pane {

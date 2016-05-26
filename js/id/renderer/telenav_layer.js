@@ -4,6 +4,7 @@ iD.TelenavLayer = function (context) {
         requestQueue = [],
         combinedItems = [],
         selectedItems = [],
+        status = 'OPEN',
         requestCount;
 
     var types = {
@@ -12,7 +13,32 @@ iD.TelenavLayer = function (context) {
         tr: 'http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/search'
     };
 
-    var selectedTypes = [];
+    var selectedTypes = ['dof', 'mr', 'tr'];
+
+    var dofDetails = ['C1', 'C2', 'C3'];
+    var mrDetails = ['ROAD', 'PARKING', 'BOTH', 'WATER', 'PATH'];
+    var trDetails = ['C1', 'C2'];
+
+    var dofSelectedDetails = ['C1', 'C2', 'C3'];
+    var mrSelectedDetails = ['ROAD', 'PARKING', 'BOTH', 'WATER', 'PATH'];
+    var trSelectedDetails = ['C1', 'C2'];
+
+    var getTileSquare = function(x, y) {
+        var n = Math.pow(2, 18);// HARD CODING the 18
+        var longitudeMin = x/n * 360 - 180;
+        var lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y/n)));
+        var latitudeMin = lat_rad * 180/Math.PI;
+
+        var longitudeMax = (x + 1)/n * 360 -180;
+        lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1)/n)));
+        var latitudeMax = lat_rad * 180/Math.PI;
+        return {
+            latMax: latitudeMin,
+            latMin: latitudeMax,
+            lonMin: longitudeMin,
+            lonMax: longitudeMax
+        }
+    }
 
     // ==============================
     // ==============================
@@ -63,7 +89,8 @@ iD.TelenavLayer = function (context) {
             }
         } else {
             if (d3.event.ctrlKey) {
-                node.classed('selected', true);
+                node.classed('selected', true)
+                .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
                 selectedItems.push(item);
             } else {
                 svg.selectAll('g').classed('selected', false);
@@ -73,6 +100,25 @@ iD.TelenavLayer = function (context) {
             }
         }
         d3.event.stopPropagation();
+        if (selectedItems.length === 0) {
+            _editPanel.goToMain();
+        } else {
+            _editPanel.goToEdit();
+        }
+    };
+    MapItem.handleMouseOver = function(item) {
+        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+            .classed('highlightOn', true)
+            .classed('highlightOff', false)
+            .attr('marker-end', 'url(#telenav-selected-arrow-marker)')
+            .attr('marker-start', 'url(#telenav-selected-arrow-marker)');
+    };
+    MapItem.handleMouseOut = function(item) {
+        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+            .classed('highlightOn', false)
+            .classed('highlightOff', true)
+            .attr('marker-end', null)
+            .attr('marker-start', null);
     };
     // ==============================
     // ==============================
@@ -90,6 +136,11 @@ iD.TelenavLayer = function (context) {
         this.getSegments = function() {
             return rawItemData.segments;
         };
+        this.getIdentifier = function() {
+            return [
+                rawItemData.id
+            ];
+        }
     };
     // static
     TurnRestrictionItem.prototype = new MapItem();
@@ -110,6 +161,24 @@ iD.TelenavLayer = function (context) {
 
         return stringPoints.join(' ');
     };
+    TurnRestrictionItem.transformLinePointsOut = function(item) {
+        var stringPoints = [];
+            for (var j = 0; j < item.getSegments()[1].points.length; j++) {
+                var point = context.projection([item.getSegments()[1].points[j].lon, item.getSegments()[1].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
+
+        return stringPoints.join(' ');
+    };
+    TurnRestrictionItem.transformLinePointsIn = function(item) {
+        var stringPoints = [];
+            for (var j = 0; j < item.getSegments()[0].points.length; j++) {
+                var point = context.projection([item.getSegments()[0].points[j].lon, item.getSegments()[0].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
+
+        return stringPoints.join(' ');
+    };
     // ==============================
     // ==============================
     // MissingRoadIcon
@@ -117,21 +186,94 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var MissingRoadItem = function(rawItemData) {
         this._className = 'MissingRoadItem';
-        this._id = ('mr_' + rawItemData.lat + '_' + rawItemData.lon).replace(/\./g,'_');
-        this.getLat = function() {
-            return rawItemData.lat;
+        this._id = ('mr_' + rawItemData.x + '_' + rawItemData.y).replace(/\./g,'_');
+        this._points = rawItemData.points;
+        this.getX = function() {
+            return rawItemData.x;
         };
-        this.getLon = function() {
-            return rawItemData.lon;
+        this.getY = function() {
+            return rawItemData.y;
         };
+        this.getIdentifier = function() {
+            return [{
+                x: rawItemData.x,
+                y: rawItemData.y
+            }];
+        }
     };
     MissingRoadItem.prototype = new MapItem();
-    MissingRoadItem.transformX = function(item) {
-        return Math.floor(context.projection([item.getLon(), item.getLat()])[0]);
+    MissingRoadItem.computeX = function(lat, lon) {
+        return Math.floor(context.projection([lon, lat])[0]);
     };
-    MissingRoadItem.transformY = function(item) {
-        return Math.floor(context.projection([item.getLon(), item.getLat()])[1]);
+    MissingRoadItem.computeY = function(lat, lon) {
+        return Math.floor(context.projection([lon, lat])[1]);
     };
+    MissingRoadItem.transformTileX = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[0]);
+    };
+    MissingRoadItem.transformTileY = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[1]);
+    };
+    MissingRoadItem.transformTileWidth = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startX = Math.floor(context.projection([startLon, startLat])[0]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endX = Math.floor(context.projection([endLon, endLat])[0]);
+        return Math.abs(endX - startX);
+    };
+    MissingRoadItem.transformTileHeight = function(item) {
+        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startY = Math.floor(context.projection([startLon, startLat])[1]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endY = Math.floor(context.projection([endLon, endLat])[1]);
+        return Math.abs(endY - startY);
+    };
+
+    MissingRoadItem.computeTileX = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[0]);
+    };
+    MissingRoadItem.computeTileY = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        return Math.floor(context.projection([startLon, startLat])[1]);
+    };
+    MissingRoadItem.computeTileWidth = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startX = Math.floor(context.projection([startLon, startLat])[0]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endX = Math.floor(context.projection([endLon, endLat])[0]);
+        return Math.abs(endX - startX);
+    };
+    MissingRoadItem.computeTileHeight = function(x, y) {
+        var squareCoords = getTileSquare(x, y);
+        var startLat = squareCoords.latMax;
+        var startLon = squareCoords.lonMin;
+        var startY = Math.floor(context.projection([startLon, startLat])[1]);
+        var endLat = squareCoords.latMin;
+        var endLon = squareCoords.lonMax;
+        var endY = Math.floor(context.projection([endLon, endLat])[1]);
+        return Math.abs(endY - startY);
+    };
+
     // ==============================
     // ==============================
     // DirectionOfFlowItem
@@ -143,6 +285,13 @@ iD.TelenavLayer = function (context) {
         this.getPoints = function() {
             return rawItemData.points;
         };
+        this.getIdentifier = function() {
+            return [{
+                wayId: rawItemData.wayId,
+                fromNodeId: rawItemData.fromNodeId,
+                toNodeId: rawItemData.toNodeId
+            }];
+        }
     };
     DirectionOfFlowItem.prototype = new MapItem();
     DirectionOfFlowItem.transformLinePoints = function(item) {
@@ -153,14 +302,210 @@ iD.TelenavLayer = function (context) {
         }
         return stringPoints.join(' ');
     };
+
     // ==============================
     // ==============================
-    // SelectionHandler
+    // EditPanel
     // ==============================
     // ==============================
-    var SelectionHandler = function() {
+    var EditPanel = function() {
+
+        this._location = 'MAIN';
+
+        //get the width of the panel for animation effect
+        this._panelWidth = function(){
+            return parseInt(d3.select('.telenav-wrap').style('width'));
+        }
+
+        this.getLocation = function() {
+            return this._location;
+        };
+
+        this.show = function() {
+
+        };
+
+        this.renderMessage = function() {
+
+        };
+
+        this.goToMain = function() {
+            d3.select('.telenavwrap')
+                .transition()
+                .style('transform', 'translate3d(0px, 0px,  0px)');
+            this._location = 'MAIN';
+        };
+
+        this.goToEdit = function() {
+            switch (this.getLocation()) {
+                case 'MAIN':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'EDIT':
+                    break;
+                case 'MORE':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+            }
+            this._location = 'EDIT';
+        };
+
+        this.goToMore = function() {
+            switch (this.getLocation()) {
+                case 'MAIN':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(-' + this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'EDIT':
+                    d3.select('.telenavwrap')
+                        .transition()
+                        .style('transform', 'translate3d(-' + 2 * this._panelWidth() + 'px, 0px,  0px)');
+                    break;
+                case 'MORE':
+                    break;
+            }
+            this._location = 'MORE';
+        };
+
+        this.setStatus = function(status) {
+
+            context.connection().userDetails(function(err, user) {
+                if (err) {
+                    alert('Please log in...');
+                    return;
+                }
+
+                //var userLink = d3.select(document.createElement('div'));
+                //
+                //if (user.image_url) {
+                //    userLink.append('img')
+                //        .attr('src', user.image_url)
+                //        .attr('class', 'icon pre-text user-icon');
+                //}
+                //
+                //userLink.append('a')
+                //    .attr('class','user-info')
+                //    .text(user.display_name)
+                //    .attr('href', context.connection().userURL(user.display_name))
+                //    .attr('tabindex', -1)
+                //    .attr('target', '_blank');
+                //
+                //prose.html(t('commit.upload_explanation_with_user', {user: userLink.html()}));
+
+                status = status.toUpperCase();
+                for (var i = 0; i < selectedItems.length; i++) {
+                    var currentItem = selectedItems[i];
+
+                    var dataToPost = {
+                        username: user.display_name,
+                        text: 'status changed',
+                        status: status
+                    };
+
+                    var responseHandler = function(err, rawData) {
+                        var data = JSON.parse(rawData.response);
+                        console.log("got response", data);
+                    };
+
+                    switch (currentItem.getClass()) {
+                        case 'DirectionOfFlowItem':
+                            dataToPost.roadSegments = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'MissingRoadItem':
+                            dataToPost.tiles = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'TurnRestrictionItem':
+                            dataToPost.targetIds = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                    }
+
+                }
+            });
+
+        };
+
+        this.saveComment = function() {
+
+            context.connection().userDetails(function(err, user) {
+                if (err) {
+                    alert('Please log in...');
+                    return;
+                }
+                var comment = d3.select('#commentText').property('value');
+
+                for (var i = 0; i < selectedItems.length; i++) {
+                    var currentItem = selectedItems[i];
+
+                    var dataToPost = {
+                        username: 'Tudor009',
+                        text: comment
+                    };
+
+                    var responseHandler = function (err, rawData) {
+                        var data = JSON.parse(rawData.response);
+                        console.log("got response", data);
+                    };
+
+                    switch (currentItem.getClass()) {
+                        case 'DirectionOfFlowItem':
+                            dataToPost.roadSegments = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'MissingRoadItem':
+                            dataToPost.tiles = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                        case 'TurnRestrictionItem':
+                            dataToPost.targetIds = currentItem.getIdentifier();
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                                .header("Content-Type", "application/json")
+                                .post(
+                                    JSON.stringify(dataToPost),
+                                    responseHandler
+                                );
+                            break;
+                    }
+
+                }
+            });
+        };
 
     };
+
+    var _editPanel = new EditPanel();
 
     var _synchCallbacks = function(error, data) {
 
@@ -173,11 +518,9 @@ iD.TelenavLayer = function (context) {
         }
         if (data.hasOwnProperty('tiles')) {
             for (var i = 0; i < data.tiles.length; i++) {
-                for (var j= 0; j < data.tiles[i].points.length; j++) {
-                    combinedItems.push(new MissingRoadItem(
-                        data.tiles[i].points[j]
-                    ));
-                }
+                combinedItems.push(new MissingRoadItem(
+                    data.tiles[i]
+                ));
             }
         }
         if (data.hasOwnProperty('entities')) {
@@ -218,23 +561,60 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker)');
+            var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
+            dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
-            var mrCircle = mRs.append('circle');
-            mrCircle.attr('cx', MissingRoadItem.transformX);
-            mrCircle.attr('cy', MissingRoadItem.transformY);
-            mrCircle.attr('r', '2');
+            mRs.html(function(d) {
+                var html = '';
+                for (var i = 0; i < d._points.length; i++) {
+                    var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
+                    var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+                }
+                return html;
+            });
 
-            var trPoly = tRs.append('polyline');
-            trPoly.attr('points', TurnRestrictionItem.transformLinePoints);
-            var trCircle = tRs.append('circle');
-            trCircle.attr('cx', TurnRestrictionItem.transformX);
-            trCircle.attr('cy', TurnRestrictionItem.transformY);
-            trCircle.attr('r', '10');
+            var mrRect = mRs.append('rect');
+            mrRect.attr('x', MissingRoadItem.transformTileX);
+            mrRect.attr('y', MissingRoadItem.transformTileY);
+            mrRect.attr('width', MissingRoadItem.transformTileWidth);
+            mrRect.attr('height', MissingRoadItem.transformTileHeight);
+            mrRect.attr('fill', '#044B94');
+            mrRect.attr('fill-opacity', '0.4');
+
+            var mrSelRect = mRs.append('rect');
+            mrSelRect.attr('class', 'highlight')
+            mrSelRect.attr('x', MissingRoadItem.transformTileX);
+            mrSelRect.attr('y', MissingRoadItem.transformTileY);
+            mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
+            mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
+            mrSelRect.attr('fill', '#044B94');
+            mrSelRect.attr('fill-opacity', '0.4');
+
+            var trSelPoly = tRs.append('polyline').attr('class', 'highlight highlightOff');
+            trSelPoly.attr('points', TurnRestrictionItem.transformLinePoints);
+            var trPolyIn = tRs.append('polyline');
+            trPolyIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
+            trPolyIn.attr('marker-start', 'url(#telenav-arrow-marker)');
+            trPolyIn.attr('class', 'wayIn');
+            var trPolyOut = tRs.append('polyline');
+            trPolyOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+            trPolyOut.attr('marker-end', 'url(#telenav-arrow-marker)');
+            trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
+            trPolyOut.attr('class', 'wayOut');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);
             tRs.on('click', MapItem.handleSelection);
 
+            dOFs.on('mouseover', MapItem.handleMouseOver);
+            mRs.on('mouseover', MapItem.handleMouseOver);
+            tRs.on('mouseover', MapItem.handleMouseOver);
+
+            dOFs.on('mouseout', MapItem.handleMouseOut);
+            mRs.on('mouseout', MapItem.handleMouseOut);
+            tRs.on('mouseout', MapItem.handleMouseOut);
 
             g.exit()
                 .remove();
@@ -273,16 +653,38 @@ iD.TelenavLayer = function (context) {
         var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline');
         directionOfFlowPolylines.attr('points', DirectionOfFlowItem.transformLinePoints);
 
-        var missingRoadsCircles = svg.selectAll('.MissingRoadItem > circle');
-        missingRoadsCircles.attr('cx', MissingRoadItem.transformX);
-        missingRoadsCircles.attr('cy', MissingRoadItem.transformY);
+        var missingRoadsCircles = svg.selectAll('.MissingRoadItem');
+        missingRoadsCircles.html(function(d) {
+            var html = '';
+            for (var i = 0; i < d._points.length; i++) {
+                var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
+                var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+            }
+            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                + ' fill=' + 'red'
+                + ' fill-opacity=' + '0.4'
+                + '></rect>';
+            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                + ' fill=' + 'red'
+                + ' fill-opacity=' + '0.4'
+                + ' class="highlight"' + '0.4'
+                + '></rect>';
+            return html;
+        });
 
-        var turnRestrictionCircles = svg.selectAll('.TurnRestrictionItem > circle');
-        turnRestrictionCircles.attr('cx', TurnRestrictionItem.transformX);
-        turnRestrictionCircles.attr('cy', TurnRestrictionItem.transformY);
-
-        var turnRestrictionPolylines = svg.selectAll('.TurnRestrictionItem > polyline');
-        turnRestrictionPolylines.attr('points', TurnRestrictionItem.transformLinePoints);
+        var turnRestrictionPolylinesIn = svg.selectAll('.TurnRestrictionItem > polyline.wayIn');
+        turnRestrictionPolylinesIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
+        var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
+        turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+        var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
+        turnRestrictionPolylinesHighlight.attr('points', TurnRestrictionItem.transformLinePoints);
 
         var extent = context.map().extent();
 
@@ -299,13 +701,28 @@ iD.TelenavLayer = function (context) {
 
         var requestUrlQueue = [];
         for (var i = 0; i < selectedTypes.length; i++) {
-            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments);
+            var typesFragments = '';
+            switch (selectedTypes[i]) {
+                case 'dof':
+                    typesFragments += '&confidenceLevel=';
+                    typesFragments += dofSelectedDetails.join('%2C');
+                    break;
+                case 'mr':
+                    typesFragments += '&type=';
+                    typesFragments += mrSelectedDetails.join('%2C');
+                    break;
+                case 'tr':
+                    typesFragments += '&confidenceLevel=';
+                    typesFragments += trSelectedDetails.join('%2C');
+                    break;
+            }
+            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status);
         }
 
         requestCount = requestUrlQueue.length;
         combinedItems.length = 0;
 
-        if (zoom > 14) {
+        if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
@@ -372,11 +789,13 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label-button-wrap')
             .append('button')
             .attr('class', 'save-icon')
+            .attr('id', 'saveStatus')
             .call(iD.svg.Icon('#icon-save'));
         var statusUpdate_formWrap = statusUpdate_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var statusUpdate_openContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setOpen');
         statusUpdate_openContainer.append('input')
             .attr('id', 'ch_open')
             .attr('name', 'changeStatus')
@@ -386,7 +805,8 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'ch_open')
             .text('Open');
         var statusUpdate_solvedContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setSolved');
         statusUpdate_solvedContainer.append('input')
             .attr('id', 'ch_solved')
             .attr('name', 'changeStatus')
@@ -396,7 +816,8 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'ch_solved')
             .text('Solved');
         var statusUpdate_invalidContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
+            .attr('class', 'tel_displayInline')
+            .attr('id', 'setInvalid');
         statusUpdate_invalidContainer.append('input')
             .attr('id', 'ch_invalid')
             .attr('name', 'changeStatus')
@@ -415,9 +836,11 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label-button-wrap')
             .append('button')
             .attr('class', 'save-icon')
+            .attr('id', 'saveComment')
             .call(iD.svg.Icon('#icon-save'));
         comments_form.append('textarea')
-            .attr('class', 'commentText');
+            .attr('class', 'commentText')
+            .attr('id', 'commentText');
 
         //  END 3rd container div
 
@@ -430,16 +853,16 @@ iD.TelenavLayer = function (context) {
         generalWindowsWindowHeader.append('button')
             .attr('class', 'fl preset-reset preset-choose')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(' + panelWidth() + 'px, 0px,  0px)');
+
             })
             .append('span')
             .html('&#9668;');
         generalWindowsWindowHeader.append('button')
             .attr('class', 'fr preset-reset')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
+                _editPanel.goToMore();
+                //telenavWrap.transition()
+                //    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
             })
             .append('span')
             .html('&#9658;');
@@ -458,10 +881,12 @@ iD.TelenavLayer = function (context) {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode On')
                         .classed('off', false)
+                    d3.select('.layer-telenav').classed('editMode', true);
                 } else {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode Off')
                         .classed('off', true)
+                    d3.select('.layer-telenav').classed('editMode', false);
                 }
             });
 
@@ -488,7 +913,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'form-label')
             .text('Reported Status');
         var statusForm = presetForm.append('form')
-            .attr('class', 'filterForm optionsContainer');
+            .attr('class', 'filterForm optionsContainer')
+            .attr('id', 'statusFilter');
         var statusDivOpen = statusForm.append('div')
             .attr('class', 'tel_displayInline');
         statusDivOpen.append('label')
@@ -498,7 +924,8 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'radio')
             .attr('id', 'OPEN')
             .attr('class', 'filterItem')
-            .attr('name', 'filter');
+            .attr('name', 'filter')
+            .attr('checked', 'checked');
 
         var statusDivSolved = statusForm.append('div')
             .attr('class', 'tel_displayInline');
@@ -532,8 +959,7 @@ iD.TelenavLayer = function (context) {
         optionsWindowHeader.append('button')
             .attr('class', 'fl preset-reset preset-choose')
             .on('click', function() {
-                telenavWrap.transition()
-                    .style('transform', 'translate3d(0px, 0px, 0px)');
+                _editPanel.goToMain();
             })
             .append('span')
             .html('&#9668;');
@@ -549,7 +975,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'preset-form inspector-inner fillL3');
 
         var direction_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'dofFilter');
         direction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'oneWayConfidence')
@@ -560,6 +987,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
             .attr('id', 'oneWayConfidence');
         var direction_formWrap = direction_form.append('form')
@@ -568,7 +996,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_highlyProbableContainer.append('input')
             .attr('id', 'C1')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_highlyProbableContainer.append('label')
             .attr('for', 'C1')
             .text('Highly Probable');
@@ -576,7 +1005,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_mostLikelyContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_mostLikelyContainer.append('label')
             .attr('for', 'C2')
             .text('Most Likely');
@@ -584,13 +1014,15 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_probableContainer.append('input')
             .attr('id', 'C3')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         direction_probableContainer.append('label')
             .attr('for', 'C3')
             .text('Probable');
 
         var missing_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'mrFilter');
         missing_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
@@ -601,6 +1033,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
             .attr('id', 'missingRoadType');
         var missing_formWrap = missing_form.append('form')
@@ -609,7 +1042,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_roadContainer.append('input')
             .attr('id', 'ROAD')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_roadContainer.append('label')
             .attr('for', 'ROAD')
             .text('Road');
@@ -617,7 +1051,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_parkingContainer.append('input')
             .attr('id', 'PARKING')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_parkingContainer.append('label')
             .attr('for', 'PARKING')
             .text('Parking');
@@ -625,7 +1060,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_bothContainer.append('input')
             .attr('id', 'BOTH')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_bothContainer.append('label')
             .attr('for', 'BOTH')
             .text('Both');
@@ -636,7 +1072,8 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_waterContainer.append('input')
             .attr('id', 'WATER')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_waterContainer.append('label')
             .attr('for', 'WATER')
             .text('Water Trail');
@@ -644,33 +1081,37 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_pathContainer.append('input')
             .attr('id', 'PATH')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         missing_pathContainer.append('label')
             .attr('for', 'PATH')
             .text('Path Trail');
 
 
         var restriction_form = optionsContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'trFilter');
         restriction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
-            .text('Missing road type')
+            .text('Turn restriction Confidence')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
+            .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'missingRoadType');
+            .attr('id', 'turnRestrictionConfidence');
         var restriction_formWrap = restriction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var restriction_highlyProbableContainer = restriction_formWrap.append('div')
             .attr('class', 'tel_displayInline');
         restriction_highlyProbableContainer.append('input')
             .attr('id', 'C1')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         restriction_highlyProbableContainer.append('label')
             .attr('for', 'C1')
             .text('Highly Probable');
@@ -678,11 +1119,33 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         restriction_probableContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox');
+            .attr('type', 'checkbox')
+            .attr('checked', 'checked');
         restriction_probableContainer.append('label')
             .attr('for', 'C2')
             .text('Probable');
         //  END 2st container div
+
+        var toggleEditModeContainer = enter.append('textarea')
+            .attr('class', 'telenavComments');
+        var sendMessageButton = enter.append('button')
+            .attr('class', 'telenavSendComments')
+            .html('OK');
+
+        var closedButton = enter.append('button')
+            .attr('class', 'closedButton')
+            .html('closed');
+        var openedButton = enter.append('button')
+            .attr('class', 'openedButton')
+            .html('opened');
+        var invalidButton = enter.append('button')
+            .attr('class', 'invalidButton')
+            .html('invalid');
+
+        // ++++++++++++
+        // events
+        // ++++++++++++
+
 
         d3.select('.toggleEditModeContainer').on('click', function() {
             if (d3.select('.layer-telenav').classed('editMode')) {
@@ -695,8 +1158,78 @@ iD.TelenavLayer = function (context) {
         d3.select('#oneWayConfidence').on('click', function() {
             if (d3.select('#oneWayConfidence').property('checked')) {
                 selectedTypes.push('dof');
+                //---
+                dofSelectedDetails = dofDetails.slice(0);
+                d3.select('#dofFilter #C1').property('checked', true);
+                d3.select('#dofFilter #C2').property('checked', true);
+                d3.select('#dofFilter #C3').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                //---
+                dofSelectedDetails.length = 0;
+                d3.select('#dofFilter #C1').property('checked', false);
+                d3.select('#dofFilter #C2').property('checked', false);
+                d3.select('#dofFilter #C3').property('checked', false);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#dofFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
+            if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#oneWayConfidence').property('checked')) {
+                    d3.select('#oneWayConfidence').property('checked', true);
+                    selectedTypes.push('dof');
+                }
+                dofSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#oneWayConfidence').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                }
+                dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#mrFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
+            if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#missingRoadType').property('checked')) {
+                    d3.select('#missingRoadType').property('checked', true);
+                    selectedTypes.push('mr');
+                }
+                mrSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#missingRoadType').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                }
+                mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
+            }
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.selectAll('#trFilter form input').on('click', function() {
+            var allCheckboxes = d3.selectAll('#trFilter form input')[0];
+            if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
+                if (!d3.select('#turnRestrictionConfidence').property('checked')) {
+                    d3.select('#turnRestrictionConfidence').property('checked', true);
+                    selectedTypes.push('tr');
+                }
+                trSelectedDetails.push(d3.event.target.id);
+            } else {
+                var noneSelected = true;
+                var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
+                if (checkedItems.length == 0) {
+                    d3.select('#turnRestrictionConfidence').property('checked', false);
+                    selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                }
+                trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
             }
             render(d3.select('.layer-telenav'));
         });
@@ -704,8 +1237,22 @@ iD.TelenavLayer = function (context) {
         d3.select('#missingRoadType').on('click', function() {
             if (d3.select('#missingRoadType').property('checked')) {
                 selectedTypes.push('mr');
+                //---
+                mrSelectedDetails = mrDetails.slice(0);
+                d3.select('#mrFilter #ROAD').property('checked', true);
+                d3.select('#mrFilter #PARKING').property('checked', true);
+                d3.select('#mrFilter #BOTH').property('checked', true);
+                d3.select('#mrFilter #WATER').property('checked', true);
+                d3.select('#mrFilter #PATH').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                //---
+                mrSelectedDetails.length = 0;
+                d3.select('#mrFilter #ROAD').property('checked', false);
+                d3.select('#mrFilter #PARKING').property('checked', false);
+                d3.select('#mrFilter #BOTH').property('checked', false);
+                d3.select('#mrFilter #WATER').property('checked', false);
+                d3.select('#mrFilter #PATH').property('checked', false);
             }
             render(d3.select('.layer-telenav'));
         });
@@ -713,16 +1260,36 @@ iD.TelenavLayer = function (context) {
         d3.select('#turnRestrictionConfidence').on('click', function() {
             if (d3.select('#turnRestrictionConfidence').property('checked')) {
                 selectedTypes.push('tr');
+                //---
+                trSelectedDetails = trDetails.slice(0);
+                d3.select('#trFilter #C1').property('checked', true);
+                d3.select('#trFilter #C2').property('checked', true);
             } else {
                 selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                //---
+                trSelectedDetails.length = 0;
+                d3.select('#trFilter #C1').property('checked', false);
+                d3.select('#trFilter #C2').property('checked', false);
             }
             render(d3.select('.layer-telenav'));
         });
 
-        //get the width of the panel for animation effect
-        var panelWidth = function(){
-            return parseInt(d3.select('.telenav-wrap').style('width'));
-        }
+        d3.selectAll('#statusFilter input').on('click', function() {
+            status = d3.event.currentTarget.id;
+            render(d3.select('.layer-telenav'));
+        });
+
+        d3.select('#saveComment').on('click', _editPanel.saveComment);
+
+        d3.select('#setSolved').on('click', function() {
+            _editPanel.setStatus.call(_editPanel, 'SOLVED');
+        });
+        d3.select('#setOpen').on('click', function() {
+            _editPanel.setStatus.call(_editPanel, 'OPEN');
+        });
+        d3.select('#setInvalid').on('click', function() {
+            _editPanel.setStatus.call(_editPanel, 'INVALID');
+        });
 
     }();
 

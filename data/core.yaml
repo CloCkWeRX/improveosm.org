@@ -419,15 +419,6 @@ en:
     tooltip: "Street-level photos from Mapillary"
     title: "Photo Overlay (Mapillary)"
     view_on_mapillary: "View this image on Mapillary"
-  telenav_tr:
-    tooltip: "Turn restrictions data from Telenav"
-    title: "Turn restrictions (Telenav)"
-  telenav_mr:
-    tooltip: "Missing roads data from Telenav"
-    title: "Missing roads (Telenav)"
-  telenav_dof:
-    tooltip: "Direction of flow data from Telenav"
-    title: "Direction of flow (Telenav)"
   telenav:
     tooltip: "ImproveOSM metrics from Telenav"
     title: "ImproveOSM metrics (Telenav)"
