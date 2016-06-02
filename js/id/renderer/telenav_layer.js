@@ -103,7 +103,8 @@ iD.TelenavLayer = function (context) {
         if (selectedItems.length === 0) {
             _editPanel.goToMain();
         } else {
-            _editPanel.goToEdit();
+            _editPanel.goToEdit(item);
+            _editPanel.selectedItemDetails(item);
         }
     };
     MapItem.handleMouseOver = function(item) {
@@ -129,6 +130,10 @@ iD.TelenavLayer = function (context) {
         // ---
         this._className = 'TurnRestrictionItem';
         this._id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
+        this.confidenceLevel = rawItemData.confidenceLevel;
+        this.numberOfPasses = rawItemData.numberOfPasses;
+        this.turnType = rawItemData.turnType;
+        this.status = rawItemData.status;
 
         this.getPoint = function() {
             return rawItemData.point;
@@ -188,6 +193,9 @@ iD.TelenavLayer = function (context) {
         this._className = 'MissingRoadItem';
         this._id = ('mr_' + rawItemData.x + '_' + rawItemData.y).replace(/\./g,'_');
         this._points = rawItemData.points;
+        this.numberOfTrips = rawItemData.numberOfTrips;
+        this.type = rawItemData.type;
+        this.status = rawItemData.status;
         this.getX = function() {
             return rawItemData.x;
         };
@@ -282,6 +290,12 @@ iD.TelenavLayer = function (context) {
     var DirectionOfFlowItem = function(rawItemData) {
         this._className = 'DirectionOfFlowItem';
         this._id = 'dof_' + [rawItemData.fromNodeId, rawItemData.toNodeId, rawItemData.wayId].join('_');
+        this.confidence = rawItemData.confidenceLevel;
+        this.numberOfTrips = rawItemData.numberOfTrips;
+        this.roadType = rawItemData.type;
+        this.status = rawItemData.status;
+        this.percentageOfTrips = rawItemData.percentOfTrips;
+
         this.getPoints = function() {
             return rawItemData.points;
         };
@@ -291,7 +305,7 @@ iD.TelenavLayer = function (context) {
                 fromNodeId: rawItemData.fromNodeId,
                 toNodeId: rawItemData.toNodeId
             }];
-        }
+        };
     };
     DirectionOfFlowItem.prototype = new MapItem();
     DirectionOfFlowItem.transformLinePoints = function(item) {
@@ -336,7 +350,7 @@ iD.TelenavLayer = function (context) {
             this._location = 'MAIN';
         };
 
-        this.goToEdit = function() {
+        this.goToEdit = function(item) {
             switch (this.getLocation()) {
                 case 'MAIN':
                     d3.select('.telenavwrap')
@@ -370,6 +384,106 @@ iD.TelenavLayer = function (context) {
                     break;
             }
             this._location = 'MORE';
+        };
+
+        this.selectedItemDetails = function selectedItemDetails(item){
+            var confidenceLvl;
+            switch (item._className){
+                case 'TurnRestrictionItem':
+                    switch (item.confidenceLevel) {
+                        case 'C1':
+                            confidenceLvl = 'Highly Probable';
+                            break;
+                        case 'C2':
+                            confidenceLvl = 'Probable';
+                            break;
+                    }
+                    d3.select('.itemDetails').html("");
+                    var TRdetailsContainer = d3.select('.itemDetails').append('table');
+                    var TRdetailsRow_confidence = TRdetailsContainer.append('tr');
+                    TRdetailsRow_confidence.append('th')
+                        .text('Confidence');
+                    TRdetailsRow_confidence.append('td')
+                        .text(confidenceLvl);
+                    var TRdetailsRow_passes = TRdetailsContainer.append('tr');
+                    TRdetailsRow_passes.append('th')
+                        .text('Number of passes');
+                    TRdetailsRow_passes.append('td')
+                        .text(item.numberOfPasses);
+                    var TRdetailsRow_turnType = TRdetailsContainer.append('tr');
+                    TRdetailsRow_turnType.append('th')
+                        .text('Road Type');
+                    TRdetailsRow_turnType.append('td')
+                        .text(item.turnType);
+                    var TRdetailsRow_status = TRdetailsContainer.append('tr');
+                    TRdetailsRow_status.append('th')
+                        .text('Status');
+                    TRdetailsRow_status.append('td')
+                        .text(item.status);
+
+                    break;
+                case 'MissingRoadItem':
+                    d3.select('.itemDetails').html("");
+                    var MRdetailsContainer = d3.select('.itemDetails').append('table');
+                    var MRdetailsRow_nbOfTrips = MRdetailsContainer.append('tr');
+                    MRdetailsRow_nbOfTrips.append('th')
+                        .text('Number of trips');
+                    MRdetailsRow_nbOfTrips.append('td')
+                        .text(item.numberOfTrips);
+                    var MRdetailsRow_type = MRdetailsContainer.append('tr');
+                    MRdetailsRow_type.append('th')
+                        .text('Type');
+                    MRdetailsRow_type.append('td')
+                        .text(item.type);
+                    var MRdetailsRow_status = MRdetailsContainer.append('tr');
+                    MRdetailsRow_status.append('th')
+                        .text('Status');
+                    MRdetailsRow_status.append('td')
+                        .text(item.status);
+
+                    break;
+                case 'DirectionOfFlowItem':
+                    d3.select('.itemDetails').html("");
+                    switch (item.confidence) {
+                        case 'C1':
+                            confidenceLvl = 'Highly Probable';
+                            break;
+                        case 'C2':
+                            confidenceLvl = 'Most Likely';
+                            break;
+                        case 'C3':
+                            confidenceLvl = 'Probable';
+                            break;
+                    }
+                    d3.select('.itemDetails').html("");
+                    var DoFdetailsContainer = d3.select('.itemDetails').append('table');
+                    var DoFdetailsRow_percetageOfTrips = DoFdetailsContainer.append('tr');
+                    DoFdetailsRow_percetageOfTrips.append('th')
+                        .attr('colspan', '3')
+                        .text(item.percentageOfTrips + ' of drivers travelled in this direction' );
+                    var DoFdetailsRow_totalTrips = DoFdetailsContainer.append('tr');
+                    DoFdetailsRow_totalTrips.append('th')
+                        .text('Total Trips');
+                    DoFdetailsRow_totalTrips.append('td')
+                        .text(item.numberOfTrips);
+                    var DoFdetailsRow_type = DoFdetailsContainer.append('tr');
+                    DoFdetailsRow_type.append('th')
+                        .text('Road Type');
+                    DoFdetailsRow_type.append('td')
+                        .text(item.roadType);
+                    var DoFdetailsRow_status = DoFdetailsContainer.append('tr');
+                    DoFdetailsRow_status.append('th')
+                        .text('Status');
+                    DoFdetailsRow_status.append('td')
+                        .text(item.status);
+                    var DoFdetailsRow_confidence = DoFdetailsContainer.append('tr');
+                    DoFdetailsRow_confidence.append('th')
+                        .text('Confidence');
+                    DoFdetailsRow_confidence.append('td')
+                        .text(confidenceLvl);
+
+                    break;
+            }
         };
 
         this.setStatus = function(status) {
@@ -780,6 +894,20 @@ iD.TelenavLayer = function (context) {
             .append('div');
         var userContainer = userWindowInner.append('div')
             .attr('class', 'preset-form inspector-inner fillL3');
+        var detailedInfo_form = userContainer.append('div')
+            .attr('class', 'form-field');
+        detailedInfo_form.append('label')
+            .attr('class', 'form-label')
+            .text('Detailed Information')
+            .append('div')
+            .attr('class', 'form-label-button-wrap');
+/*            .append('button')
+            .attr('class', 'tag-reference-icon')
+            .attr('tabindex', '-1')
+            .call(iD.svg.Icon('#icon-inspect'));*/
+        detailedInfo_form.append('form')
+            .attr('class', 'filterForm optionsContainer itemDetails');
+
         var statusUpdate_form = userContainer.append('div')
             .attr('class', 'form-field');
         statusUpdate_form.append('label')
