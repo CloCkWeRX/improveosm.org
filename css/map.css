@@ -1598,6 +1598,14 @@ text.gpx {
     display: block;
 }
 
+.layer-telenav svg {
+    stroke-opacity: 1;
+}
+
+.layer-telenav.editMode svg {
+    stroke-opacity: 0.2;
+}
+
 .layer-telenav g.selected .highlight {
     stroke-width: 10;
     stroke-opacity: .5;
@@ -1615,6 +1623,31 @@ text.gpx {
     stroke-width: 10;
     stroke-opacity: .6;
     stroke: orange;
+}
+
+.layer-telenav g polyline.wayIn {
+    stroke: #00CD00;
+}
+.layer-telenav g text.inNo {
+    stroke-width: 1;
+    stroke: #00CD00;
+}
+
+
+.layer-telenav g polyline.wayOut {
+    stroke: #FF0000;
+}
+.layer-telenav g text.outNo {
+    stroke-width: 1;
+    stroke: #FF0000;
+}
+
+.layer-telenav g rect.noInRect,
+.layer-telenav g rect.noOutRect {
+    stroke-width: 1;
+    stroke: #FFF;
+    fill: white;
+    height: 10px;
 }
 
 .layer-telenav g:hover path.viewfield,
