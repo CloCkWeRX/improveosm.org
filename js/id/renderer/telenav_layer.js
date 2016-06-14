@@ -196,6 +196,7 @@ iD.TelenavLayer = function (context) {
         this.numberOfTrips = rawItemData.numberOfTrips;
         this.type = rawItemData.type;
         this.status = rawItemData.status;
+        this.timestamp = rawItemData.timestamp;
         this.getX = function() {
             return rawItemData.x;
         };
@@ -400,46 +401,61 @@ iD.TelenavLayer = function (context) {
                     }
                     d3.select('.itemDetails').html("");
                     var TRdetailsContainer = d3.select('.itemDetails').append('table');
-                    var TRdetailsRow_confidence = TRdetailsContainer.append('tr');
-                    TRdetailsRow_confidence.append('th')
-                        .text('Confidence');
-                    TRdetailsRow_confidence.append('td')
-                        .text(confidenceLvl);
-                    var TRdetailsRow_passes = TRdetailsContainer.append('tr');
-                    TRdetailsRow_passes.append('th')
-                        .text('Number of passes');
-                    TRdetailsRow_passes.append('td')
-                        .text(item.numberOfPasses);
-                    var TRdetailsRow_turnType = TRdetailsContainer.append('tr');
-                    TRdetailsRow_turnType.append('th')
-                        .text('Road Type');
-                    TRdetailsRow_turnType.append('td')
-                        .text(item.turnType);
+                    var TRdetailsRow_incoming = TRdetailsContainer.append('tr');
+                    TRdetailsRow_incoming.append('th')
+                        .attr('colspan', '3')
+                        .text(item.getSegments()[0].numberOfTrips + ' trips entered the first segment');
+                    var TRdetailsRow_outgoing = TRdetailsContainer.append('tr');
+                    TRdetailsRow_outgoing.append('th')
+                        .attr('colspan', '3')
+                        .text(item.getSegments()[item.getSegments().length - 1].numberOfTrips + ' trip(s) continued on the last segment');
                     var TRdetailsRow_status = TRdetailsContainer.append('tr');
                     TRdetailsRow_status.append('th')
                         .text('Status');
                     TRdetailsRow_status.append('td')
-                        .text(item.status);
+                        .text(item.status.toLowerCase());
+                    var TRdetailsRow_turnType = TRdetailsContainer.append('tr');
+                    TRdetailsRow_turnType.append('th')
+                        .text('Road Type');
+                    TRdetailsRow_turnType.append('td')
+                        .text(item.turnType.replace(/_/g, " ").toLowerCase());
+                    var TRdetailsRow_confidence = TRdetailsContainer.append('tr');
+                    TRdetailsRow_confidence.append('th')
+                        .text('Confidence');
+                    TRdetailsRow_confidence.append('td')
+                        .text(confidenceLvl.toLowerCase() + ' turn restriction');
 
                     break;
                 case 'MissingRoadItem':
+                    var dateStamp = new Date(item.timestamp),
+                        timestamp = dateStamp.getFullYear() + '-' + (dateStamp.getMonth() + 1) +  '-' + dateStamp.getDate() + ' ' + (dateStamp.getHours() + 1) + ':' + (dateStamp.getMinutes() + 1) + ':' + (dateStamp.getSeconds() + 1);
                     d3.select('.itemDetails').html("");
                     var MRdetailsContainer = d3.select('.itemDetails').append('table');
-                    var MRdetailsRow_nbOfTrips = MRdetailsContainer.append('tr');
-                    MRdetailsRow_nbOfTrips.append('th')
-                        .text('Number of trips');
-                    MRdetailsRow_nbOfTrips.append('td')
-                        .text(item.numberOfTrips);
                     var MRdetailsRow_type = MRdetailsContainer.append('tr');
                     MRdetailsRow_type.append('th')
                         .text('Type');
                     MRdetailsRow_type.append('td')
-                        .text(item.type);
+                        .text('probable ' + item.type.toLowerCase());
                     var MRdetailsRow_status = MRdetailsContainer.append('tr');
                     MRdetailsRow_status.append('th')
                         .text('Status');
                     MRdetailsRow_status.append('td')
-                        .text(item.status);
+                        .text(item.status.toLowerCase());
+                    var MRdetailsRow_timestamp = MRdetailsContainer.append('tr');
+                    MRdetailsRow_timestamp.append('th')
+                        .text('Timestamp');
+                    MRdetailsRow_timestamp.append('td')
+                        .text(timestamp);
+                    var MRdetailsRow_nbOfTrips = MRdetailsContainer.append('tr');
+                    MRdetailsRow_nbOfTrips.append('th')
+                        .text('Trip count');
+                    MRdetailsRow_nbOfTrips.append('td')
+                        .text(item.numberOfTrips);
+                    var MRdetailsRow_nbOfPoints = MRdetailsContainer.append('tr');
+                    MRdetailsRow_nbOfPoints.append('th')
+                        .text('Points count');
+                    MRdetailsRow_nbOfPoints.append('td')
+                        .text(item._points.length);
 
                     break;
                 case 'DirectionOfFlowItem':
@@ -470,17 +486,17 @@ iD.TelenavLayer = function (context) {
                     DoFdetailsRow_type.append('th')
                         .text('Road Type');
                     DoFdetailsRow_type.append('td')
-                        .text(item.roadType);
+                        .text(item.roadType.replace(/_/g, " ").toLowerCase());
                     var DoFdetailsRow_status = DoFdetailsContainer.append('tr');
                     DoFdetailsRow_status.append('th')
                         .text('Status');
                     DoFdetailsRow_status.append('td')
-                        .text(item.status);
+                        .text(item.status.toLowerCase());
                     var DoFdetailsRow_confidence = DoFdetailsContainer.append('tr');
                     DoFdetailsRow_confidence.append('th')
                         .text('Confidence');
                     DoFdetailsRow_confidence.append('td')
-                        .text(confidenceLvl);
+                        .text(confidenceLvl.toLowerCase() + ' oneway');
 
                     break;
             }
