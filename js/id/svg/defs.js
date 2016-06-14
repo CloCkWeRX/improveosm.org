@@ -54,6 +54,23 @@ iD.svg.Defs = function(context) {
             .attr('stroke', 'none')
             .attr('fill', '#f00')
             .attr('opacity', '1');
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker-green',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker-green')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#00CD00')
+            .attr('opacity', '1');
 
         defs.append('marker')
             .attr({
