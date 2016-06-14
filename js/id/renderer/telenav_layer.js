@@ -399,7 +399,7 @@ iD.TelenavLayer = function (context) {
         return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[1]);
     };
     ClusterCircle.transformR = function(cluster) {
-        return (cluster.size * 50) / maxCircleSize;
+        return 5 + ((cluster.size * 45) / maxCircleSize);
     };
 
     // ==============================
@@ -1027,7 +1027,7 @@ iD.TelenavLayer = function (context) {
                     break;
             }
             requestUrlQueue.push(
-                types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status + '&client=WEBAPP'
+                types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status + '&client=WEBAPP&version=1.2'
             );
             pushedTypes.push(selectedTypes[i]);
         }
