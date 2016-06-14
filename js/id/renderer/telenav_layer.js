@@ -3,6 +3,7 @@ iD.TelenavLayer = function (context) {
         svg,
         requestQueue = [],
         combinedItems = [],
+        combinedClusters = [],
         selectedItems = [],
         status = 'OPEN',
         requestCount;
@@ -361,6 +362,34 @@ iD.TelenavLayer = function (context) {
 
     // ==============================
     // ==============================
+    // ClusterCircle
+    // ==============================
+    // ==============================
+    var ClusterCircle = function(rawItemData, type) {
+        this.className = 'ClusterCircle';
+        this.id = 'cc_' + [rawItemData.point.lat, rawItemData.point.lon, rawItemData.size].join('_');
+        this.point = rawItemData.point;
+        this.size = rawItemData.size;
+        this.type = type;
+    };
+    ClusterCircle.transformClass = function(cluster) {
+        return cluster.className;
+    };
+    ClusterCircle.transformType = function(cluster) {
+        return cluster.type;
+    };
+    ClusterCircle.transformX = function(cluster) {
+        return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[0]);
+    };
+    ClusterCircle.transformY = function(cluster) {
+        return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[1]);
+    };
+    ClusterCircle.transformR = function(cluster) {
+        return (cluster.size * 50) / maxCircleSize;
+    };
+
+    // ==============================
+    // ==============================
     // EditPanel
     // ==============================
     // ==============================
@@ -583,6 +612,54 @@ iD.TelenavLayer = function (context) {
 
     var _editPanel = new EditPanel();
 
+    var maxCircleSize = 1;
+
+    var _synchClusterCallbacks = function(error, data, type) {
+
+        if (data.hasOwnProperty('clusters')) {
+            for (var i = 0; i < data.clusters.length; i++) {
+                if (maxCircleSize < data.clusters[i].size) {
+                    maxCircleSize = data.clusters[i].size;
+                }
+                combinedClusters.push(new ClusterCircle(
+                    data.clusters[i], type
+                ));
+            }
+        }
+
+
+
+        if (!--requestCount) {
+
+            if (error) {
+                svg.selectAll('g.cluster')
+                    .remove();
+                return;
+            }
+            var g = svg.selectAll('g.cluster')
+                .data(combinedClusters, function(cluster) {
+                    return cluster.id;
+                    //return item;
+                });
+
+            var enter = g.enter().append('g')
+                .attr('class', ClusterCircle.transformClass)
+                .classed('cluster', true)
+                .attr('id', ClusterCircle.transformId);
+
+            var circle = enter.append('circle')
+                .attr('class', ClusterCircle.transformType)
+                .attr('cx', ClusterCircle.transformX)
+                .attr('cy', ClusterCircle.transformY)
+                .attr('r', ClusterCircle.transformR);
+
+            maxCircleSize = 1;
+
+            g.exit()
+                .remove();
+        }
+    };
+
     var _synchCallbacks = function(error, data) {
 
         if (data.hasOwnProperty('roadSegments')) {
@@ -611,11 +688,11 @@ iD.TelenavLayer = function (context) {
 
         if (!--requestCount) {
             if (error) {
-                svg.selectAll('g')
+                svg.selectAll('g.item')
                     .remove();
                 return;
             }
-            var g = svg.selectAll('g')
+            var g = svg.selectAll('g.item')
                 .data(combinedItems, function(item) {
                     return item.getId();
                     //return item;
@@ -623,6 +700,7 @@ iD.TelenavLayer = function (context) {
 
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
+                .classed('item', true)
                 .attr('id', MapItem.transformId);
 
             var dOFs = enter.filter(function(item) {
@@ -736,11 +814,17 @@ iD.TelenavLayer = function (context) {
 
         if (!enable) {
 
-            svg.selectAll('g')
+            svg.selectAll('g.item')
+                .remove();
+            svg.selectAll('g.cluster')
                 .remove();
 
             return;
         }
+
+        var clusterCircles = svg.selectAll('.ClusterCircle > circle');
+        clusterCircles.attr('cx', ClusterCircle.transformX);
+        clusterCircles.attr('cy', ClusterCircle.transformY);
 
         var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline');
         directionOfFlowPolylines.attr('points', DirectionOfFlowItem.transformLinePoints);
@@ -811,6 +895,7 @@ iD.TelenavLayer = function (context) {
             extent[0][0] + '&east=' + extent[1][0] + '&zoom=' + zoom;
 
         var requestUrlQueue = [];
+        var pushedTypes = [];
         for (var i = 0; i < selectedTypes.length; i++) {
             var typesFragments = '';
             switch (selectedTypes[i]) {
@@ -827,19 +912,33 @@ iD.TelenavLayer = function (context) {
                     typesFragments += trSelectedDetails.join('%2C');
                     break;
             }
-            requestUrlQueue.push(types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status);
+            requestUrlQueue.push(
+                types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status + '&client=WEBAPP'
+            );
+            pushedTypes.push(selectedTypes[i]);
         }
 
         requestCount = requestUrlQueue.length;
         combinedItems.length = 0;
+        combinedClusters.length = 0;
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
+            svg.selectAll('g.cluster')
+                .remove();
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
-        } else {
-            svg.selectAll('g')
+        } else if (requestUrlQueue.length !== 0) {
+            svg.selectAll('g.item')
                 .remove();
+            for (var i = 0; i < requestUrlQueue.length; i++) {
+                var type = pushedTypes[i];
+                !function (type) {
+                    requestQueue[i] = d3.json(requestUrlQueue[i], function (error, data) {
+                        _synchClusterCallbacks(error, data, type);
+                    });
+                }(type);
+            }
         }
     }
 

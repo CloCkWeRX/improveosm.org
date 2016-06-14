@@ -1657,6 +1657,22 @@ text.gpx {
     fill-opacity: 0.6;
 }
 
+.layer-telenav g.cluster circle.dof {
+    fill: #EE7600;
+    fill-opacity: 0.8;
+    stroke-width: 0;
+}
+.layer-telenav g.cluster circle.mr {
+    fill: #B0171F;
+    fill-opacity: 0.8;
+    stroke-width: 0;
+}
+.layer-telenav g.cluster circle.tr {
+    fill: #1E90FF;
+    fill-opacity: 0.8;
+    stroke-width: 0;
+}
+
 /* Modes */
 
 .mode-draw-line .vertex.active,
