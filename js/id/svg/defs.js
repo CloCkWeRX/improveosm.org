@@ -54,6 +54,25 @@ iD.svg.Defs = function(context) {
             .attr('stroke', 'none')
             .attr('fill', '#f00')
             .attr('opacity', '1');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker-opaque',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker-opaque')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#f00')
+            .attr('opacity', '.2');
+
         defs.append('marker')
             .attr({
                 id: 'telenav-arrow-marker-green',
@@ -71,6 +90,61 @@ iD.svg.Defs = function(context) {
             .attr('stroke', 'none')
             .attr('fill', '#00CD00')
             .attr('opacity', '1');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker-green-opaque',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker-green-opaque')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#00CD00')
+            .attr('opacity', '.2');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker-orange',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker-orange')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#EE7600')
+            .attr('opacity', '1');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-marker-orange-opaque',
+                viewBox: '0 0 6 6',
+                refY: 2,
+                refX: 0,
+                markerWidth: 6,
+                markerHeight: 6,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-marker-orange-opaque')
+            .attr('d', 'M0,0 L0,4 5,2 z')
+            .attr('stroke', 'none')
+            .attr('fill', '#EE7600')
+            .attr('opacity', '.2');
+
 
         defs.append('marker')
             .attr({
@@ -94,6 +168,26 @@ iD.svg.Defs = function(context) {
 
         defs.append('marker')
             .attr({
+                id: 'telenav-tr-marker-opaque',
+                viewBox: '0 0 10 10',
+                refY: 5,
+                refX: 5,
+                markerWidth: 9,
+                markerHeight: 9,
+                markerUnits: 'strokeWidth',
+                orient: 'auto'
+            })
+            .append('circle')
+            .attr('class', 'telenav-tr-marker-opaque')
+            .attr('cx', '5')
+            .attr('cy', '5')
+            .attr('r', '4')
+            .attr('stroke', '#f00')
+            .attr('fill', '#fff')
+            .attr('opacity', '.2');
+
+        defs.append('marker')
+            .attr({
                 id: 'telenav-selected-arrow-marker',
                 viewBox: '0 0 3 3',
                 refY: 1,
@@ -107,7 +201,7 @@ iD.svg.Defs = function(context) {
             .attr('class', 'telenav-selected-arrow-marker')
             .attr('d', 'M0,0 L0,2 L3,1 z')
             .attr('stroke', 'none')
-            .attr('fill', '#008000')
+            .attr('fill', '#DC143C')
             .attr('opacity', '0.6');
 
         // patterns
