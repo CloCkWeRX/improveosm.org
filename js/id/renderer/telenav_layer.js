@@ -205,6 +205,12 @@ iD.TelenavLayer = function (context) {
         return stringPoints.join(' ');
     };
     TurnRestrictionItem.transformInNoX = function(item) {
+        return Math.floor(context.projection([lon, lat])[0]);
+    };
+    TurnRestrictionItem.transformInNoY = function(item) {
+        return Math.floor(context.projection([lon, lat])[1]);
+    };
+    TurnRestrictionItem.transformInNoX = function(item) {
         return item.getInNo().x - 10;
     };
     TurnRestrictionItem.transformInNoY = function(item) {
@@ -860,8 +866,16 @@ iD.TelenavLayer = function (context) {
             mrSelRect.attr('fill', '#044B94');
             mrSelRect.attr('fill-opacity', '0.4');
 
-            var trSelPoly = tRs.append('polyline').attr('class', 'highlight highlightOff');
-            trSelPoly.attr('points', TurnRestrictionItem.transformLinePoints);
+            var trCircle = tRs.append('circle')
+                .attr('class', 'telenav-tr-marker')
+                .attr('cx', TurnRestrictionItem.transformX)
+                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('r', '10');
+            var trSelCircle = tRs.append('circle').attr('class', 'highlight highlightOff')
+                .attr('class', 'telenav-tr-marker')
+                .attr('cx', TurnRestrictionItem.transformX)
+                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('r', '10');
             var trPolyIn = tRs.append('polyline');
             trPolyIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
             trPolyIn.attr('marker-start', 'url(#telenav-arrow-marker-green)');
@@ -969,6 +983,12 @@ iD.TelenavLayer = function (context) {
             return html;
         });
 
+        var trCircle = svg.selectAll('.TurnRestrictionItem > circle');
+        trCircle.attr('cx', TurnRestrictionItem.transformX);
+        trCircle.attr('cy', TurnRestrictionItem.transformY);
+        var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.highlight');
+        trSelCircle.attr('cx', TurnRestrictionItem.transformX);
+        trSelCircle.attr('cy', TurnRestrictionItem.transformY);
         var turnRestrictionPolylinesIn = svg.selectAll('.TurnRestrictionItem > polyline.wayIn');
         turnRestrictionPolylinesIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
         var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
