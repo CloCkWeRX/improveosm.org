@@ -1596,6 +1596,13 @@ text.gpx {
     stroke-opacity: 1;
     fill-opacity: 1;
 }
+.editMode .TurnRestrictionItem circle {
+    stroke-opacity: .2;
+    fill-opacity: .2;
+}
+.editMode .TurnRestrictionItem text {
+    //fill: black;
+}
 
 .TurnRestrictionItem text,
 .TurnRestrictionItem rect,
@@ -1634,7 +1641,7 @@ text.gpx {
 
 .layer-telenav g .highlightOff {
     stroke-width: 10;
-    stroke-opacity: .0;
+    stroke-opacity: .4;
     stroke: orange;
     cursor: pointer;
 }
@@ -1647,19 +1654,21 @@ text.gpx {
 
 .layer-telenav g polyline.wayIn {
     stroke: #00CD00;
+    stroke-opacity: .4;
 }
 .layer-telenav g text.inNo {
-    stroke-width: 1;
-    stroke: #00CD00;
+    //stroke-width: 1;
+    fill: #00CD00;
 }
 
 
 .layer-telenav g polyline.wayOut {
     stroke: #FF0000;
+    stroke-opacity: .4;
 }
 .layer-telenav g text.outNo {
-    stroke-width: 1;
-    stroke: #FF0000;
+    //stroke-width: 1;
+    fill: #FF0000;
 }
 
 .layer-telenav g rect.noInRect,
