@@ -1589,6 +1589,26 @@ text.gpx {
 .turnRestriction polyline {
     display: none;
 }
+
+.TurnRestrictionItem circle {
+    stroke: red;
+    fill: white;
+    stroke-opacity: 1;
+    fill-opacity: 1;
+}
+
+.TurnRestrictionItem text,
+.TurnRestrictionItem rect,
+.TurnRestrictionItem polyline.wayIn,
+.TurnRestrictionItem polyline.wayOut {
+    display: none;
+}
+.TurnRestrictionItem.selected text,
+.TurnRestrictionItem.selected rect,
+.TurnRestrictionItem.selected polyline.wayIn,
+.TurnRestrictionItem.selected polyline.wayOut {
+    display: block;
+}
 .turnRestriction:hover circle {
     fill: white;
     stroke-opacity: 1;
