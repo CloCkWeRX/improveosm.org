@@ -1146,6 +1146,33 @@ iD.TelenavLayer = function (context) {
             .append('div');
         var userContainer = userWindowInner.append('div')
             .attr('class', 'preset-form inspector-inner fillL3');
+        var multipleTR_form = userContainer.append('div')
+            .attr('class', 'form-field');
+        multipleTR_form.append('label')
+            .attr('class', 'form-label')
+            .text('Possible Turn Restrictions:')
+            .append('div')
+            .attr('class', 'form-label-button-wrap');
+
+        var multipleTR_formWrap = multipleTR_form.append('form')
+            .attr('class', 'filterForm optionsContainer trList')
+            .append('ul');
+
+        var multipleTR_elemOne = multipleTR_formWrap.append('li');
+        multipleTR_elemOne.append('span').attr('class', 'trListHeader').text('alo1');
+        multipleTR_elemOne.append('span').text('alo2');
+        multipleTR_elemOne.append('span').text('alo3');
+
+        var multipleTR_elemTwo = multipleTR_formWrap.append('li').attr('class', 'selected');
+        multipleTR_elemTwo.append('span').attr('class', 'trListHeader').text('alo4');
+        multipleTR_elemTwo.append('span').text('alo5');
+        multipleTR_elemTwo.append('span').text('alo6');
+
+        var multipleTR_elemThree = multipleTR_formWrap.append('li');
+        multipleTR_elemThree.append('span').attr('class', 'trListHeader').text('alo7');
+        multipleTR_elemThree.append('span').text('alo8');
+        multipleTR_elemThree.append('span').text('alo9');
+
         var detailedInfo_form = userContainer.append('div')
             .attr('class', 'form-field');
         detailedInfo_form.append('label')
@@ -1153,10 +1180,7 @@ iD.TelenavLayer = function (context) {
             .text('Detailed Information')
             .append('div')
             .attr('class', 'form-label-button-wrap');
-/*            .append('button')
-            .attr('class', 'tag-reference-icon')
-            .attr('tabindex', '-1')
-            .call(iD.svg.Icon('#icon-inspect'));*/
+
         detailedInfo_form.append('form')
             .attr('class', 'filterForm optionsContainer itemDetails');
 

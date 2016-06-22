@@ -1597,8 +1597,8 @@ text.gpx {
     fill-opacity: 1;
 }
 .editMode .TurnRestrictionItem circle {
-    stroke-opacity: .2;
-    fill-opacity: .2;
+    stroke-opacity: .4;
+    fill-opacity: .4;
 }
 .editMode .TurnRestrictionItem text {
     //fill: black;
@@ -1739,6 +1739,26 @@ text.gpx {
 }
 .editMode g.MissingRoadItem rect {
     fill-opacity: .2;
+}
+
+.trList ul {
+    list-style-type: none;
+}
+
+.trList li {
+     font-size: 12px;
+     padding: 3px 0;
+     border-bottom: 1px solid #eee;
+ }
+.trList .selected {
+    font-weight: bold;
+}
+.trList li span {
+    width: 35%;
+    display: inline-block;
+}
+.trList li .trListHeader {
+    width: 30%;
 }
 
 /* Modes */
