@@ -861,6 +861,21 @@ iD.TelenavLayer = function (context) {
 
             mRs.html(function(d) {
                 var html = '';
+                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                    + ' fill=' + 'red'
+                    + ' fill-opacity=' + '0.4'
+                    + '></rect>';
+                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                    + ' fill=' + 'red'
+                    + ' fill-opacity=' + '0.4'
+                    + ' class="highlight"' + '0.4'
+                    + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
@@ -869,22 +884,22 @@ iD.TelenavLayer = function (context) {
                 return html;
             });
 
-            var mrRect = mRs.append('rect');
-            mrRect.attr('x', MissingRoadItem.transformTileX);
-            mrRect.attr('y', MissingRoadItem.transformTileY);
-            mrRect.attr('width', MissingRoadItem.transformTileWidth);
-            mrRect.attr('height', MissingRoadItem.transformTileHeight);
-            mrRect.attr('fill', '#044B94');
-            mrRect.attr('fill-opacity', '0.4');
-
-            var mrSelRect = mRs.append('rect');
-            mrSelRect.attr('class', 'highlight')
-            mrSelRect.attr('x', MissingRoadItem.transformTileX);
-            mrSelRect.attr('y', MissingRoadItem.transformTileY);
-            mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
-            mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
-            mrSelRect.attr('fill', '#044B94');
-            mrSelRect.attr('fill-opacity', '0.4');
+            //var mrRect = mRs.append('rect');
+            //mrRect.attr('x', MissingRoadItem.transformTileX);
+            //mrRect.attr('y', MissingRoadItem.transformTileY);
+            //mrRect.attr('width', MissingRoadItem.transformTileWidth);
+            //mrRect.attr('height', MissingRoadItem.transformTileHeight);
+            //mrRect.attr('fill', '#044B94');
+            //mrRect.attr('fill-opacity', '0.4');
+            //
+            //var mrSelRect = mRs.append('rect');
+            //mrSelRect.attr('class', 'highlight')
+            //mrSelRect.attr('x', MissingRoadItem.transformTileX);
+            //mrSelRect.attr('y', MissingRoadItem.transformTileY);
+            //mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
+            //mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
+            //mrSelRect.attr('fill', '#044B94');
+            //mrSelRect.attr('fill-opacity', '0.4');
 
             var trCircle = tRs.append('circle')
                 .attr('class', 'telenav-tr-marker')
@@ -980,11 +995,6 @@ iD.TelenavLayer = function (context) {
         var missingRoadsCircles = svg.selectAll('.MissingRoadItem');
         missingRoadsCircles.html(function(d) {
             var html = '';
-            for (var i = 0; i < d._points.length; i++) {
-                var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
-                var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
-                html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
-            }
             html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
                 + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
                 + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
@@ -1000,6 +1010,11 @@ iD.TelenavLayer = function (context) {
                 + ' fill-opacity=' + '0.4'
                 + ' class="highlight"' + '0.4'
                 + '></rect>';
+            for (var i = 0; i < d._points.length; i++) {
+                var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
+                var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+            }
             return html;
         });
 
