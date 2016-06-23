@@ -855,7 +855,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1276,22 +1276,22 @@ iD.TelenavLayer = function (context) {
                         .classed('off', false)
                     d3.select('.layer-telenav').classed('editMode', true);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
                 } else {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode Off')
                         .classed('off', true)
                     d3.select('.layer-telenav').classed('editMode', false);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
                 }
             });
 
