@@ -536,9 +536,32 @@ iD.TelenavLayer = function (context) {
 
         this.showSiblings = function(siblings) {
             if (siblings.length > 0) {
+                d3.select('#siblingsPanel').classed('hide', false);
+                var listElement = d3.select('#siblingsList');
+                listElement.html('');
                 for (var i = 0; i < siblings.length; i++) {
-
+                    var element = listElement.append('li').attr('data-id', siblings[i].id);
+                    element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType);
+                    element.append('span').text(siblings[i].confidenceLevel);
+                    element.append('span').text(siblings[i].numberOfPasses);
+                    element.on('mouseover', function() {
+                        d3.select('[data-id=' + d3.event.currentTarget.attributes[0].nodeValue + ']').classed('selected', true);
+                    });
+                    element.on('mouseout', function() {
+                        d3.select('[data-id=' + d3.event.currentTarget.attributes[0].nodeValue + ']').classed('selected', false);
+                    });
+                    element.on('click', function() {
+                        var item = null;
+                        for (var i = 0; i < combinedItems.length; i++) {
+                            if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
+                                item = combinedItems[i];
+                            }
+                        }
+                        MapItem.handleSelection(item);
+                    });
                 }
+            } else {
+                d3.select('#siblingsPanel').classed('hide', true);
             }
         };
 
@@ -1263,7 +1286,8 @@ iD.TelenavLayer = function (context) {
         var userContainer = userWindowInner.append('div')
             .attr('class', 'preset-form inspector-inner fillL3');
         var multipleTR_form = userContainer.append('div')
-            .attr('class', 'form-field');
+            .attr('class', 'form-field')
+            .attr('id', 'siblingsPanel');
         multipleTR_form.append('label')
             .attr('class', 'form-label')
             .text('Possible Turn Restrictions:')
@@ -1272,22 +1296,8 @@ iD.TelenavLayer = function (context) {
 
         var multipleTR_formWrap = multipleTR_form.append('form')
             .attr('class', 'filterForm optionsContainer trList')
-            .append('ul');
-
-        var multipleTR_elemOne = multipleTR_formWrap.append('li');
-        multipleTR_elemOne.append('span').attr('class', 'trListHeader').text('alo1');
-        multipleTR_elemOne.append('span').text('alo2');
-        multipleTR_elemOne.append('span').text('alo3');
-
-        var multipleTR_elemTwo = multipleTR_formWrap.append('li').attr('class', 'selected');
-        multipleTR_elemTwo.append('span').attr('class', 'trListHeader').text('alo4');
-        multipleTR_elemTwo.append('span').text('alo5');
-        multipleTR_elemTwo.append('span').text('alo6');
-
-        var multipleTR_elemThree = multipleTR_formWrap.append('li');
-        multipleTR_elemThree.append('span').attr('class', 'trListHeader').text('alo7');
-        multipleTR_elemThree.append('span').text('alo8');
-        multipleTR_elemThree.append('span').text('alo9');
+            .append('ul')
+            .attr('id', 'siblingsList');
 
         var detailedInfo_form = userContainer.append('div')
             .attr('class', 'form-field');
