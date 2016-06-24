@@ -4,7 +4,7 @@ iD.TelenavLayer = function (context) {
         requestQueue = [],
         combinedItems = [],
         combinedClusters = [],
-        selectedItems = [],
+        //selectedItems = [],
         status = 'OPEN',
         requestCount;
 
@@ -39,7 +39,91 @@ iD.TelenavLayer = function (context) {
             lonMin: longitudeMin,
             lonMax: longitudeMax
         }
-    }
+    };
+
+    // ==============================
+    // ==============================
+    // SelectedItems
+    // ==============================
+    // ==============================
+    var SelectedItems = function(items) {
+        // ---
+        this.items = items;
+
+        this.add = function(item) {
+            this.items.push(item);
+        };
+
+        this.empty = function() {
+            this.items.length = 0;
+        };
+        this.getSize = function() {
+            return this.items.length;
+        };
+        this.getItem = function(index) {
+            if (index >= this.items.length) {
+                throw new Error('SelectedItems : getItem - problem');
+            }
+            return this.items[index];
+        };
+        this.getItemById = function(id) {
+            var neededItem = null;
+            for (var i = 0; i < this.items.length; i++) {
+                if (this.items[i].id === id) {
+                    neededItem = this.items[i];
+                }
+            }
+            if (neededItem == null) {
+                throw new Error('SelectedItems : getItemById - problem');
+            }
+            return neededItem;
+        };
+
+        this.removeItemById = function(id) {
+            var neededItem = null;
+            for (var i = 0; i < this.items.length; i++) {
+                if (this.items[i].id === id) {
+                    this.items.splice(i, 1);
+                }
+            }
+            if (neededItem == null) {
+                throw new Error('SelectedItems : removeItemById - problem');
+            }
+            return neededItem;
+        };
+
+        this.getSiblings = function(id, combinedItems) {
+            var neededItem = null;
+            for (var i = 0; i < this.items.length; i++) {
+                if (this.items[i].id === id) {
+                    neededItem = this.items[i];
+                }
+            }
+            if (neededItem == null) {
+                throw new Error('SelectedItems : getItemById - problem');
+            }
+            if (neededItem.className !== 'TurnRestrictionItem') {
+                return [];
+            }
+            var siblings = [];
+            for (var i = 0; i < combinedItems.length; i++) {
+                if (combinedItems[i].className !== 'TurnRestrictionItem') {
+                    continue;
+                }
+                if (
+                    (combinedItems[i].point.lat === neededItem.point.lat) &&
+                    (combinedItems[i].point.lon === neededItem.point.lon) &&
+                    (combinedItems[i].id != neededItem.id)
+                ) {
+                    siblings.push(combinedItems[i]);
+                }
+            }
+
+            return siblings;
+        };
+    };
+
+    var selectedItems2 = new SelectedItems([]);
 
     // ==============================
     // ==============================
@@ -48,79 +132,82 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var MapItem = function() {
         // ---
-        this._className = 'MapItem';
-        this._id = null;
+        this.className = 'MapItem';
+        this.id = null;
 
         this.isA = function(proposedClassName) {
-            return proposedClassName === this._className;
-        };
-        this.getId = function() {
-            return this._id;
-        };
-        this.getClass = function() {
-            return this._className;
+            return proposedClassName === this.className;
         };
     };
     MapItem.transformClass = function(item) {
-        if(item._className != 'MissingRoadItem') {
-            return item.getClass();
+        if(item.className != 'MissingRoadItem') {
+            return item.className;
         } else {
-            return item.getClass() + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
+            return item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
         }
     };
     MapItem.transformId = function(item) {
-        return item.getId();
+        return item.id;
     };
     MapItem.handleSelection = function(item) {
-        var node = d3.select('#' + item.getId());
+        var node = d3.select('#' + item.id);
         if (node.classed('selected')) {
             if (d3.event.ctrlKey) {
                 node.classed('selected', false);
-                for (var i = 0; i < selectedItems.length; i++) {
-                    if (selectedItems[i].getId() === item.getId()) {
-                        selectedItems.splice(i, 1);
-                    }
-                }
+                //for (var i = 0; i < selectedItems.length; i++) {
+                //    if (selectedItems[i].id === item.id) {
+                //        selectedItems.splice(i, 1);
+                //    }
+                //}
+                selectedItems2.removeItemById(item.id);
             } else {
                 if (svg.selectAll('g.selected')[0].length === 1) {
                     node.classed('selected', false);
-                    selectedItems.length = 0;
+                    //selectedItems.length = 0;
+                    selectedItems2.empty();
                 } else {
                     svg.selectAll('g').classed('selected', false);
-                    selectedItems.length = 0;
+                    //selectedItems.length = 0;
+                    selectedItems2.empty();
                     node.classed('selected', true);
-                    selectedItems.push(item);
+                    //selectedItems.push(item);
+                    selectedItems2.add(item);
                 }
             }
         } else {
             if (d3.event.ctrlKey) {
                 node.classed('selected', true)
                 .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
-                selectedItems.push(item);
+                //selectedItems.push(item);
+                selectedItems2.add(item);
             } else {
                 svg.selectAll('g').classed('selected', false);
-                selectedItems.length = 0;
+                //selectedItems.length = 0;
+                selectedItems2.empty();
                 node.classed('selected', true);
-                selectedItems.push(item);
+                //selectedItems.push(item);
+                selectedItems2.add(item);
             }
         }
         d3.event.stopPropagation();
-        if (selectedItems.length === 0) {
+        if (selectedItems2.getSize() === 0) {
+        //if (selectedItems.length === 0) {
             _editPanel.goToMain();
         } else {
             _editPanel.goToEdit(item);
             _editPanel.selectedItemDetails(item);
         }
+        _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
     };
     MapItem.handleMouseOver = function(item) {
-        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+        var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', true)
             .classed('highlightOff', false)
             .attr('marker-end', 'url(#telenav-selected-arrow-marker)')
             .attr('marker-start', 'url(#telenav-selected-arrow-marker)');
     };
     MapItem.handleMouseOut = function(item) {
-        var nodes = d3.selectAll('#' + item.getId() + ' .highlight')
+        var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', false)
             .classed('highlightOff', true)
             .attr('marker-end', null)
@@ -133,8 +220,9 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var TurnRestrictionItem = function(rawItemData) {
         // ---
-        this._className = 'TurnRestrictionItem';
-        this._id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
+        this.className = 'TurnRestrictionItem';
+        this.id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
+        this.point = rawItemData.point;
         this.confidenceLevel = rawItemData.confidenceLevel;
         this.numberOfPasses = rawItemData.numberOfPasses;
         this.turnType = rawItemData.turnType;
@@ -174,10 +262,10 @@ iD.TelenavLayer = function (context) {
     // static
     TurnRestrictionItem.prototype = new MapItem();
     TurnRestrictionItem.transformX = function(item) {
-        return Math.floor(context.projection([item.getPoint().lon, item.getPoint().lat])[0]);
+        return Math.floor(context.projection([item.point.lon, item.point.lat])[0]);
     };
     TurnRestrictionItem.transformY= function(item) {
-        return Math.floor(context.projection([item.getPoint().lon, item.getPoint().lat])[1]);
+        return Math.floor(context.projection([item.point.lon, item.point.lat])[1]);
     };
     TurnRestrictionItem.transformLinePoints = function(item) {
         var stringPoints = [];
@@ -257,8 +345,8 @@ iD.TelenavLayer = function (context) {
     // ==============================
     // ==============================
     var MissingRoadItem = function(rawItemData) {
-        this._className = 'MissingRoadItem';
-        this._id = ('mr_' + rawItemData.x + '_' + rawItemData.y).replace(/\./g,'_');
+        this.className = 'MissingRoadItem';
+        this.id = ('mr_' + rawItemData.x + '_' + rawItemData.y).replace(/\./g,'_');
         this._points = rawItemData.points;
         this.numberOfTrips = rawItemData.numberOfTrips;
         this.type = rawItemData.type;
@@ -356,8 +444,8 @@ iD.TelenavLayer = function (context) {
     // ==============================
     // ==============================
     var DirectionOfFlowItem = function(rawItemData) {
-        this._className = 'DirectionOfFlowItem';
-        this._id = 'dof_' + [rawItemData.fromNodeId, rawItemData.toNodeId, rawItemData.wayId].join('_');
+        this.className = 'DirectionOfFlowItem';
+        this.id = 'dof_' + [rawItemData.fromNodeId, rawItemData.toNodeId, rawItemData.wayId].join('_');
         this.confidence = rawItemData.confidenceLevel;
         this.numberOfTrips = rawItemData.numberOfTrips;
         this.roadType = rawItemData.type;
@@ -441,8 +529,17 @@ iD.TelenavLayer = function (context) {
 
         this.deselectAll = function() {
             svg.selectAll('g').classed('selected', false);
-            selectedItems.length = 0;
+            //selectedItems.length = 0;
+            selectedItems2.empty();
             this.goToMain();
+        };
+
+        this.showSiblings = function(siblings) {
+            if (siblings.length > 0) {
+                for (var i = 0; i < siblings.length; i++) {
+
+                }
+            }
         };
 
         this.goToMain = function() {
@@ -490,7 +587,7 @@ iD.TelenavLayer = function (context) {
 
         this.selectedItemDetails = function selectedItemDetails(item){
             var confidenceLvl;
-            switch (item._className){
+            switch (item.className){
                 case 'TurnRestrictionItem':
                     switch (item.confidenceLevel) {
                         case 'C1':
@@ -637,8 +734,10 @@ iD.TelenavLayer = function (context) {
                 //prose.html(t('commit.upload_explanation_with_user', {user: userLink.html()}));
 
                 status = status.toUpperCase();
-                for (var i = 0; i < selectedItems.length; i++) {
-                    var currentItem = selectedItems[i];
+                //for (var i = 0; i < selectedItems.length; i++) {
+                for (var i = 0; i < selectedItems2.getSize(); i++) {
+                    //var currentItem = selectedItems[i];
+                    var currentItem = selectedItems2.getItem(i);
 
                     var dataToPost = {
                         username: user.display_name,
@@ -651,7 +750,7 @@ iD.TelenavLayer = function (context) {
                         console.log("got response", data);
                     };
 
-                    switch (currentItem.getClass()) {
+                    switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
                             d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
@@ -701,8 +800,10 @@ iD.TelenavLayer = function (context) {
                 }
                 var comment = d3.select('#commentText').property('value');
 
-                for (var i = 0; i < selectedItems.length; i++) {
-                    var currentItem = selectedItems[i];
+                //for (var i = 0; i < selectedItems.length; i++) {
+                for (var i = 0; i < selectedItems2.getSize(); i++) {
+                //    var currentItem = selectedItems[i];
+                    var currentItem = selectedItems2.getItem(i);
 
                     var dataToPost = {
                         username: 'Tudor009',
@@ -714,7 +815,7 @@ iD.TelenavLayer = function (context) {
                         console.log("got response", data);
                     };
 
-                    switch (currentItem.getClass()) {
+                    switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
                             d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
@@ -834,7 +935,7 @@ iD.TelenavLayer = function (context) {
             }
             var g = svg.selectAll('g.item')
                 .data(combinedItems, function(item) {
-                    return item.getId();
+                    return item.id;
                     //return item;
                 });
 
