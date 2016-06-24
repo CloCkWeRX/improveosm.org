@@ -956,7 +956,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1262,6 +1262,33 @@ iD.TelenavLayer = function (context) {
             .append('div');
         var userContainer = userWindowInner.append('div')
             .attr('class', 'preset-form inspector-inner fillL3');
+        var multipleTR_form = userContainer.append('div')
+            .attr('class', 'form-field');
+        multipleTR_form.append('label')
+            .attr('class', 'form-label')
+            .text('Possible Turn Restrictions:')
+            .append('div')
+            .attr('class', 'form-label-button-wrap');
+
+        var multipleTR_formWrap = multipleTR_form.append('form')
+            .attr('class', 'filterForm optionsContainer trList')
+            .append('ul');
+
+        var multipleTR_elemOne = multipleTR_formWrap.append('li');
+        multipleTR_elemOne.append('span').attr('class', 'trListHeader').text('alo1');
+        multipleTR_elemOne.append('span').text('alo2');
+        multipleTR_elemOne.append('span').text('alo3');
+
+        var multipleTR_elemTwo = multipleTR_formWrap.append('li').attr('class', 'selected');
+        multipleTR_elemTwo.append('span').attr('class', 'trListHeader').text('alo4');
+        multipleTR_elemTwo.append('span').text('alo5');
+        multipleTR_elemTwo.append('span').text('alo6');
+
+        var multipleTR_elemThree = multipleTR_formWrap.append('li');
+        multipleTR_elemThree.append('span').attr('class', 'trListHeader').text('alo7');
+        multipleTR_elemThree.append('span').text('alo8');
+        multipleTR_elemThree.append('span').text('alo9');
+
         var detailedInfo_form = userContainer.append('div')
             .attr('class', 'form-field');
         detailedInfo_form.append('label')
@@ -1269,10 +1296,7 @@ iD.TelenavLayer = function (context) {
             .text('Detailed Information')
             .append('div')
             .attr('class', 'form-label-button-wrap');
-/*            .append('button')
-            .attr('class', 'tag-reference-icon')
-            .attr('tabindex', '-1')
-            .call(iD.svg.Icon('#icon-inspect'));*/
+
         detailedInfo_form.append('form')
             .attr('class', 'filterForm optionsContainer itemDetails');
 
@@ -1368,22 +1392,22 @@ iD.TelenavLayer = function (context) {
                         .classed('off', false)
                     d3.select('.layer-telenav').classed('editMode', true);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
                 } else {
                     generalSettingsButtonWrap.select('.label')
                         .text('Edit Mode Off')
                         .classed('off', true)
                     d3.select('.layer-telenav').classed('editMode', false);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
                 }
             });
 

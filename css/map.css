@@ -1571,6 +1571,8 @@ text.gpx {
     stroke-width: 3;
     stroke: red;
     fill: none;
+/*    stroke-opacity: .4;
+    fill-opacity: .4;*/
 }
 
 .layer-telenav.selected {
@@ -1593,12 +1595,12 @@ text.gpx {
 .TurnRestrictionItem circle {
     stroke: red;
     fill: white;
-    stroke-opacity: 1;
-    fill-opacity: 1;
+/*    stroke-opacity: 1;
+    fill-opacity: 1;*/
 }
 .editMode .TurnRestrictionItem circle {
-    stroke-opacity: .2;
-    fill-opacity: .2;
+/*    stroke-opacity: .6;
+    fill-opacity: .6;*/
 }
 .editMode .TurnRestrictionItem text {
     //fill: black;
@@ -1618,24 +1620,26 @@ text.gpx {
 }
 .turnRestriction:hover circle {
     fill: white;
-    stroke-opacity: 1;
-    fill-opacity: 1;
+/*    stroke-opacity: 1;
+    fill-opacity: 1;*/
 }
 .turnRestriction:hover polyline {
     display: block;
 }
 
-.layer-telenav svg {
-    stroke-opacity: 1;
+.layer-telenav svg * {
+    stroke-opacity: .4;
+    fill-opacity: .4;
 }
 
-.layer-telenav.editMode svg {
-    stroke-opacity: 0.2;
+.layer-telenav.editMode svg * {
+    stroke-opacity: 0.6;
+    fill-opacity: 0.6;
 }
 
 .layer-telenav g.selected .highlight {
     stroke-width: 10;
-    stroke-opacity: .5;
+    stroke-opacity: 0;
     stroke: orange;
 }
 
@@ -1654,21 +1658,18 @@ text.gpx {
 
 .layer-telenav g polyline.wayIn {
     stroke: #00CD00;
-    stroke-opacity: .4;
+    /*stroke-opacity: .4;*/
 }
-.layer-telenav g text.inNo {
-    //stroke-width: 1;
-    fill: #00CD00;
+.layer-telenav g text {
+    stroke-width: 1;
+    fill: #000;
+    stroke: #000;
 }
 
 
 .layer-telenav g polyline.wayOut {
     stroke: #FF0000;
-    stroke-opacity: .4;
-}
-.layer-telenav g text.outNo {
-    //stroke-width: 1;
-    fill: #FF0000;
+    /*stroke-opacity: .4;*/
 }
 
 .layer-telenav g rect.noInRect,
@@ -1683,22 +1684,22 @@ text.gpx {
 .layer-telenav g.selected path.viewfield,
 .layer-telenav g path.viewfield {
     stroke-width: 0;
-    fill-opacity: 0.6;
+    /*fill-opacity: 0.6;*/
 }
 
 .layer-telenav g.cluster circle.dof {
     fill: #EE7600;
-    fill-opacity: 0.8;
+/*    fill-opacity: 0.8;*/
     stroke-width: 0;
 }
 .layer-telenav g.cluster circle.mr {
     fill: #B0171F;
-    fill-opacity: 0.8;
+    /*fill-opacity: 0.8;*/
     stroke-width: 0;
 }
 .layer-telenav g.cluster circle.tr {
     fill: #1E90FF;
-    fill-opacity: 0.8;
+    /*fill-opacity: 0.8;*/
     stroke-width: 0;
 }
 .layer-telenav g.DirectionOfFlowItem polyline {
@@ -1738,7 +1739,27 @@ text.gpx {
     stroke: #000;
 }
 .editMode g.MissingRoadItem rect {
-    fill-opacity: .2;
+    /*fill-opacity: .2;*/
+}
+
+.trList ul {
+    list-style-type: none;
+}
+
+.trList li {
+     font-size: 12px;
+     padding: 3px 0;
+     border-bottom: 1px solid #eee;
+ }
+.trList .selected {
+    font-weight: bold;
+}
+.trList li span {
+    width: 35%;
+    display: inline-block;
+}
+.trList li .trListHeader {
+    width: 30%;
 }
 
 /* Modes */
