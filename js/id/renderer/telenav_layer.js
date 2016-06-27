@@ -103,7 +103,10 @@ iD.TelenavLayer = function (context) {
                 throw new Error('SelectedItems : getItemById - problem');
             }
             if (neededItem.className !== 'TurnRestrictionItem') {
-                return [];
+                return {
+                    siblings: [],
+                    selected: null
+                };
             }
             var siblings = [];
             var selected = null;
