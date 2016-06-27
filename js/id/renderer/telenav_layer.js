@@ -244,15 +244,15 @@ iD.TelenavLayer = function (context) {
         var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', true)
             .classed('highlightOff', false)
-            .attr('marker-end', 'url(#telenav-selected-arrow-marker)')
-            .attr('marker-start', 'url(#telenav-selected-arrow-marker)');
+            .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
+            //.attr('marker-start', 'url(#telenav-selected-arrow-marker)');
     };
     MapItem.handleMouseOut = function(item) {
         var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', false)
             .classed('highlightOff', true)
-            .attr('marker-end', null)
-            .attr('marker-start', null);
+            .attr('marker-end', null);
+            //.attr('marker-start', null);
     };
     // ==============================
     // ==============================

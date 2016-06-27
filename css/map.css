@@ -1646,6 +1646,7 @@ text.gpx {
 .layer-telenav g .highlightOff {
     stroke-width: 10;
     stroke-opacity: .4;
+    fill-opacity: .4;
     stroke: orange;
     cursor: pointer;
 }
