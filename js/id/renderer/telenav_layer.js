@@ -106,20 +106,26 @@ iD.TelenavLayer = function (context) {
                 return [];
             }
             var siblings = [];
+            var selected = null;
             for (var i = 0; i < combinedItems.length; i++) {
                 if (combinedItems[i].className !== 'TurnRestrictionItem') {
                     continue;
                 }
                 if (
                     (combinedItems[i].point.lat === neededItem.point.lat) &&
-                    (combinedItems[i].point.lon === neededItem.point.lon) &&
-                    (combinedItems[i].id != neededItem.id)
+                    (combinedItems[i].point.lon === neededItem.point.lon)
                 ) {
+                    if (combinedItems[i].id == neededItem.id) {
+                        selected = i;
+                    }
                     siblings.push(combinedItems[i]);
                 }
             }
 
-            return siblings;
+            return {
+                siblings: siblings,
+                selected: selected
+            };
         };
     };
 
@@ -535,21 +541,20 @@ iD.TelenavLayer = function (context) {
         };
 
         this.showSiblings = function(siblings) {
+            var selected = siblings.selected;
+            siblings = siblings.siblings;
             if (siblings.length > 0) {
                 d3.select('#siblingsPanel').classed('hide', false);
                 var listElement = d3.select('#siblingsList');
                 listElement.html('');
                 for (var i = 0; i < siblings.length; i++) {
                     var element = listElement.append('li').attr('data-id', siblings[i].id);
+                    if (selected == i) {
+                        element.classed('selected', true);
+                    }
                     element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType);
                     element.append('span').text(siblings[i].confidenceLevel);
                     element.append('span').text(siblings[i].numberOfPasses);
-                    element.on('mouseover', function() {
-                        d3.select('[data-id=' + d3.event.currentTarget.attributes[0].nodeValue + ']').classed('selected', true);
-                    });
-                    element.on('mouseout', function() {
-                        d3.select('[data-id=' + d3.event.currentTarget.attributes[0].nodeValue + ']').classed('selected', false);
-                    });
                     element.on('click', function() {
                         var item = null;
                         for (var i = 0; i < combinedItems.length; i++) {
