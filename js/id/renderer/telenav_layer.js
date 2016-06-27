@@ -116,7 +116,7 @@ iD.TelenavLayer = function (context) {
                     (combinedItems[i].point.lon === neededItem.point.lon)
                 ) {
                     if (combinedItems[i].id == neededItem.id) {
-                        selected = i;
+                        selected = neededItem.id;
                     }
                     siblings.push(combinedItems[i]);
                 }
@@ -543,13 +543,13 @@ iD.TelenavLayer = function (context) {
         this.showSiblings = function(siblings) {
             var selected = siblings.selected;
             siblings = siblings.siblings;
-            if (siblings.length > 0) {
+            if (siblings.length > 1) {
                 d3.select('#siblingsPanel').classed('hide', false);
                 var listElement = d3.select('#siblingsList');
                 listElement.html('');
                 for (var i = 0; i < siblings.length; i++) {
                     var element = listElement.append('li').attr('data-id', siblings[i].id);
-                    if (selected == i) {
+                    if (selected == siblings[i].id) {
                         element.classed('selected', true);
                     }
                     element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType);
