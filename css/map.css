@@ -1753,7 +1753,13 @@ text.gpx {
  }
 .trList .selected {
     font-weight: bold;
+    background-color: #EEE;
 }
+.trList li:hover {
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .trList li span {
     width: 35%;
     display: inline-block;
