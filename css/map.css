@@ -1608,13 +1608,15 @@ text.gpx {
 
 .TurnRestrictionItem text,
 .TurnRestrictionItem rect,
-.TurnRestrictionItem polyline.wayIn,
+.TurnRestrictionItem polyline.wayIn1,
+.TurnRestrictionItem polyline.wayIn2,
 .TurnRestrictionItem polyline.wayOut {
     display: none;
 }
 .TurnRestrictionItem.selected text,
 .TurnRestrictionItem.selected rect,
-.TurnRestrictionItem.selected polyline.wayIn,
+.TurnRestrictionItem.selected polyline.wayIn1,
+.TurnRestrictionItem.selected polyline.wayIn2,
 .TurnRestrictionItem.selected polyline.wayOut {
     display: block;
 }
@@ -1656,7 +1658,8 @@ text.gpx {
     stroke: #DC143C!important;
 }
 
-.layer-telenav g polyline.wayIn {
+.layer-telenav g polyline.wayIn1,
+.layer-telenav g polyline.wayIn2 {
     stroke: #00CD00;
     /*stroke-opacity: .4;*/
 }

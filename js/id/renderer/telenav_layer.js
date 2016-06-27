@@ -268,12 +268,10 @@ iD.TelenavLayer = function (context) {
         this.numberOfPasses = rawItemData.numberOfPasses;
         this.turnType = rawItemData.turnType;
         this.status = rawItemData.status;
+        this.segments = rawItemData.segments;
 
         this.getPoint = function() {
             return rawItemData.point;
-        };
-        this.getSegments = function() {
-            return rawItemData.segments;
         };
         this.getIdentifier = function() {
             return [
@@ -301,6 +299,70 @@ iD.TelenavLayer = function (context) {
         }
     };
     // static
+    TurnRestrictionItem.getDistance = function(p1, p2) {
+
+        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
+        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
+
+        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
+        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
+
+        var a = x1 - x2;
+        var b = y1 - y2;
+
+        return Math.sqrt(a * a + b * b);
+    };
+    TurnRestrictionItem.findMiddle = function(p1, p2, d, dif) {
+        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
+        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
+
+        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
+        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
+
+        var a = x2 - x1;
+        var b = y2 - y1;
+
+        dif = d - dif;
+
+        var newX = (a * dif) / d;
+        var newY = (b * dif) / d;
+
+        newX = newX + x1;
+        newY = newY + y1;
+
+        return '' + newX + ',' + newY;
+    };
+    TurnRestrictionItem.splitSegment = function(segment) {
+        var length = 0;
+        var distances = [];
+        for (var i = 0; i < segment.length - 1; i++) {
+            var d = TurnRestrictionItem.getDistance(segment[i], segment[i + 1]);
+            length += d;
+            distances.push(d);
+        }
+        var target = length / 2;
+        length = 0;
+        var location = 0;
+        for (var i = 0; i < segment.length - 1; i++) {
+            length += distances[i];
+            if (length > target) {
+                location = i;
+                break;
+            }
+        }
+
+        var newPoint = TurnRestrictionItem.findMiddle(
+            segment[location],
+            segment[location + 1],
+            distances[location],
+            length - target
+        );
+
+        return {
+            newPoint: newPoint,
+            index: location
+        };
+    };
     TurnRestrictionItem.prototype = new MapItem();
     TurnRestrictionItem.transformX = function(item) {
         return Math.floor(context.projection([item.point.lon, item.point.lat])[0]);
@@ -310,9 +372,9 @@ iD.TelenavLayer = function (context) {
     };
     TurnRestrictionItem.transformLinePoints = function(item) {
         var stringPoints = [];
-        for (var i = 0; i < item.getSegments().length; i++) {
-            for (var j = 0; j < item.getSegments()[i].points.length; j++) {
-                var point = context.projection([item.getSegments()[i].points[j].lon, item.getSegments()[i].points[j].lat]);
+        for (var i = 0; i < item.segments.length; i++) {
+            for (var j = 0; j < item.segments[i].points.length; j++) {
+                var point = context.projection([item.segments[i].points[j].lon, item.segments[i].points[j].lat]);
                 stringPoints.push(point.toString());
             }
         }
@@ -321,20 +383,33 @@ iD.TelenavLayer = function (context) {
     };
     TurnRestrictionItem.transformLinePointsOut = function(item) {
         var stringPoints = [];
-            for (var j = 0; j < item.getSegments()[1].points.length; j++) {
-                var point = context.projection([item.getSegments()[1].points[j].lon, item.getSegments()[1].points[j].lat]);
-                stringPoints.push(point.toString());
-            }
+        for (var j = 0; j < item.segments[1].points.length; j++) {
+            var point = context.projection([item.segments[1].points[j].lon, item.segments[1].points[j].lat]);
+            stringPoints.push(point.toString());
+        }
 
         return stringPoints.join(' ');
     };
-    TurnRestrictionItem.transformLinePointsIn = function(item) {
+    TurnRestrictionItem.transformLinePointsIn1 = function(item) {
         var stringPoints = [];
-            for (var j = 0; j < item.getSegments()[0].points.length; j++) {
-                var point = context.projection([item.getSegments()[0].points[j].lon, item.getSegments()[0].points[j].lat]);
-                stringPoints.push(point.toString());
-            }
-
+        var split = TurnRestrictionItem.splitSegment(item.segments[0].points);
+        for (var j = 0; j < item.segments[0].points.length; j++) {
+            var point = context.projection([item.segments[0].points[j].lon, item.segments[0].points[j].lat]);
+            stringPoints.push(point.toString());
+        }
+        stringPoints.splice(split.index + 1, 0, split.newPoint);
+        stringPoints.splice(split.index + 2, stringPoints.length - (split.index + 1));
+        return stringPoints.join(' ');
+    };
+    TurnRestrictionItem.transformLinePointsIn2 = function(item) {
+        var stringPoints = [];
+        var split = TurnRestrictionItem.splitSegment(item.segments[0].points);
+        for (var j = 0; j < item.segments[0].points.length; j++) {
+            var point = context.projection([item.segments[0].points[j].lon, item.segments[0].points[j].lat]);
+            stringPoints.push(point.toString());
+        }
+        stringPoints.splice(split.index + 1, 0, split.newPoint);
+        stringPoints.splice(0, split.index + 1);
         return stringPoints.join(' ');
     };
     TurnRestrictionItem.transformInNoX = function(item) {
@@ -665,11 +740,11 @@ iD.TelenavLayer = function (context) {
                     var TRdetailsRow_incoming = TRdetailsContainer.append('tr');
                     TRdetailsRow_incoming.append('th')
                         .attr('colspan', '3')
-                        .text(item.getSegments()[0].numberOfTrips + ' trips entered the first segment');
+                        .text(item.segments[0].numberOfTrips + ' trips entered the first segment');
                     var TRdetailsRow_outgoing = TRdetailsContainer.append('tr');
                     TRdetailsRow_outgoing.append('th')
                         .attr('colspan', '3')
-                        .text(item.getSegments()[item.getSegments().length - 1].numberOfTrips + ' trip(s) continued on the last segment');
+                        .text(item.segments[item.segments.length - 1].numberOfTrips + ' trip(s) continued on the last segment');
                     var TRdetailsRow_status = TRdetailsContainer.append('tr');
                     TRdetailsRow_status.append('th')
                         .text('Status');
@@ -1079,10 +1154,13 @@ iD.TelenavLayer = function (context) {
                 .attr('cx', TurnRestrictionItem.transformX)
                 .attr('cy', TurnRestrictionItem.transformY)
                 .attr('r', '10');
-            var trPolyIn = tRs.append('polyline');
-            trPolyIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
-            trPolyIn.attr('marker-start', 'url(#telenav-arrow-marker-green)');
-            trPolyIn.attr('class', 'wayIn');
+            var trPolyIn1 = tRs.append('polyline');
+            trPolyIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
+            trPolyIn1.attr('marker-end', 'url(#telenav-arrow-marker-green)');
+            trPolyIn1.attr('class', 'wayIn1');
+            var trPolyIn2 = tRs.append('polyline');
+            trPolyIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
+            trPolyIn2.attr('class', 'wayIn2');
             tRs.append('rect').attr('class', 'noInRect')
                 .attr('width', TurnRestrictionItem.transformInNoRectWidth)
                 .attr('x', TurnRestrictionItem.transformInNoRectX)
@@ -1192,8 +1270,10 @@ iD.TelenavLayer = function (context) {
         var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.highlight');
         trSelCircle.attr('cx', TurnRestrictionItem.transformX);
         trSelCircle.attr('cy', TurnRestrictionItem.transformY);
-        var turnRestrictionPolylinesIn = svg.selectAll('.TurnRestrictionItem > polyline.wayIn');
-        turnRestrictionPolylinesIn.attr('points', TurnRestrictionItem.transformLinePointsIn);
+        var turnRestrictionPolylinesIn1 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn1');
+        turnRestrictionPolylinesIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
+        var turnRestrictionPolylinesIn2 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn2');
+        turnRestrictionPolylinesIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
         var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
         turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
         var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
@@ -1448,7 +1528,7 @@ iD.TelenavLayer = function (context) {
 
                     d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
                 } else {
@@ -1459,7 +1539,7 @@ iD.TelenavLayer = function (context) {
 
                     d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
 
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn').attr('marker-start', 'url(#telenav-arrow-marker-green-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
                 }
