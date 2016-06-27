@@ -130,6 +130,19 @@ iD.TelenavLayer = function (context) {
                 selected: selected
             };
         };
+
+        this.updateSelection = function(combinedItems) {
+            for (var i = 0; i < combinedItems.length; i++) {
+                for (var j = 0; j < this.items.length; j++) {
+                    if (combinedItems[i].id === this.items[j].id) {
+                        if (!combinedItems[i].selected) {
+                            combinedItems[i].selected = true;
+                        }
+                    }
+                }
+            }
+        };
+
     };
 
     var selectedItems2 = new SelectedItems([]);
@@ -144,9 +157,20 @@ iD.TelenavLayer = function (context) {
         this.className = 'MapItem';
         this.id = null;
 
+        this.selected = false;
+
         this.isA = function(proposedClassName) {
             return proposedClassName === this.className;
         };
+
+        this.select = function(select) {
+            var node = d3.select('#' + this.id);
+            node.classed('selected', select);
+            this.selected = select;
+        };
+    };
+    MapItem.computeSelection = function(item) {
+        return item.selected;
     };
     MapItem.transformClass = function(item) {
         if(item.className != 'MissingRoadItem') {
@@ -159,10 +183,12 @@ iD.TelenavLayer = function (context) {
         return item.id;
     };
     MapItem.handleSelection = function(item) {
-        var node = d3.select('#' + item.id);
-        if (node.classed('selected')) {
+        //var node = d3.select('#' + item.id);
+        //if (node.classed('selected')) {
+        if (item.selected) {
             if (d3.event.ctrlKey) {
-                node.classed('selected', false);
+                //node.classed('selected', false);
+                item.select(false);
                 //for (var i = 0; i < selectedItems.length; i++) {
                 //    if (selectedItems[i].id === item.id) {
                 //        selectedItems.splice(i, 1);
@@ -171,31 +197,38 @@ iD.TelenavLayer = function (context) {
                 selectedItems2.removeItemById(item.id);
             } else {
                 if (svg.selectAll('g.selected')[0].length === 1) {
-                    node.classed('selected', false);
+                    //node.classed('selected', false);
+                    item.select(false);
                     //selectedItems.length = 0;
                     selectedItems2.empty();
                 } else {
                     svg.selectAll('g').classed('selected', false);
                     //selectedItems.length = 0;
                     selectedItems2.empty();
-                    node.classed('selected', true);
+                    //node.classed('selected', true);
+                    item.select(true);
                     //selectedItems.push(item);
                     selectedItems2.add(item);
+                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
                 }
             }
         } else {
             if (d3.event.ctrlKey) {
-                node.classed('selected', true)
-                .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
+                //node.classed('selected', true);
+                item.select(true);
+                //////.attr('marker-end', 'url(#telenav-selected-arrow-marker)');/////???????? TODO
                 //selectedItems.push(item);
                 selectedItems2.add(item);
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
             } else {
                 svg.selectAll('g').classed('selected', false);
                 //selectedItems.length = 0;
                 selectedItems2.empty();
-                node.classed('selected', true);
+                //node.classed('selected', true);
+                item.select(true);
                 //selectedItems.push(item);
                 selectedItems2.add(item);
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
             }
         }
         d3.event.stopPropagation();
@@ -206,7 +239,6 @@ iD.TelenavLayer = function (context) {
             _editPanel.goToEdit(item);
             _editPanel.selectedItemDetails(item);
         }
-        _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
     };
     MapItem.handleMouseOver = function(item) {
         var nodes = d3.selectAll('#' + item.id + ' .highlight')
@@ -964,6 +996,9 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
+
+            selectedItems2.updateSelection(combinedItems);
+
             var g = svg.selectAll('g.item')
                 .data(combinedItems, function(item) {
                     return item.id;
@@ -973,7 +1008,8 @@ iD.TelenavLayer = function (context) {
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
                 .classed('item', true)
-                .attr('id', MapItem.transformId);
+                .attr('id', MapItem.transformId)
+                .classed('selected', MapItem.computeSelection);
 
             var dOFs = enter.filter(function(item) {
                 return item.isA('DirectionOfFlowItem');
