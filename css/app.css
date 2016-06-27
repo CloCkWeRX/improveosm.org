@@ -704,6 +704,9 @@ button.save.has-count .count::before {
     background-color: white;
     padding: 0 0 0 10px;
 }
+.telenavwrap .optionsContainer.trList {
+    padding-left: 0;
+}
 label .form-label-button-wrap .input {
     background: #f6f6f6;
     border-left: 1px solid #ccc;
