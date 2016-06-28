@@ -1203,9 +1203,9 @@ iD.TelenavLayer = function (context) {
 
     function render(selection) {
 
-        var zoom = Math.round(context.map().zoom());
+        var zoom = Math.floor(context.map().zoom());
 
-        if (zoom > 14) {
+        if (zoom >= 15) {
             d3.select("#sidebar").classed('telenavPaneActive', enable);
             d3.select(".pane-telenav").classed('hidden', !enable);
         } else {
