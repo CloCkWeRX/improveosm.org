@@ -1648,6 +1648,7 @@ text.gpx {
 .layer-telenav g .highlightOff {
     stroke-width: 10;
     stroke-opacity: .4;
+    fill-opacity: .4;
     stroke: orange;
     cursor: pointer;
 }
@@ -1754,6 +1755,9 @@ text.gpx {
      padding: 3px 0;
      border-bottom: 1px solid #eee;
  }
+.trList li span {
+    padding: 0 5px;
+}
 .trList .selected {
     font-weight: bold;
     background-color: #EEE;
@@ -1764,11 +1768,14 @@ text.gpx {
 }
 
 .trList li span {
-    width: 35%;
+    width: 20%;
     display: inline-block;
 }
+.trList li span:nth-child(2) {
+    width: 40%;
+}
 .trList li .trListHeader {
-    width: 30%;
+    width: 40%;
 }
 
 /* Modes */

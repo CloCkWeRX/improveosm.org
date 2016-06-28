@@ -244,15 +244,15 @@ iD.TelenavLayer = function (context) {
         var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', true)
             .classed('highlightOff', false)
-            .attr('marker-end', 'url(#telenav-selected-arrow-marker)')
-            .attr('marker-start', 'url(#telenav-selected-arrow-marker)');
+            .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
+            //.attr('marker-start', 'url(#telenav-selected-arrow-marker)');
     };
     MapItem.handleMouseOut = function(item) {
         var nodes = d3.selectAll('#' + item.id + ' .highlight')
             .classed('highlightOn', false)
             .classed('highlightOff', true)
-            .attr('marker-end', null)
-            .attr('marker-start', null);
+            .attr('marker-end', null);
+            //.attr('marker-start', null);
     };
     // ==============================
     // ==============================
@@ -651,7 +651,8 @@ iD.TelenavLayer = function (context) {
         };
 
         this.showSiblings = function(siblings) {
-            var selected = siblings.selected;
+            var selected = siblings.selected,
+                selectedConfidenceLvl;
             siblings = siblings.siblings;
             if (siblings.length > 1) {
                 d3.select('#siblingsPanel').classed('hide', false);
@@ -662,8 +663,16 @@ iD.TelenavLayer = function (context) {
                     if (selected == siblings[i].id) {
                         element.classed('selected', true);
                     }
-                    element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType);
-                    element.append('span').text(siblings[i].confidenceLevel);
+                    element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType.replace(/_/g, " ").toLowerCase());
+                    switch (siblings[i].confidenceLevel) {
+                        case 'C1':
+                            selectedConfidenceLvl = 'Highly Probable';
+                            break;
+                        case 'C2':
+                            selectedConfidenceLvl = 'Probable';
+                            break;
+                    }
+                    element.append('span').text(selectedConfidenceLvl);
                     element.append('span').text(siblings[i].numberOfPasses);
                     element.on('click', function() {
                         var item = null;
