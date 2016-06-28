@@ -734,6 +734,23 @@ iD.TelenavLayer = function (context) {
 
         this.selectedItemDetails = function selectedItemDetails(item){
             var confidenceLvl;
+            switch (item.status) {
+                case 'OPEN':
+                    d3.select('#ch_open').attr('checked', 'checked');
+                    d3.select('#ch_solved').attr('checked', null);
+                    d3.select('#ch_invalid').attr('checked', null);
+                    break;
+                case 'SOLVED':
+                    d3.select('#ch_open').attr('checked', null);
+                    d3.select('#ch_solved').attr('checked', 'checked');
+                    d3.select('#ch_invalid').attr('checked', null);
+                    break;
+                case 'INVALID':
+                    d3.select('#ch_open').attr('checked', null);
+                    d3.select('#ch_solved').attr('checked', null);
+                    d3.select('#ch_invalid').attr('checked', 'checked');
+                    break;
+            }
             switch (item.className){
                 case 'TurnRestrictionItem':
                     switch (item.confidenceLevel) {
