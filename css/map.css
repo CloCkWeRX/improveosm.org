@@ -1587,7 +1587,6 @@ text.gpx {
     stroke-opacity: .6;
     fill-opacity: .6;
 }
-
 .turnRestriction polyline {
     display: none;
 }
@@ -1633,33 +1632,49 @@ text.gpx {
 }
 
 .layer-telenav.editMode svg * {
-    stroke-opacity: 0.6;
-    fill-opacity: 0.6;
+    stroke-opacity: 1;
+    fill-opacity: 1;
 }
 
-.layer-telenav g.selected .highlight {
+.layer-telenav g.selected:not(.MissingRoadItem) .highlight {
     stroke-width: 10;
     stroke-opacity: 0;
     stroke: orange;
 }
 
 .layer-telenav g .highlightOff {
-    stroke-width: 10;
-    stroke-opacity: .4;
-    fill-opacity: .4;
     stroke: orange;
     cursor: pointer;
 }
-
-.layer-telenav g .highlightOn {
+.layer-telenav g:not(.MissingRoadItem) .highlightOn {
     stroke-width: 10;
-    stroke-opacity: .6;
+    stroke-opacity: 1;
     stroke: #DC143C!important;
+}
+.layer-telenav g.MissingRoadItem rect,
+.layer-telenav g.MissingRoadItem circle{
+    fill-opacity: .4;
+}
+.layer-telenav g.MissingRoadItem circle {
+    stroke-opacity: .4;
+    stroke-width: 1;
+}
+.layer-telenav g.MissingRoadItem:hover rect, .layer-telenav g.MissingRoadItem.selected rect {
+    fill-opacity: .8;
+}
+.layer-telenav g.MissingRoadItem:hover circle, .layer-telenav g.MissingRoadItem.selected circle {
+    fill-opacity: .8;
+    stroke-width: 2;
+}
+.layer-telenav g.DirectionOfFlowItem.selected polyline:last-child {
+    stroke-width: 10;
+    stroke-opacity: 1;
+    stroke: #DC143C!important;
+    marker-end: url(#telenav-selected-arrow-marker);
 }
 
 .layer-telenav g polyline.wayIn {
     stroke: #00CD00;
-    /*stroke-opacity: .4;*/
 }
 .layer-telenav g text {
     stroke-width: 1;
