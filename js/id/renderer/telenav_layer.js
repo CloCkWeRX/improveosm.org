@@ -1134,21 +1134,17 @@ iD.TelenavLayer = function (context) {
                     + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
                     + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                     + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                    + ' fill=' + 'red'
-                    + ' fill-opacity=' + '0.4'
                     + '></rect>';
                 html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
                     + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
                     + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                     + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                    + ' fill=' + 'red'
-                    + ' fill-opacity=' + '0.4'
                     + ' class="highlight"' + '0.4'
                     + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
-                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=1></circle>';
                 }
                 return html;
             });
@@ -1271,21 +1267,17 @@ iD.TelenavLayer = function (context) {
                 + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
                 + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                 + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                + ' fill=' + 'red'
-                + ' fill-opacity=' + '0.4'
                 + '></rect>';
             html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
                 + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
                 + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                 + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                + ' fill=' + 'red'
-                + ' fill-opacity=' + '0.4'
                 + ' class="highlight"' + '0.4'
                 + '></rect>';
             for (var i = 0; i < d._points.length; i++) {
                 var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
-                html += '<circle cx=' + cx + ' cy=' + cy + ' r=2></circle>';
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=1></circle>';
             }
             return html;
         });
@@ -1516,6 +1508,7 @@ iD.TelenavLayer = function (context) {
             .call(iD.svg.Icon('#icon-save'));
         comments_form.append('textarea')
             .attr('class', 'commentText')
+            .attr('maxLength', '600')
             .attr('id', 'commentText');
 
         //  END 3rd container div

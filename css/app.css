@@ -707,6 +707,9 @@ button.save.has-count .count::before {
 .telenavwrap .optionsContainer.trList {
     padding-left: 0;
 }
+.telenav-wrap .commentText {
+    resize: none;
+}
 label .form-label-button-wrap .input {
     background: #f6f6f6;
     border-left: 1px solid #ccc;
