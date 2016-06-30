@@ -1677,7 +1677,7 @@ text.gpx {
     stroke: #00CD00;
 }
 .layer-telenav g text {
-    stroke-width: 1;
+    stroke-width: .7;
     fill: #000;
     stroke: #000;
 }

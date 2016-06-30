@@ -143,7 +143,7 @@ iD.svg.Defs = function(context) {
             .attr('d', 'M0,0 L0,4 5,2 z')
             .attr('stroke', 'none')
             .attr('fill', '#EE7600')
-            .attr('opacity', '.2');
+            .attr('opacity', '.5');
 
 
         defs.append('marker')
@@ -202,7 +202,7 @@ iD.svg.Defs = function(context) {
             .attr('d', 'M0,0 L0,2 L3,1 z')
             .attr('stroke', 'none')
             .attr('fill', '#DC143C')
-            .attr('opacity', '0.6');
+            .attr('opacity', '1');
 
         // patterns
         var patterns = defs.selectAll('pattern')
