@@ -183,9 +183,9 @@ iD.TelenavLayer = function (context) {
         return item.id;
     };
     MapItem.handleSelection = function(item) {
-        //var node = d3.select('#' + item.id);
-        //if (node.classed('selected')) {
-        if (item.selected) {
+        var node = d3.select('#' + item.id);
+        if (node.classed('selected')) {
+        //if (item.selected) {
             if (d3.event.ctrlKey) {
                 //node.classed('selected', false);
                 item.select(false);
