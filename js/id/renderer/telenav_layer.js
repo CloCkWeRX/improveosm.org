@@ -174,9 +174,9 @@ iD.TelenavLayer = function (context) {
     };
     MapItem.transformClass = function(item) {
         if(item.className != 'MissingRoadItem') {
-            return item.className;
+            return 'item ' + item.className;
         } else {
-            return item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
+            return 'item ' + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
         }
     };
     MapItem.transformId = function(item) {
@@ -1108,7 +1108,6 @@ iD.TelenavLayer = function (context) {
 
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
-                .classed('item', true)
                 .attr('id', MapItem.transformId)
                 .classed('selected', MapItem.computeSelection);
 
@@ -1227,13 +1226,13 @@ iD.TelenavLayer = function (context) {
 
         var zoom = Math.floor(context.map().zoom());
 
-        if (zoom >= 15) {
+        //if (zoom >= 15) {
             d3.select("#sidebar").classed('telenavPaneActive', enable);
             d3.select(".pane-telenav").classed('hidden', !enable);
-        } else {
-            d3.select("#sidebar").classed('telenavPaneActive', false);
-            d3.select(".pane-telenav").classed('hidden', true);
-        }
+        //} else {
+            //d3.select("#sidebar").classed('telenavPaneActive', false);
+            //d3.select(".pane-telenav").classed('hidden', true);
+        //}
 
         svg = selection.selectAll('svg')
             .data([0]);
@@ -1374,6 +1373,11 @@ iD.TelenavLayer = function (context) {
                     });
                 }(type);
             }
+        } else {
+            svg.selectAll('g.item')
+                .remove();
+            svg.selectAll('g.cluster')
+                .remove();
         }
     }
 
