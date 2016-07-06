@@ -241,18 +241,10 @@ iD.TelenavLayer = function (context) {
         }
     };
     MapItem.handleMouseOver = function(item) {
-        var nodes = d3.selectAll('#' + item.id + ' .highlight')
-            .classed('highlightOn', true)
-            .classed('highlightOff', false)
-            .attr('marker-end', 'url(#telenav-selected-arrow-marker)');
-            //.attr('marker-start', 'url(#telenav-selected-arrow-marker)');
+        item.highlight(item, true);
     };
     MapItem.handleMouseOut = function(item) {
-        var nodes = d3.selectAll('#' + item.id + ' .highlight')
-            .classed('highlightOn', false)
-            .classed('highlightOff', true)
-            .attr('marker-end', null);
-            //.attr('marker-start', null);
+        item.highlight(item, false);
     };
     // ==============================
     // ==============================
@@ -296,7 +288,12 @@ iD.TelenavLayer = function (context) {
                 x: Math.floor(context.projection([x, y])[0]),
                 y: Math.floor(context.projection([x, y])[1])
             }
-        }
+        };
+        this.highlight = function(item, highlight) {
+            d3.selectAll('#' + item.id)
+                .classed('highlightOn', highlight)
+                .classed('highlightOff', !highlight);
+        };
     };
     // static
     TurnRestrictionItem.getDistance = function(p1, p2) {
@@ -479,7 +476,12 @@ iD.TelenavLayer = function (context) {
                 x: rawItemData.x,
                 y: rawItemData.y
             }];
-        }
+        };
+        this.highlight = function(item, highlight) {
+            d3.selectAll('#' + item.id)
+                .classed('highlightOn', highlight)
+                .classed('highlightOff', !highlight);
+        };
     };
     MissingRoadItem.prototype = new MapItem();
     MissingRoadItem.computeX = function(lat, lon) {
@@ -578,6 +580,13 @@ iD.TelenavLayer = function (context) {
                 toNodeId: rawItemData.toNodeId
             }];
         };
+        this.highlight = function(item, highlight) {
+            d3.selectAll('#' + item.id)
+                .classed('highlightOn', highlight)
+                .classed('highlightOff', !highlight)
+                .attr('marker-end', highlight ? 'url(#telenav-selected-arrow-marker)' : null);
+        };
+
     };
     DirectionOfFlowItem.prototype = new MapItem();
     DirectionOfFlowItem.transformLinePoints = function(item) {
