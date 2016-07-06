@@ -1575,6 +1575,11 @@ text.gpx {
     fill-opacity: .4;*/
 }
 
+.layer-telenav g.tr-node text {
+    stroke-opacity: 1;
+    fill-opacity: 1;
+}
+
 .layer-telenav.selected {
     stroke-width: 3;
     stroke: red;

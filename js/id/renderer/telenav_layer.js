@@ -131,7 +131,7 @@ iD.TelenavLayer = function (context) {
             };
         };
 
-        this.updateSelection = function(combinedItems) {
+        this.update = function(combinedItems) {
             for (var i = 0; i < combinedItems.length; i++) {
                 for (var j = 0; j < this.items.length; j++) {
                     if (combinedItems[i].id === this.items[j].id) {
@@ -145,7 +145,75 @@ iD.TelenavLayer = function (context) {
 
     };
 
+    // ==============================
+    // ==============================
+    // TRNodes
+    // ==============================
+    // ==============================
+    var TRNodes = function(nodes) {
+        // ---
+        this.nodes = nodes;
+
+        this.render = function(combinedItems) {
+            this.update(combinedItems);
+            svg.selectAll('g.tr-node')
+                .remove();
+            for (var i = 0; i < this.nodes.length; i++) {
+                var node = this.nodes[i];
+                var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
+                var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
+                var gElem = svg.append('g').attr('class', 'tr-node');
+                //var circleElem = gElem.append('circle')
+                //    .attr('cx', cx)
+                //    .attr('cy', cy)
+                //    .attr('r', 10);
+                var textElem = gElem.append('text')
+                    .attr('x', cx - 2)
+                    .attr('y', cy + 4)
+                    .html(node.amount);
+            }
+        };
+
+        this.update = function(combinedItems) {
+            this.nodes.length = 0;
+            var nodeMap = {};
+            for (var i = 0; i < combinedItems.length; i++) {
+                var item = combinedItems[i];
+                if (item.className === 'TurnRestrictionItem') {
+                    var key = item.point.lat + ',' + item.point.lon;
+                    if (!nodeMap.hasOwnProperty(key)) {
+                        var siblingsFound = 0;
+                        for (var j = i + 1; j < combinedItems.length; j++) {
+                            var checkedItem = combinedItems[j];
+                            if (
+                                (checkedItem.point.lat === item.point.lat) &&
+                                (checkedItem.point.lon === item.point.lon)
+                            ) {
+                                siblingsFound++;
+                            }
+                        }
+                        if (siblingsFound > 0) {
+                            nodeMap[key] = siblingsFound + 1;
+                        }
+                    }
+                }
+            }
+            for (var key in nodeMap) {
+                if (nodeMap.hasOwnProperty(key)) {
+                    var coordinates = key.split(',');
+                    this.nodes.push({
+                        lat: parseFloat(coordinates[0]),
+                        lon: parseFloat(coordinates[1]),
+                        amount: nodeMap[key]
+                    });
+                }
+            }
+        };
+
+    };
+
     var selectedItems2 = new SelectedItems([]);
+    var trNodes = new TRNodes([]);
 
     // ==============================
     // ==============================
@@ -169,14 +237,11 @@ iD.TelenavLayer = function (context) {
             this.selected = select;
         };
     };
-    MapItem.computeSelection = function(item) {
-        return item.selected;
-    };
     MapItem.transformClass = function(item) {
         if(item.className != 'MissingRoadItem') {
-            return 'item ' + item.className;
+            return 'item ' + (item.selected ? 'selected' : '') + item.className;
         } else {
-            return 'item ' + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
+            return 'item ' + (item.selected ? 'selected' : '') + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
         }
     };
     MapItem.transformId = function(item) {
@@ -1107,7 +1172,8 @@ iD.TelenavLayer = function (context) {
                 return;
             }
 
-            selectedItems2.updateSelection(combinedItems);
+            selectedItems2.update(combinedItems);
+            trNodes.render(combinedItems);
 
             var g = svg.selectAll('g.item')
                 .data(combinedItems, function(item) {
@@ -1117,8 +1183,7 @@ iD.TelenavLayer = function (context) {
 
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
-                .attr('id', MapItem.transformId)
-                .classed('selected', MapItem.computeSelection);
+                .attr('id', MapItem.transformId);
 
             var dOFs = enter.filter(function(item) {
                 return item.isA('DirectionOfFlowItem');
