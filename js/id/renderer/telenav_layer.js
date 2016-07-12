@@ -1,11 +1,30 @@
 iD.TelenavLayer = function (context) {
+
+    var CLUSTER_RADIUSES = [
+        [45,70,90,110],
+        [40,65,85,105],
+        [40,60,80,100],
+        [35,55,80,95],
+        [35,50,75,90],
+        [30,45,70,85],
+        [30,40,65,80],
+        [25,35,60,75],
+        [25,35,55,70],
+        [25,35,50,65],
+        [20,30,45,6],
+        [20,30,40,55],
+        [20,30,40,50],
+        [20,30,40,50],
+        [20,30,40,50]
+    ];
+
     var enable = false,
         svg,
         requestQueue = [],
         combinedItems = [],
-        combinedClusters = [],
         //selectedItems = [],
         status = 'OPEN',
+        heatMap = null,
         requestCount;
 
     var types = {
@@ -674,6 +693,7 @@ iD.TelenavLayer = function (context) {
         this.point = rawItemData.point;
         this.size = rawItemData.size;
         this.type = type;
+        this.pixelRadius = null;
     };
     ClusterCircle.transformClass = function(cluster) {
         return cluster.className;
@@ -688,7 +708,47 @@ iD.TelenavLayer = function (context) {
         return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[1]);
     };
     ClusterCircle.transformR = function(cluster) {
-        return 5 + ((cluster.size * 45) / maxCircleSize);
+        return cluster.pixelRadius;
+    };
+
+    // ==============================
+    // ==============================
+    // ClusterCircle
+    // ==============================
+    // ==============================
+    var HeatMap = function(zoom) {
+
+        this.radiuses = CLUSTER_RADIUSES[zoom];
+        this.maxCircleSize = 1;
+        this.clusters = [];
+
+        this.loadClusters = function(rawData, type) {
+            for (var i = 0; i < rawData.length; i++) {
+                if (this.maxCircleSize < rawData[i].size) {
+                    this.maxCircleSize = rawData[i].size;
+                }
+                this.clusters.push(new ClusterCircle(
+                    rawData[i], type
+                ));
+            }
+        };
+
+        this.categorizeClusters = function() {
+            for (var i = 0; i < this.clusters.length; i++) {
+                var cluster = this.clusters[i];
+                var fraction = this.maxCircleSize / 4;
+                if (cluster.size < fraction) {
+                    cluster.pixelRadius = this.radiuses[0];
+                } else if (cluster.size < fraction * 2) {
+                    cluster.pixelRadius = this.radiuses[1];
+                } else if (cluster.size < fraction * 3) {
+                    cluster.pixelRadius = this.radiuses[2];
+                } else {
+                    cluster.pixelRadius = this.radiuses[3];
+                }
+            }
+        };
+
     };
 
     // ==============================
@@ -1091,22 +1151,11 @@ iD.TelenavLayer = function (context) {
 
     var _editPanel = new EditPanel();
 
-    var maxCircleSize = 1;
-
     var _synchClusterCallbacks = function(error, data, type) {
 
         if (data.hasOwnProperty('clusters')) {
-            for (var i = 0; i < data.clusters.length; i++) {
-                if (maxCircleSize < data.clusters[i].size) {
-                    maxCircleSize = data.clusters[i].size;
-                }
-                combinedClusters.push(new ClusterCircle(
-                    data.clusters[i], type
-                ));
-            }
+            heatMap.loadClusters(data.clusters, type);
         }
-
-
 
         if (!--requestCount) {
 
@@ -1115,8 +1164,9 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
+            heatMap.categorizeClusters();
             var g = svg.selectAll('g.cluster')
-                .data(combinedClusters, function(cluster) {
+                .data(heatMap.clusters, function(cluster) {
                     return cluster.id;
                     //return item;
                 });
@@ -1131,8 +1181,6 @@ iD.TelenavLayer = function (context) {
                 .attr('cx', ClusterCircle.transformX)
                 .attr('cy', ClusterCircle.transformY)
                 .attr('r', ClusterCircle.transformR);
-
-            maxCircleSize = 1;
 
             g.exit()
                 .remove();
@@ -1428,7 +1476,6 @@ iD.TelenavLayer = function (context) {
 
         requestCount = requestUrlQueue.length;
         combinedItems.length = 0;
-        combinedClusters.length = 0;
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
@@ -1439,6 +1486,7 @@ iD.TelenavLayer = function (context) {
         } else if (requestUrlQueue.length !== 0) {
             svg.selectAll('g.item')
                 .remove();
+            heatMap = new HeatMap(zoom);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
                 !function (type) {
