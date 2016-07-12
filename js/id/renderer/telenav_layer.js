@@ -349,7 +349,7 @@ iD.TelenavLayer = function (context) {
             var x = rawItemData.segments[1].points[last].lon;
             var y = rawItemData.segments[1].points[last].lat;
             return {
-                val: rawItemData.segments[1].numberOfTrips,
+                val: rawItemData.numberOfPasses,
                 x: Math.floor(context.projection([x, y])[0]),
                 y: Math.floor(context.projection([x, y])[1])
             }
