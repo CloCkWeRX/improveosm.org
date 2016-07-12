@@ -1361,6 +1361,12 @@ iD.TelenavLayer = function (context) {
 
         svg.enter().append('svg');
 
+        //svg.selectAll('rect')
+        //    .remove();
+        //svg.append('rect')
+        //    .attr('width', svg.attr('width'))
+        //    .attr('height', svg.attr('height'));
+
         svg.style('display', enable ? 'block' : 'none');
 
 
