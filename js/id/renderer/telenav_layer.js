@@ -738,13 +738,13 @@ iD.TelenavLayer = function (context) {
                 var cluster = this.clusters[i];
                 var fraction = this.maxCircleSize / 4;
                 if (cluster.size < fraction) {
-                    cluster.pixelRadius = this.radiuses[0];
+                    cluster.pixelRadius = this.radiuses[0] / 2;
                 } else if (cluster.size < fraction * 2) {
-                    cluster.pixelRadius = this.radiuses[1];
+                    cluster.pixelRadius = this.radiuses[1] / 2;
                 } else if (cluster.size < fraction * 3) {
-                    cluster.pixelRadius = this.radiuses[2];
+                    cluster.pixelRadius = this.radiuses[2] / 2;
                 } else {
-                    cluster.pixelRadius = this.radiuses[3];
+                    cluster.pixelRadius = this.radiuses[3] / 2;
                 }
             }
         };
@@ -1802,8 +1802,8 @@ iD.TelenavLayer = function (context) {
             .attr('id', 'dofFilter');
         direction_form.append('label')
             .attr('class', 'form-label')
-            .attr('for', 'oneWayConfidence')
-            .text('One Way Confidence')
+            .attr('for', 'oneWay')
+            .text('One Way')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1812,7 +1812,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'oneWayConfidence');
+            .attr('id', 'oneWay');
         var direction_formWrap = direction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var direction_highlyProbableContainer = direction_formWrap.append('div')
@@ -1849,7 +1849,7 @@ iD.TelenavLayer = function (context) {
         missing_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
-            .text('Missing road type')
+            .text('Missing roads')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1858,7 +1858,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'missingRoadType');
+            .attr('id', 'missingRoads');
         var missing_formWrap = missing_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var missing_roadContainer = missing_formWrap.append('div')
@@ -1916,8 +1916,8 @@ iD.TelenavLayer = function (context) {
             .attr('id', 'trFilter');
         restriction_form.append('label')
             .attr('class', 'form-label')
-            .attr('for', 'missingRoadType')
-            .text('Turn restriction Confidence')
+            .attr('for', 'missingRoads')
+            .text('Turn Restriction')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1926,7 +1926,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'turnRestrictionConfidence');
+            .attr('id', 'turnRestriction');
         var restriction_formWrap = restriction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var restriction_highlyProbableContainer = restriction_formWrap.append('div')
@@ -1978,8 +1978,8 @@ iD.TelenavLayer = function (context) {
             }
         });
 
-        d3.select('#oneWayConfidence').on('click', function() {
-            if (d3.select('#oneWayConfidence').property('checked')) {
+        d3.select('#oneWay').on('click', function() {
+            if (d3.select('#oneWay').property('checked')) {
                 selectedTypes.push('dof');
                 //---
                 dofSelectedDetails = dofDetails.slice(0);
@@ -2000,8 +2000,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#dofFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
             if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#oneWayConfidence').property('checked')) {
-                    d3.select('#oneWayConfidence').property('checked', true);
+                if (!d3.select('#oneWay').property('checked')) {
+                    d3.select('#oneWay').property('checked', true);
                     selectedTypes.push('dof');
                 }
                 dofSelectedDetails.push(d3.event.target.id);
@@ -2009,7 +2009,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#oneWayConfidence').property('checked', false);
+                    d3.select('#oneWay').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
                 }
                 dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -2020,8 +2020,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#mrFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
             if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#missingRoadType').property('checked')) {
-                    d3.select('#missingRoadType').property('checked', true);
+                if (!d3.select('#missingRoads').property('checked')) {
+                    d3.select('#missingRoads').property('checked', true);
                     selectedTypes.push('mr');
                 }
                 mrSelectedDetails.push(d3.event.target.id);
@@ -2029,7 +2029,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#missingRoadType').property('checked', false);
+                    d3.select('#missingRoads').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
                 }
                 mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -2040,8 +2040,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#trFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#trFilter form input')[0];
             if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#turnRestrictionConfidence').property('checked')) {
-                    d3.select('#turnRestrictionConfidence').property('checked', true);
+                if (!d3.select('#turnRestriction').property('checked')) {
+                    d3.select('#turnRestriction').property('checked', true);
                     selectedTypes.push('tr');
                 }
                 trSelectedDetails.push(d3.event.target.id);
@@ -2049,7 +2049,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#turnRestrictionConfidence').property('checked', false);
+                    d3.select('#turnRestriction').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
                 }
                 trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -2057,8 +2057,8 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         });
 
-        d3.select('#missingRoadType').on('click', function() {
-            if (d3.select('#missingRoadType').property('checked')) {
+        d3.select('#missingRoads').on('click', function() {
+            if (d3.select('#missingRoads').property('checked')) {
                 selectedTypes.push('mr');
                 //---
                 mrSelectedDetails = mrDetails.slice(0);
@@ -2080,8 +2080,8 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         });
 
-        d3.select('#turnRestrictionConfidence').on('click', function() {
-            if (d3.select('#turnRestrictionConfidence').property('checked')) {
+        d3.select('#turnRestriction').on('click', function() {
+            if (d3.select('#turnRestriction').property('checked')) {
                 selectedTypes.push('tr');
                 //---
                 trSelectedDetails = trDetails.slice(0);

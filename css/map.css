@@ -1638,7 +1638,7 @@ text.gpx {
     fill-opacity: .4;
 }
 
-.layer-telenav svg > rect {
+.layer-telenav svg > g > rect {
     stroke-opacity: .0;
     fill-opacity: .0;
 }
@@ -1648,7 +1648,7 @@ text.gpx {
     fill-opacity: 1;
 }
 
-.layer-telenav.editMode svg > rect {
+.layer-telenav.editMode svg > g > rect {
     stroke-opacity: .0;
     fill-opacity: .0;
 }
