@@ -1361,11 +1361,28 @@ iD.TelenavLayer = function (context) {
 
         svg.enter().append('svg');
 
-        //svg.selectAll('rect')
-        //    .remove();
-        //svg.append('rect')
-        //    .attr('width', svg.attr('width'))
-        //    .attr('height', svg.attr('height'));
+        // *****************************
+        // HANDLING OF CLICK DESELECTION
+        // *****************************
+        svg.selectAll('g.deselectSurface')
+            .remove();
+        var deselectionRectangle = svg
+            .insert('g', ':first-child')
+                .attr('class', 'deselectSurface')
+                .append('rect')
+                    .attr('width', svg.attr('width'))
+                    .attr('height', svg.attr('height'));
+        deselectionRectangle.on('click', function() {
+            if (selectedItems2.getSize() > 0) {
+                svg.selectAll('g').classed('selected', false);
+                selectedItems2.empty();
+                _editPanel.goToMain();
+            }
+        });
+
+        // *****************************
+        // HANDLING OF CLICK DESELECTION
+        // *****************************
 
         svg.style('display', enable ? 'block' : 'none');
 

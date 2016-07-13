@@ -1638,20 +1638,20 @@ text.gpx {
     fill-opacity: .4;
 }
 
-/*.layer-telenav svg > rect {*/
-    /*stroke-opacity: .0;*/
-    /*fill-opacity: .0;*/
-/*}*/
+.layer-telenav svg > rect {
+    stroke-opacity: .0;
+    fill-opacity: .0;
+}
 
 .layer-telenav.editMode svg * {
     stroke-opacity: 1;
     fill-opacity: 1;
 }
 
-/*.layer-telenav.editMode svg > rect {*/
-    /*stroke-opacity: .0;*/
-    /*fill-opacity: .0;*/
-/*}*/
+.layer-telenav.editMode svg > rect {
+    stroke-opacity: .0;
+    fill-opacity: .0;
+}
 
 .layer-telenav g.selected:not(.MissingRoadItem) .highlight {
     stroke-width: 10;
