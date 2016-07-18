@@ -1400,11 +1400,11 @@ iD.TelenavLayer = function (context) {
             tRs.on('click', MapItem.handleSelection);
 
             dOFs.on('mouseover', MapItem.handleMouseOver);
-            mRs.on('mouseover', MapItem.handleMouseOver);
+            //mRs.on('mouseover', MapItem.handleMouseOver);
             tRs.on('mouseover', MapItem.handleMouseOver);
 
             dOFs.on('mouseout', MapItem.handleMouseOut);
-            mRs.on('mouseout', MapItem.handleMouseOut);
+            //mRs.on('mouseout', MapItem.handleMouseOut);
             tRs.on('mouseout', MapItem.handleMouseOut);
 
             trNodes.render(visibleItems.items);
