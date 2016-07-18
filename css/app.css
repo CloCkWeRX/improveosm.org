@@ -673,7 +673,7 @@ button.save.has-count .count::before {
     position: absolute;
     bottom: 15px;
     z-index: 1000;
-    height: 250px;
+    height: 350px;
     overflow: hidden;
 }
 .telenavwrap .header {
@@ -687,6 +687,9 @@ button.save.has-count .count::before {
     left: 0;
     bottom: 0;
     top: 60px;
+}
+.pane-telenav .pane {
+    bottom: 0;
 }
 #toggleEditMode .preset-list-button:hover,
 #toggleEditMode .preset-list-button:focus {
@@ -761,7 +764,7 @@ label .form-label-button-wrap .input {
     display: none;
 }
 #sidebar.telenavPaneActive {
-    height: calc(100% - 280px);
+    height: calc(100% - 380px);
 }
 
 .mapillary-image {

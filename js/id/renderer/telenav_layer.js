@@ -21,8 +21,11 @@ iD.TelenavLayer = function (context) {
     var enable = false,
         svg,
         requestQueue = [],
-        combinedItems = [],
+        //combinedItems = [],
         //selectedItems = [],
+
+        visibleItems = null,
+
         status = 'OPEN',
         heatMap = null,
         requestCount;
@@ -43,7 +46,8 @@ iD.TelenavLayer = function (context) {
     var mrSelectedDetails = ['ROAD'];
     var trSelectedDetails = ['C1'];
 
-    var getTileSquare = function(x, y) {
+    var Utils = {};
+    Utils.getTileSquare = function(x, y) {
         var n = Math.pow(2, 18);// HARD CODING the 18
         var longitudeMin = x/n * 360 - 180;
         var lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y/n)));
@@ -231,6 +235,45 @@ iD.TelenavLayer = function (context) {
 
     };
 
+    // ==============================
+    // ==============================
+    // VisibleItems
+    // ==============================
+    // ==============================
+    var VisibleItems = function() {
+
+        this.rawItems = [];
+        this.items = [];
+
+        this.loadOneWays = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new DirectionOfFlowItem(item));
+            }
+        };
+
+        this.loadMissingRoads = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new MissingRoadItem(item));
+            }
+        };
+
+        this.loadTurnRestrictions = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new TurnRestrictionItem(item));
+            }
+        };
+
+        this.getClusteredItems = function() {
+
+        };
+    };
+
     var selectedItems2 = new SelectedItems([]);
     var trNodes = new TRNodes([]);
 
@@ -293,7 +336,8 @@ iD.TelenavLayer = function (context) {
                     item.select(true);
                     //selectedItems.push(item);
                     selectedItems2.add(item);
-                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                    //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
                 }
             }
         } else {
@@ -303,7 +347,8 @@ iD.TelenavLayer = function (context) {
                 //////.attr('marker-end', 'url(#telenav-selected-arrow-marker)');/////???????? TODO
                 //selectedItems.push(item);
                 selectedItems2.add(item);
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
             } else {
                 svg.selectAll('g').classed('selected', false);
                 //selectedItems.length = 0;
@@ -312,7 +357,8 @@ iD.TelenavLayer = function (context) {
                 item.select(true);
                 //selectedItems.push(item);
                 selectedItems2.add(item);
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
             }
         }
         d3.event.stopPropagation();
@@ -332,6 +378,23 @@ iD.TelenavLayer = function (context) {
     };
     // ==============================
     // ==============================
+    // ClusteredItemView
+    // ==============================
+    // ==============================
+    var ClusteredItemView = function(rawItemData) {
+        // ---
+        this.className = 'ClusteredItemView';
+        this.id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
+        this.point = rawItemData.point;
+        this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
+
+        this.highlight = function(item, highlight) {
+
+        };
+    };
+
+    // ==============================
+    // ==============================
     // TurnRestrictionItem
     // ==============================
     // ==============================
@@ -345,6 +408,7 @@ iD.TelenavLayer = function (context) {
         this.turnType = rawItemData.turnType;
         this.status = rawItemData.status;
         this.segments = rawItemData.segments;
+        this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
 
         this.getPoint = function() {
             return rawItemData.point;
@@ -549,6 +613,9 @@ iD.TelenavLayer = function (context) {
         this.type = rawItemData.type;
         this.status = rawItemData.status;
         this.timestamp = rawItemData.timestamp;
+        this.spotId = [rawItemData.x, rawItemData.y].join(',');
+
+
         this.getX = function() {
             return rawItemData.x;
         };
@@ -575,19 +642,19 @@ iD.TelenavLayer = function (context) {
         return Math.floor(context.projection([lon, lat])[1]);
     };
     MissingRoadItem.transformTileX = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[0]);
     };
     MissingRoadItem.transformTileY = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[1]);
     };
     MissingRoadItem.transformTileWidth = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startX = Math.floor(context.projection([startLon, startLat])[0]);
@@ -597,7 +664,7 @@ iD.TelenavLayer = function (context) {
         return Math.abs(endX - startX);
     };
     MissingRoadItem.transformTileHeight = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startY = Math.floor(context.projection([startLon, startLat])[1]);
@@ -608,19 +675,19 @@ iD.TelenavLayer = function (context) {
     };
 
     MissingRoadItem.computeTileX = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[0]);
     };
     MissingRoadItem.computeTileY = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[1]);
     };
     MissingRoadItem.computeTileWidth = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startX = Math.floor(context.projection([startLon, startLat])[0]);
@@ -630,7 +697,7 @@ iD.TelenavLayer = function (context) {
         return Math.abs(endX - startX);
     };
     MissingRoadItem.computeTileHeight = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startY = Math.floor(context.projection([startLon, startLat])[1]);
@@ -653,6 +720,7 @@ iD.TelenavLayer = function (context) {
         this.roadType = rawItemData.type;
         this.status = rawItemData.status;
         this.percentageOfTrips = rawItemData.percentOfTrips;
+        this.spotId = [rawItemData.fromNodeId, rawItemData.toNodeId, rawItemData.wayId].join(',');
 
         this.getPoints = function() {
             return rawItemData.points;
@@ -810,9 +878,14 @@ iD.TelenavLayer = function (context) {
                     element.append('span').text(siblings[i].numberOfPasses);
                     element.on('click', function() {
                         var item = null;
-                        for (var i = 0; i < combinedItems.length; i++) {
-                            if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
-                                item = combinedItems[i];
+                        //for (var i = 0; i < combinedItems.length; i++) {
+                        //    if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
+                        //        item = combinedItems[i];
+                        //    }
+                        //}
+                        for (var i = 0; i < visibleItems.items.length; i++) {
+                            if (visibleItems.items[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
+                                item = visibleItems.items[i];
                             }
                         }
                         MapItem.handleSelection(item);
@@ -1085,6 +1158,8 @@ iD.TelenavLayer = function (context) {
 
         this.saveComment = function() {
 
+            var This = this;
+
             context.connection().userDetails(function(err, user) {
                 if (err) {
                     context.connection().authenticate(function(err) {
@@ -1190,25 +1265,29 @@ iD.TelenavLayer = function (context) {
     var _synchCallbacks = function(error, data) {
 
         if (data.hasOwnProperty('roadSegments')) {
-            for (var i = 0; i < data.roadSegments.length; i++) {
-                combinedItems.push(new DirectionOfFlowItem(
-                    data.roadSegments[i]
-                ));
-            }
+            visibleItems.loadOneWays(data.roadSegments);
+            //for (var i = 0; i < data.roadSegments.length; i++) {
+            //    combinedItems.push(new DirectionOfFlowItem(
+            //        data.roadSegments[i]
+            //    ));
+            //}
+
         }
         if (data.hasOwnProperty('tiles')) {
-            for (var i = 0; i < data.tiles.length; i++) {
-                combinedItems.push(new MissingRoadItem(
-                    data.tiles[i]
-                ));
-            }
+            visibleItems.loadMissingRoads(data.tiles);
+            //for (var i = 0; i < data.tiles.length; i++) {
+            //    combinedItems.push(new MissingRoadItem(
+            //        data.tiles[i]
+            //    ));
+            //}
         }
         if (data.hasOwnProperty('entities')) {
-            for (var i = 0; i < data.entities.length; i++) {
-                combinedItems.push(new TurnRestrictionItem(
-                    data.entities[i]
-                ));
-            }
+            visibleItems.loadTurnRestrictions(data.entities);
+            //for (var i = 0; i < data.entities.length; i++) {
+            //    combinedItems.push(new TurnRestrictionItem(
+            //        data.entities[i]
+            //    ));
+            //}
         }
 
 
@@ -1220,14 +1299,23 @@ iD.TelenavLayer = function (context) {
                 return;
             }
 
-            selectedItems2.update(combinedItems);
-            trNodes.render(combinedItems);
+            //selectedItems2.update(combinedItems);
+            //trNodes.render(combinedItems);
+            //
+            //var g = svg.selectAll('g.item')
+            //    .data(combinedItems, function(item) {
+            //        return item.id;
+            //        //return item;
+            //    });
+            selectedItems2.update(visibleItems.items);
+            trNodes.render(visibleItems.items);
 
             var g = svg.selectAll('g.item')
-                .data(combinedItems, function(item) {
+                .data(visibleItems.items, function(item) {
                     return item.id;
                     //return item;
                 });
+
 
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
@@ -1269,23 +1357,6 @@ iD.TelenavLayer = function (context) {
                 }
                 return html;
             });
-
-            //var mrRect = mRs.append('rect');
-            //mrRect.attr('x', MissingRoadItem.transformTileX);
-            //mrRect.attr('y', MissingRoadItem.transformTileY);
-            //mrRect.attr('width', MissingRoadItem.transformTileWidth);
-            //mrRect.attr('height', MissingRoadItem.transformTileHeight);
-            //mrRect.attr('fill', '#044B94');
-            //mrRect.attr('fill-opacity', '0.4');
-            //
-            //var mrSelRect = mRs.append('rect');
-            //mrSelRect.attr('class', 'highlight')
-            //mrSelRect.attr('x', MissingRoadItem.transformTileX);
-            //mrSelRect.attr('y', MissingRoadItem.transformTileY);
-            //mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
-            //mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
-            //mrSelRect.attr('fill', '#044B94');
-            //mrSelRect.attr('fill-opacity', '0.4');
 
             var trCircle = tRs.append('circle')
                 .attr('class', 'telenav-tr-marker')
@@ -1498,7 +1569,8 @@ iD.TelenavLayer = function (context) {
         }
 
         requestCount = requestUrlQueue.length;
-        combinedItems.length = 0;
+        //combinedItems.length = 0;
+        visibleItems = new VisibleItems();
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
