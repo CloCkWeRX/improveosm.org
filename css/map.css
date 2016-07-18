@@ -1744,6 +1744,12 @@ text.gpx {
     fill: #EE7600;
 }
 
+.ClusterCircle.cluster,
+.ClusterCircle.cluster circle {
+    stroke-opacity: 0.8;
+    fill-opacity: 0.8;
+}
+
 /*  missing road item coloring  */
 .layer-telenav g.open rect {
     stroke: #4682B4;
