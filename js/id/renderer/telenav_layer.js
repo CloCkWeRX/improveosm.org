@@ -865,7 +865,10 @@ iD.TelenavLayer = function (context) {
                     if (selected == siblings[i].id) {
                         element.classed('selected', true);
                     }
-                    element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType.replace(/_/g, " ").toLowerCase());
+                    var span1 = element.append('span');
+                    span1.append('i');
+                    var span2 = element.append('span');
+                    span2.attr('class', 'trListHeader').text(siblings[i].turnType.replace(/_/g, " ").toLowerCase());
                     switch (siblings[i].confidenceLevel) {
                         case 'C1':
                             selectedConfidenceLvl = 'Highly Probable';
@@ -874,8 +877,13 @@ iD.TelenavLayer = function (context) {
                             selectedConfidenceLvl = 'Probable';
                             break;
                     }
-                    element.append('span').text(selectedConfidenceLvl);
-                    element.append('span').text(siblings[i].numberOfPasses);
+                    var span3 = element.append('span');
+                    span3
+                        .text(selectedConfidenceLvl);
+                    var span4 = element.append('span');
+                    span4
+                        .text(siblings[i].numberOfPasses);
+
                     element.on('click', function() {
                         var item = null;
                         //for (var i = 0; i < combinedItems.length; i++) {
@@ -1298,17 +1306,7 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
-
-            //selectedItems2.update(combinedItems);
-            //trNodes.render(combinedItems);
-            //
-            //var g = svg.selectAll('g.item')
-            //    .data(combinedItems, function(item) {
-            //        return item.id;
-            //        //return item;
-            //    });
             selectedItems2.update(visibleItems.items);
-            trNodes.render(visibleItems.items);
 
             var g = svg.selectAll('g.item')
                 .data(visibleItems.items, function(item) {
@@ -1408,6 +1406,8 @@ iD.TelenavLayer = function (context) {
             dOFs.on('mouseout', MapItem.handleMouseOut);
             mRs.on('mouseout', MapItem.handleMouseOut);
             tRs.on('mouseout', MapItem.handleMouseOut);
+
+            trNodes.render(visibleItems.items);
 
             g.exit()
                 .remove();
