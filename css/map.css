@@ -1638,7 +1638,7 @@ text.gpx {
     fill-opacity: .4;
 }
 
-.layer-telenav svg > g > rect {
+.layer-telenav svg > g.deselectSurface > rect {
     stroke-opacity: .0;
     fill-opacity: .0;
 }
