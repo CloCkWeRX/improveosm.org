@@ -1331,7 +1331,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1777,7 +1777,7 @@ iD.TelenavLayer = function (context) {
                         .classed('off', true)
                     d3.select('.layer-telenav').classed('editMode', false);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
 
                     d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
@@ -2042,13 +2042,13 @@ iD.TelenavLayer = function (context) {
         // ++++++++++++
 
 
-        d3.select('.toggleEditModeContainer').on('click', function() {
-            if (d3.select('.layer-telenav').classed('editMode')) {
-                d3.select('.layer-telenav').classed('editMode', false);
-            } else {
-                d3.select('.layer-telenav').classed('editMode', true);
-            }
-        });
+        //d3.select('.toggleEditModeContainer').on('click', function() {
+        //    if (d3.select('.layer-telenav').classed('editMode')) {
+        //        d3.select('.layer-telenav').classed('editMode', false);
+        //    } else {
+        //        d3.select('.layer-telenav').classed('editMode', true);
+        //    }
+        //});
 
         d3.select('#oneWay').on('click', function() {
             if (d3.select('#oneWay').property('checked')) {
