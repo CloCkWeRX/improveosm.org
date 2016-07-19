@@ -1575,6 +1575,11 @@ text.gpx {
     fill-opacity: .4;*/
 }
 
+.layer-telenav g.tr-node text {
+    stroke-opacity: 1;
+    fill-opacity: 1;
+}
+
 .layer-telenav.selected {
     stroke-width: 3;
     stroke: red;
@@ -1607,13 +1612,15 @@ text.gpx {
 
 .TurnRestrictionItem text,
 .TurnRestrictionItem rect,
-.TurnRestrictionItem polyline.wayIn,
+.TurnRestrictionItem polyline.wayIn1,
+.TurnRestrictionItem polyline.wayIn2,
 .TurnRestrictionItem polyline.wayOut {
     display: none;
 }
 .TurnRestrictionItem.selected text,
 .TurnRestrictionItem.selected rect,
-.TurnRestrictionItem.selected polyline.wayIn,
+.TurnRestrictionItem.selected polyline.wayIn1,
+.TurnRestrictionItem.selected polyline.wayIn2,
 .TurnRestrictionItem.selected polyline.wayOut {
     display: block;
 }
@@ -1673,7 +1680,8 @@ text.gpx {
     marker-end: url(#telenav-selected-arrow-marker);
 }
 
-.layer-telenav g polyline.wayIn {
+.layer-telenav g polyline.wayIn1,
+.layer-telenav g polyline.wayIn2 {
     stroke: #00CD00;
 }
 .layer-telenav g text {
