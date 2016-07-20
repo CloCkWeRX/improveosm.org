@@ -1729,7 +1729,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'main-header')
             .text('Improve OSM editing');
         var backDeselectWrapper = userWindowHeader.append('div')
-            .attr('class', 'button-wrap joined fr')
+            .attr('class', 'button-wrap single joined fr')
         backDeselectWrapper.append('button')
             .attr('class', 'telenav-back telenav-header-button')
             .attr('id', 'telenav-back')
