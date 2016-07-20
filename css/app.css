@@ -657,17 +657,17 @@ button.save.has-count .count::before {
 ------------------------------------------------------- */
 .telenavwrap {
     position: absolute;
-    width: 300%;
+    width: 200%;
     height: 100%;
-    right: -100%;
+    right: 0%;
     /*right: -200%;*/
     transition: transform .3s ease-in-out;
 }
 .telenavwrap .pane {
-    width: 33.33%;
+    width: 50%;
 }
 .pane-middle {
-    left: 33.33%
+    left: 50%
 }
 .pane-telenav {
     position: absolute;
