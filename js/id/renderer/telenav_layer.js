@@ -322,9 +322,9 @@ iD.TelenavLayer = function (context) {
     };
     MapItem.transformClass = function(item) {
         if(item.className != 'MissingRoadItem') {
-            return 'item ' + (item.selected ? 'selected' : '') + item.className;
+            return 'item ' + (item.selected ? 'selected ' : '') + item.className;
         } else {
-            return 'item ' + (item.selected ? 'selected' : '') + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
+            return 'item ' + (item.selected ? 'selected ' : '') + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
         }
     };
     MapItem.transformId = function(item) {
