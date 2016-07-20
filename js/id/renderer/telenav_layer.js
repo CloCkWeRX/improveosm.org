@@ -896,6 +896,42 @@ iD.TelenavLayer = function (context) {
             this.goToMain();
         };
 
+        this.enableActivationSwitch = function(enable) {
+            var activeButton = d3.select('#telenav-active');
+            var inactiveButton = d3.select('#telenav-inactive');
+            if (enable) {
+                inactiveButton.style('opacity', '1');
+                activeButton.style('opacity', '1');
+                inactiveButton.on('click', _editPanel.onActivationSwitchClick);
+                activeButton.on('click', _editPanel.onActivationSwitchClick);
+            } else {
+                inactiveButton.style('opacity', '0.2');
+                activeButton.style('opacity', '0.2');
+                inactiveButton.on('click', null);
+                activeButton.on('click', null);
+            }
+        };
+
+        this.onActivationSwitchClick = function() {
+            if(!_editPanel.editMode){
+                _editPanel.toggleEditMode(true);
+
+                d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+
+                d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
+                d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
+                //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
+            } else {
+                _editPanel.toggleEditMode(false);
+
+                d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
+
+                d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
+                d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
+                //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
+            }
+        }
+
         this.showSiblings = function(siblings) {
             var selected = siblings.selected,
                 selectedConfidenceLvl;
@@ -1626,10 +1662,12 @@ iD.TelenavLayer = function (context) {
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
+            _editPanel.enableActivationSwitch(true);
         } else if (requestUrlQueue.length !== 0) {
             svg.selectAll('g.item')
                 .remove();
             heatMap = new HeatMap(zoom);
+            _editPanel.enableActivationSwitch(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
                 !function (type) {
@@ -1817,49 +1855,11 @@ iD.TelenavLayer = function (context) {
         switchWrapper.append('button')
             .attr('class', 'telenav-header-button')
             .attr('id', 'telenav-active')
-            .on('click', function(){
-                if(!_editPanel.editMode){
-                    _editPanel.toggleEditMode(true);
-
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
-
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
-                } else {
-                    _editPanel.toggleEditMode(false);
-
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
-
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
-                }
-            })
             .append('span')
             .text('Active');
         switchWrapper.append('button')
             .attr('class', 'telenav-header-button active')
             .attr('id', 'telenav-inactive')
-            .on('click', function(){
-                if(!_editPanel.editMode){
-                    _editPanel.toggleEditMode(true);
-
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
-
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
-                } else {
-                    _editPanel.toggleEditMode(false);
-
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
-
-                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
-                }
-            })
             .append('span')
             .text('Inactive');
         var generalSettingsBody = generalSettingsWindow.append('div')
@@ -2089,22 +2089,6 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'C2')
             .text('Probable');
         //  END 2st container div
-
-        var toggleEditModeContainer = enter.append('textarea')
-            .attr('class', 'telenavComments');
-        var sendMessageButton = enter.append('button')
-            .attr('class', 'telenavSendComments')
-            .html('OK');
-
-        var closedButton = enter.append('button')
-            .attr('class', 'closedButton')
-            .html('closed');
-        var openedButton = enter.append('button')
-            .attr('class', 'openedButton')
-            .html('opened');
-        var invalidButton = enter.append('button')
-            .attr('class', 'invalidButton')
-            .html('invalid');
 
         // ++++++++++++
         // events
