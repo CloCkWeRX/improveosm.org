@@ -146,45 +146,45 @@ iD.svg.Defs = function(context) {
             .attr('opacity', '.4');
 
 
-        defs.append('marker')
-            .attr({
-                id: 'telenav-tr-marker',
-                viewBox: '0 0 10 10',
-                refY: 5,
-                refX: 5,
-                markerWidth: 9,
-                markerHeight: 9,
-                markerUnits: 'strokeWidth',
-                orient: 'auto'
-            })
-            .append('circle')
-            .attr('class', 'telenav-tr-marker')
-            .attr('cx', '5')
-            .attr('cy', '5')
-            .attr('r', '4')
-            .attr('stroke', '#f00')
-            .attr('fill', '#fff')
-            .attr('opacity', '1');
-
-        defs.append('marker')
-            .attr({
-                id: 'telenav-tr-marker-opaque',
-                viewBox: '0 0 10 10',
-                refY: 5,
-                refX: 5,
-                markerWidth: 9,
-                markerHeight: 9,
-                markerUnits: 'strokeWidth',
-                orient: 'auto'
-            })
-            .append('circle')
-            .attr('class', 'telenav-tr-marker-opaque')
-            .attr('cx', '5')
-            .attr('cy', '5')
-            .attr('r', '4')
-            .attr('stroke', '#f00')
-            .attr('fill', '#fff')
-            .attr('opacity', '.2');
+        //defs.append('marker')
+        //    .attr({
+        //        id: 'telenav-tr-marker',
+        //        viewBox: '0 0 10 10',
+        //        refY: 5,
+        //        refX: 5,
+        //        markerWidth: 9,
+        //        markerHeight: 9,
+        //        markerUnits: 'strokeWidth',
+        //        orient: 'auto'
+        //    })
+        //    .append('circle')
+        //    .attr('class', 'telenav-tr-marker')
+        //    .attr('cx', '5')
+        //    .attr('cy', '5')
+        //    .attr('r', '4')
+        //    .attr('stroke', '#f00')
+        //    .attr('fill', '#fff')
+        //    .attr('opacity', '1');
+        //
+        //defs.append('marker')
+        //    .attr({
+        //        id: 'telenav-tr-marker-opaque',
+        //        viewBox: '0 0 10 10',
+        //        refY: 5,
+        //        refX: 5,
+        //        markerWidth: 9,
+        //        markerHeight: 9,
+        //        markerUnits: 'strokeWidth',
+        //        orient: 'auto'
+        //    })
+        //    .append('circle')
+        //    .attr('class', 'telenav-tr-marker-opaque')
+        //    .attr('cx', '5')
+        //    .attr('cy', '5')
+        //    .attr('r', '4')
+        //    .attr('stroke', '#f00')
+        //    .attr('fill', '#fff')
+        //    .attr('opacity', '.2');
 
         defs.append('marker')
             .attr({

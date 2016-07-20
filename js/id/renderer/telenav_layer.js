@@ -63,6 +63,27 @@ iD.TelenavLayer = function (context) {
             lonMax: longitudeMax
         }
     };
+    Utils.orderSegments = function(segments, entry) {
+        var newSegments = [];
+        var rawSegments = segments.slice(0);
+        var currentAnchor = entry;
+        while (rawSegments.length > 0) {
+            for (var i = 0; i < rawSegments.length; i++) {
+                var item = rawSegments[i][0];
+                if (currentAnchor.lat == item.lat && currentAnchor.lon == item.lon) {
+                    break;
+                }
+            }
+            var segment = rawSegments[i];
+            if (typeof segment == 'undefined') {
+                break;
+            }
+            currentAnchor = rawSegments[i][segment.length - 1];
+            newSegments.push(rawSegments[i]);
+            rawSegments.splice(i, 1);
+        }
+        return newSegments;
+    };
 
     // ==============================
     // ==============================
@@ -527,10 +548,24 @@ iD.TelenavLayer = function (context) {
         return stringPoints.join(' ');
     };
     TurnRestrictionItem.transformLinePointsOut = function(item) {
+        var rawSegments = [];
+        for (var i = 1; i < item.segments.length; i++) {
+            var rawPoints = [];
+            for (var j = 0; j < item.segments[i].points.length; j++) {
+                //var point = context.projection([item.segments[i].points[j].lon, item.segments[i].points[j].lat]);
+                rawPoints.push(item.segments[i].points[j]);
+            }
+            rawSegments.push(rawPoints);
+        }
+
+        var segments = Utils.orderSegments(rawSegments, item.point);
+
         var stringPoints = [];
-        for (var j = 0; j < item.segments[1].points.length; j++) {
-            var point = context.projection([item.segments[1].points[j].lon, item.segments[1].points[j].lat]);
-            stringPoints.push(point.toString());
+        for (var i = 0; i < segments.length; i++) {
+            for (var j = 0; j < segments[i].length; j++) {
+                var point = context.projection([segments[i][j].lon, segments[i][j].lat]);
+                stringPoints.push(point.toString());
+            }
         }
 
         return stringPoints.join(' ');
@@ -827,6 +862,7 @@ iD.TelenavLayer = function (context) {
     var EditPanel = function() {
 
         this._location = 'MAIN';
+        this.editMode = false;
 
         //get the width of the panel for animation effect
         this._panelWidth = function(){
@@ -837,12 +873,20 @@ iD.TelenavLayer = function (context) {
             return this._location;
         };
 
-        this.show = function() {
-
-        };
-
-        this.renderMessage = function() {
-
+        this.toggleEditMode = function(editMode) {
+            if (typeof editMode !== 'boolean') {
+                throw new Error('EditMode::toggleEditMode - unexpected parameter');
+            } else if (editMode) {
+                d3.select('#telenav-active').classed('active', true)
+                d3.select('#telenav-inactive').classed('active', false)
+                d3.select('.layer-telenav').classed('editMode', true);
+                this.editMode = true;
+            } else {
+                d3.select('#telenav-active').classed('active', false)
+                d3.select('#telenav-inactive').classed('active', true)
+                d3.select('.layer-telenav').classed('editMode', false);
+                this.editMode = false;
+            }
         };
 
         this.deselectAll = function() {
@@ -1331,9 +1375,13 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
-            var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
-            dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            if (_editPanel.editMode) {
+                dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+            } else {
+                dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
+            }
+            //var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
+            //dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
             mRs.html(function(d) {
                 var html = '';
@@ -1342,12 +1390,12 @@ iD.TelenavLayer = function (context) {
                     + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                     + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
                     + '></rect>';
-                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                    + ' class="highlight"' + '0.4'
-                    + '></rect>';
+                //html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                //    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                //    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                //    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                //    + ' class="highlight"' + '0.4'
+                //    + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
@@ -1356,16 +1404,6 @@ iD.TelenavLayer = function (context) {
                 return html;
             });
 
-            var trCircle = tRs.append('circle')
-                .attr('class', 'telenav-tr-marker')
-                .attr('cx', TurnRestrictionItem.transformX)
-                .attr('cy', TurnRestrictionItem.transformY)
-                .attr('r', '10');
-            var trSelCircle = tRs.append('circle').attr('class', 'highlight highlightOff')
-                .attr('class', 'telenav-tr-marker')
-                .attr('cx', TurnRestrictionItem.transformX)
-                .attr('cy', TurnRestrictionItem.transformY)
-                .attr('r', '10');
             var trPolyIn1 = tRs.append('polyline');
             trPolyIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
             trPolyIn1.attr('marker-end', 'url(#telenav-arrow-marker-green)');
@@ -1392,20 +1430,30 @@ iD.TelenavLayer = function (context) {
             var trPolyOut = tRs.append('polyline');
             trPolyOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
             trPolyOut.attr('marker-end', 'url(#telenav-arrow-marker)');
-            trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
+            //trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
             trPolyOut.attr('class', 'wayOut');
+            var trCircle = tRs.append('circle')
+                .attr('class', 'telenav-tr-marker')
+                .attr('cx', TurnRestrictionItem.transformX)
+                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('r', '10');
+            //var trSelCircle = tRs.append('circle').attr('class', 'highlight highlightOff')
+            //    .attr('class', 'telenav-tr-marker')
+            //    .attr('cx', TurnRestrictionItem.transformX)
+            //    .attr('cy', TurnRestrictionItem.transformY)
+            //    .attr('r', '10');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);
             tRs.on('click', MapItem.handleSelection);
 
-            dOFs.on('mouseover', MapItem.handleMouseOver);
+            //dOFs.on('mouseover', MapItem.handleMouseOver);
             //mRs.on('mouseover', MapItem.handleMouseOver);
-            tRs.on('mouseover', MapItem.handleMouseOver);
+            //tRs.on('mouseover', MapItem.handleMouseOver);
 
-            dOFs.on('mouseout', MapItem.handleMouseOut);
+            //dOFs.on('mouseout', MapItem.handleMouseOut);
             //mRs.on('mouseout', MapItem.handleMouseOut);
-            tRs.on('mouseout', MapItem.handleMouseOut);
+            //tRs.on('mouseout', MapItem.handleMouseOut);
 
             trNodes.render(visibleItems.items);
 
@@ -1483,12 +1531,12 @@ iD.TelenavLayer = function (context) {
                 + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                 + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
                 + '></rect>';
-            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                + ' class="highlight"' + '0.4'
-                + '></rect>';
+            //html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+            //    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+            //    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+            //    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+            //    + ' class="highlight"' + '0.4'
+            //    + '></rect>';
             for (var i = 0; i < d._points.length; i++) {
                 var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
@@ -1500,17 +1548,17 @@ iD.TelenavLayer = function (context) {
         var trCircle = svg.selectAll('.TurnRestrictionItem > circle');
         trCircle.attr('cx', TurnRestrictionItem.transformX);
         trCircle.attr('cy', TurnRestrictionItem.transformY);
-        var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.highlight');
-        trSelCircle.attr('cx', TurnRestrictionItem.transformX);
-        trSelCircle.attr('cy', TurnRestrictionItem.transformY);
+        //var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.highlight');
+        //trSelCircle.attr('cx', TurnRestrictionItem.transformX);
+        //trSelCircle.attr('cy', TurnRestrictionItem.transformY);
         var turnRestrictionPolylinesIn1 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn1');
         turnRestrictionPolylinesIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
         var turnRestrictionPolylinesIn2 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn2');
         turnRestrictionPolylinesIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
         var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
         turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
-        var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
-        turnRestrictionPolylinesHighlight.attr('points', TurnRestrictionItem.transformLinePoints);
+        //var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
+        //turnRestrictionPolylinesHighlight.attr('points', TurnRestrictionItem.transformLinePoints);
 
         var tRinNo = svg.selectAll('.TurnRestrictionItem > text.inNo');
         tRinNo
@@ -1628,26 +1676,38 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'entity-editor-pane pane');
         var userWindowHeader = userWindow.append('div')
             .attr('class', 'header fillL cf');
-        userWindowHeader.append('button')
-            .attr('class', 'fr preset-reset')
-            .on('click', function() {
-                _editPanel.deselectAll();
-                render(d3.select('.layer-telenav'));
-                //telenavWrap.transition()
-                //    .style('transform', 'translate3d(0px, 0px, 0px)');
-            })
-            .append('span')
-            .html('&#9658;');
+        //userWindowHeader.append('button')
+        //    .attr('class', 'fr preset-reset')
+        //    .on('click', function() {
+        //        _editPanel.deselectAll();
+        //        render(d3.select('.layer-telenav'));
+        //        //telenavWrap.transition()
+        //        //    .style('transform', 'translate3d(0px, 0px, 0px)');
+        //    })
+        //    .append('span')
+        //    .html('&#9658;');
 
         userWindowHeader.append('h3')
-            .text('Telenav Layers');
+            .attr('class', 'main-header')
+            .text('Improve OSM editing');
+        var backDeselectWrapper = userWindowHeader.append('div')
+            .attr('class', 'button-wrap joined fr')
+        backDeselectWrapper.append('button')
+            .attr('class', 'telenav-back telenav-header-button')
+            .attr('id', 'telenav-back')
+            .on('click', function(){
+                _editPanel.deselectAll();
+                render(d3.select('.layer-telenav'));
+            })
+            .append('span')
+            .text('Back / Deselect');
         var userWindowBody = userWindow.append('div')
             .attr('class', 'telenav-body');
         var userWindowInner = userWindowBody.append('div')
             .attr('class', 'inspector-border inspector-preset')
             .append('div');
         var userContainer = userWindowInner.append('div')
-            .attr('class', 'preset-form inspector-inner fillL3');
+            .attr('class', 'preset-form inspector-inner');
         var multipleTR_form = userContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'siblingsPanel');
@@ -1740,67 +1800,76 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'entity-editor-pane pane pane-middle');
         var generalWindowsWindowHeader = generalSettingsWindow.append('div')
             .attr('class', 'header fillL cf');
-        generalWindowsWindowHeader.append('button')
-            .attr('class', 'fr preset-reset')
-            .on('click', function() {
-                _editPanel.goToMore();
-                //telenavWrap.transition()
-                //    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
-            })
-            .append('span')
-            .html('&#9658;');
+        //generalWindowsWindowHeader.append('button')
+        //    .attr('class', 'fr preset-reset')
+        //    .on('click', function() {
+        //        _editPanel.goToMore();
+        //        //telenavWrap.transition()
+        //        //    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
+        //    })
+        //    .append('span')
+        //    .html('&#9658;');
         generalWindowsWindowHeader.append('h3')
-            .text('Telenav Pane');
-        var generalSettingsBody = generalSettingsWindow.append('div')
-            .attr('class', 'telenav-body');
-        var generalSettingsInner = generalSettingsBody.append('div')
-            .attr('class', 'preset-list-item inspector-inner');
-        var generalSettingsButtonWrap = generalSettingsInner.append('div')
-            .attr('class', 'preset-list-button-wrap')
-            .attr('id', 'toggleEditMode')
+            .attr('class', 'main-header')
+            .text('Improve OSM panel');
+        var switchWrapper = generalWindowsWindowHeader.append('div')
+            .attr('class', 'button-wrap joined fr')
+        switchWrapper.append('button')
+            .attr('class', 'telenav-header-button')
+            .attr('id', 'telenav-active')
             .on('click', function(){
-                var label = generalSettingsButtonWrap.select('.label')
-                if(label.classed('off')){
-                    generalSettingsButtonWrap.select('.label')
-                        .text('Edit Mode On')
-                        .classed('off', false)
-                    d3.select('.layer-telenav').classed('editMode', true);
+                if(!_editPanel.editMode){
+                    _editPanel.toggleEditMode(true);
 
                     d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
 
                     d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
+                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
                 } else {
-                    generalSettingsButtonWrap.select('.label')
-                        .text('Edit Mode Off')
-                        .classed('off', true)
-                    d3.select('.layer-telenav').classed('editMode', false);
+                    _editPanel.toggleEditMode(false);
 
                     d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
 
                     d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
+                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
                 }
-            });
+            })
+            .append('span')
+            .text('Active');
+        switchWrapper.append('button')
+            .attr('class', 'telenav-header-button active')
+            .attr('id', 'telenav-inactive')
+            .on('click', function(){
+                if(!_editPanel.editMode){
+                    _editPanel.toggleEditMode(true);
 
-        var generalSettingsButton = generalSettingsButtonWrap.append('button')
-            .attr('class', 'preset-list-button preset-reset');
-        generalSettingsButton.append('div')
-            .attr('class', 'label off')
-            .text('Edit Mode Off');
-        generalSettingsButton.append('div')
-            .attr('class', 'preset-icon preset-icon-32')
-            .append('svg')
-            .attr('class', 'icon')
-            .call(iD.svg.Icon('#icon-apply'));
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
+                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
+                } else {
+                    _editPanel.toggleEditMode(false);
+
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
+
+                    d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
+                    d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
+                    //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
+                }
+            })
+            .append('span')
+            .text('Inactive');
+        var generalSettingsBody = generalSettingsWindow.append('div')
+            .attr('class', 'telenav-body');
 
         var containerBorder = generalSettingsBody.append('div')
             .attr('class', 'inspector-border inspector-preset')
             .append('div');
         var presetFormContainer = containerBorder.append('div')
-            .attr('class', 'preset-form inspector-inner fillL3');
+            .attr('class', 'preset-form inspector-inner');
 
         var presetForm = presetFormContainer.append('div')
             .attr('class', 'form-field');
@@ -1846,30 +1915,30 @@ iD.TelenavLayer = function (context) {
         //  END 1st container div
 
         //  START 2st container div
-        var optionsWindow = telenavWrap.append('div')
-            .attr('id', 'optionsWindow')
-            .attr('class', 'entity-editor-pane pane');
-        var optionsWindowHeader = optionsWindow.append('div')
-            .attr('class', 'header fillL cf');
-        optionsWindowHeader.append('button')
-            .attr('class', 'fl preset-reset preset-choose')
-            .on('click', function() {
-                _editPanel.goToMain();
-            })
-            .append('span')
-            .html('&#9668;');
+        //var optionsWindow = telenavWrap.append('div')
+        //    .attr('id', 'optionsWindow')
+        //    .attr('class', 'entity-editor-pane pane');
+        //var optionsWindowHeader = optionsWindow.append('div')
+        //    .attr('class', 'header fillL cf');
+        //optionsWindowHeader.append('button')
+        //    .attr('class', 'fl preset-reset preset-choose')
+        //    .on('click', function() {
+        //        _editPanel.goToMain();
+        //    })
+        //    .append('span')
+        //    .html('&#9668;');
+        //
+        //optionsWindowHeader.append('h3')
+        //    .text('Telenav Layers');
+        //var optionsWindowBody = optionsWindow.append('div')
+        //    .attr('class', 'telenav-body');
+        //var optionsWindowInner = optionsWindowBody.append('div')
+        //    .attr('class', 'inspector-border inspector-preset')
+        //    .append('div');
+        //var optionsContainer = optionsWindowInner.append('div')
+        //    .attr('class', 'preset-form inspector-inner');
 
-        optionsWindowHeader.append('h3')
-            .text('Telenav Layers');
-        var optionsWindowBody = optionsWindow.append('div')
-            .attr('class', 'telenav-body');
-        var optionsWindowInner = optionsWindowBody.append('div')
-            .attr('class', 'inspector-border inspector-preset')
-            .append('div');
-        var optionsContainer = optionsWindowInner.append('div')
-            .attr('class', 'preset-form inspector-inner fillL3');
-
-        var direction_form = optionsContainer.append('div')
+        var direction_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'dofFilter');
         direction_form.append('label')
@@ -1915,7 +1984,7 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'C3')
             .text('Probable');
 
-        var missing_form = optionsContainer.append('div')
+        var missing_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'mrFilter');
         missing_form.append('label')
@@ -1983,7 +2052,7 @@ iD.TelenavLayer = function (context) {
             .text('Path Trail');
 
 
-        var restriction_form = optionsContainer.append('div')
+        var restriction_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'trFilter');
         restriction_form.append('label')
