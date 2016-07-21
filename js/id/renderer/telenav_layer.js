@@ -1142,7 +1142,7 @@ iD.TelenavLayer = function (context) {
                     var DoFdetailsRow_percetageOfTrips = DoFdetailsContainer.append('tr');
                     DoFdetailsRow_percetageOfTrips.append('th')
                         .attr('colspan', '3')
-                        .text(item.percentageOfTrips + ' of drivers travelled in this direction' );
+                        .text(item.percentageOfTrips + '% of drivers travelled in this direction' );
                     var DoFdetailsRow_totalTrips = DoFdetailsContainer.append('tr');
                     DoFdetailsRow_totalTrips.append('th')
                         .text('Total Trips');
