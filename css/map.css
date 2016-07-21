@@ -1832,6 +1832,33 @@ text.gpx {
     width: calc(20% - 15px);
 }
 
+/* Colored dots on filters headers */
+
+#telenav-oneWay-headerDot,
+#telenav-missingRoad-headerDot,
+#telenav-turnRestriction-headerDot {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    position: absolute;
+    top: calc(50% - 5px);
+    opacity: 0.8;
+}
+
+#telenav-oneWay-headerDot {
+    background: #EE7600;
+    left: 80px;
+}
+#telenav-missingRoad-headerDot {
+    background: #B0171F;
+    left: 111px;
+}
+#telenav-turnRestriction-headerDot {
+    background: #1E90FF;
+    left: 130px;
+}
+
 /* Modes */
 
 .mode-draw-line .vertex.active,

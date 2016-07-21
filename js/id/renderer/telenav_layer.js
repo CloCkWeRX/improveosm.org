@@ -899,16 +899,25 @@ iD.TelenavLayer = function (context) {
         this.enableActivationSwitch = function(enable) {
             var activeButton = d3.select('#telenav-active');
             var inactiveButton = d3.select('#telenav-inactive');
+            var owDot = d3.select('#telenav-oneWay-headerDot');
+            var mrwDot = d3.select('#telenav-missingRoad-headerDot');
+            var trDot = d3.select('#telenav-turnRestriction-headerDot');
             if (enable) {
                 inactiveButton.style('opacity', '1');
                 activeButton.style('opacity', '1');
                 inactiveButton.on('click', _editPanel.onActivationSwitchClick);
                 activeButton.on('click', _editPanel.onActivationSwitchClick);
+                owDot.style('visibility', 'hidden');
+                mrwDot.style('visibility', 'hidden');
+                trDot.style('visibility', 'hidden');
             } else {
                 inactiveButton.style('opacity', '0.2');
                 activeButton.style('opacity', '0.2');
                 inactiveButton.on('click', null);
                 activeButton.on('click', null);
+                owDot.style('visibility', 'visible');
+                mrwDot.style('visibility', 'visible');
+                trDot.style('visibility', 'visible');
             }
         };
 
@@ -1727,7 +1736,7 @@ iD.TelenavLayer = function (context) {
 
         userWindowHeader.append('h3')
             .attr('class', 'main-header')
-            .text('Improve OSM editing');
+            .text('Improve OSM panel');
         var backDeselectWrapper = userWindowHeader.append('div')
             .attr('class', 'button-wrap single joined fr')
         backDeselectWrapper.append('button')
@@ -1941,13 +1950,15 @@ iD.TelenavLayer = function (context) {
         var direction_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'dofFilter');
-        direction_form.append('label')
+        var owHeadWrap = direction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'oneWay')
             .text('One Way')
             .append('div')
             .attr('class', 'form-label-button-wrap')
-            .append('div')
+            owHeadWrap.append('span').append('i')
+                .attr('id', 'telenav-oneWay-headerDot');
+            owHeadWrap.append('div')
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
@@ -1987,13 +1998,15 @@ iD.TelenavLayer = function (context) {
         var missing_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'mrFilter');
-        missing_form.append('label')
+        var mrHeadWrap = missing_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
             .text('Missing roads')
             .append('div')
             .attr('class', 'form-label-button-wrap')
-            .append('div')
+            mrHeadWrap.append('span').append('i')
+                .attr('id', 'telenav-missingRoad-headerDot');
+            mrHeadWrap.append('div')
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')
@@ -2055,13 +2068,15 @@ iD.TelenavLayer = function (context) {
         var restriction_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'trFilter');
-        restriction_form.append('label')
+        var trHeadWrap = restriction_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoads')
             .text('Turn Restriction')
             .append('div')
-            .attr('class', 'form-label-button-wrap')
-            .append('div')
+            .attr('class', 'form-label-button-wrap');
+        trHeadWrap.append('span').append('i')
+            .attr('id', 'telenav-turnRestriction-headerDot');
+        trHeadWrap.append('div')
             .attr('class', 'input')
             .append('input')
             .attr('type', 'checkbox')

@@ -420,8 +420,8 @@ en:
     title: "Photo Overlay (Mapillary)"
     view_on_mapillary: "View this image on Mapillary"
   telenav:
-    tooltip: "ImproveOSM metrics from Telenav"
-    title: "ImproveOSM metrics (Telenav)"
+    tooltip: "Improve OSM"
+    title: "Improve OSM"
   help:
     title: "Help"
     help: |
