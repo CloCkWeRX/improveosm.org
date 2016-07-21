@@ -723,10 +723,13 @@ button.save.has-count .count::before {
     padding-left: 10px; padding-right: 10px;
     border-radius: 4px;
 }
-.pane-telenav .header .telenav-header-button.active {
+.pane-telenav .header .telenav-header-button.active.selected {
     background: limegreen;
 }
-.pane-telenav .header .telenav-header-button.active span {
+.pane-telenav .header .telenav-header-button.inactive.selected {
+    background: #D32232;
+}
+.pane-telenav .header .telenav-header-button.selected span {
     color: white;
 }
 
@@ -773,7 +776,7 @@ label .form-label-button-wrap .input {
     padding: 5px 10px;
 }
 .form-subLabel {
-    background: #ECECEC;
+    background: #F6F6F6;
     padding: 3px 10px;
     width: calc(100% + 10px)!important;
     margin-left: -10px;

@@ -877,13 +877,13 @@ iD.TelenavLayer = function (context) {
             if (typeof editMode !== 'boolean') {
                 throw new Error('EditMode::toggleEditMode - unexpected parameter');
             } else if (editMode) {
-                d3.select('#telenav-active').classed('active', true)
-                d3.select('#telenav-inactive').classed('active', false)
+                d3.select('#telenav-active').classed('selected', true)
+                d3.select('#telenav-inactive').classed('selected', false)
                 d3.select('.layer-telenav').classed('editMode', true);
                 this.editMode = true;
             } else {
-                d3.select('#telenav-active').classed('active', false)
-                d3.select('#telenav-inactive').classed('active', true)
+                d3.select('#telenav-active').classed('selected', false)
+                d3.select('#telenav-inactive').classed('selected', true)
                 d3.select('.layer-telenav').classed('editMode', false);
                 this.editMode = false;
             }
@@ -1853,12 +1853,12 @@ iD.TelenavLayer = function (context) {
         var switchWrapper = generalWindowsWindowHeader.append('div')
             .attr('class', 'button-wrap joined fr')
         switchWrapper.append('button')
-            .attr('class', 'telenav-header-button')
+            .attr('class', 'telenav-header-button active')
             .attr('id', 'telenav-active')
             .append('span')
             .text('Active');
         switchWrapper.append('button')
-            .attr('class', 'telenav-header-button active')
+            .attr('class', 'telenav-header-button inactive selected')
             .attr('id', 'telenav-inactive')
             .append('span')
             .text('Inactive');
