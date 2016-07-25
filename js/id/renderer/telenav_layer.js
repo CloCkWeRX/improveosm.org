@@ -647,7 +647,7 @@ iD.TelenavLayer = function (context) {
         this.numberOfTrips = rawItemData.numberOfTrips;
         this.type = rawItemData.type;
         this.status = rawItemData.status;
-        this.timestamp = rawItemData.timestamp;
+        this.timestamp = rawItemData.timestamp * 1000; // JS needs miliseconds
         this.spotId = [rawItemData.x, rawItemData.y].join(',');
 
 
