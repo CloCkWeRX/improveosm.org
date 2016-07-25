@@ -229,11 +229,13 @@ iD.TelenavLayer = function (context) {
                         var siblingsFound = 0;
                         for (var j = i + 1; j < combinedItems.length; j++) {
                             var checkedItem = combinedItems[j];
-                            if (
-                                (checkedItem.point.lat === item.point.lat) &&
-                                (checkedItem.point.lon === item.point.lon)
-                            ) {
-                                siblingsFound++;
+                            if (checkedItem.className === 'TurnRestrictionItem') {
+                                if (
+                                    (checkedItem.point.lat === item.point.lat) &&
+                                    (checkedItem.point.lon === item.point.lon)
+                                ) {
+                                    siblingsFound++;
+                                }
                             }
                         }
                         if (siblingsFound > 0) {
