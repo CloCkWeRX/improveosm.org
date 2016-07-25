@@ -874,14 +874,33 @@ iD.TelenavLayer = function (context) {
         };
 
         this.toggleEditMode = function(editMode) {
+
+            var roadMr = d3.select('#telenav_roadMr');
+            var parkingMr = d3.select('#telenav_parkingMr');
+            var bothMr = d3.select('#telenav_bothMr');
+            var waterMr = d3.select('#telenav_waterMr');
+            var pathMr = d3.select('#telenav_pathMr');
+
             if (typeof editMode !== 'boolean') {
                 throw new Error('EditMode::toggleEditMode - unexpected parameter');
             } else if (editMode) {
+                roadMr.classed('editMode', true);
+                parkingMr.classed('editMode', true);
+                bothMr.classed('editMode', true);
+                waterMr.classed('editMode', true);
+                pathMr.classed('editMode', true);
+
                 d3.select('#telenav-active').classed('selected', true)
                 d3.select('#telenav-inactive').classed('selected', false)
                 d3.select('.layer-telenav').classed('editMode', true);
                 this.editMode = true;
             } else {
+                roadMr.classed('editMode', false);
+                parkingMr.classed('editMode', false);
+                bothMr.classed('editMode', false);
+                waterMr.classed('editMode', false);
+                pathMr.classed('editMode', false);
+
                 d3.select('#telenav-active').classed('selected', false)
                 d3.select('#telenav-inactive').classed('selected', true)
                 d3.select('.layer-telenav').classed('editMode', false);
@@ -902,6 +921,27 @@ iD.TelenavLayer = function (context) {
             var owDot = d3.select('#telenav-oneWay-headerDot');
             var mrwDot = d3.select('#telenav-missingRoad-headerDot');
             var trDot = d3.select('#telenav-turnRestriction-headerDot');
+
+            var roadMr = d3.select('#telenav_roadMr');
+            var parkingMr = d3.select('#telenav_parkingMr');
+            var bothMr = d3.select('#telenav_bothMr');
+            var waterMr = d3.select('#telenav_waterMr');
+            var pathMr = d3.select('#telenav_pathMr');
+
+            if (_editPanel.editMode) {
+                roadMr.classed('editMode', true);
+                parkingMr.classed('editMode', true);
+                bothMr.classed('editMode', true);
+                waterMr.classed('editMode', true);
+                pathMr.classed('editMode', true);
+            } else {
+                roadMr.classed('editMode', false);
+                parkingMr.classed('editMode', false);
+                bothMr.classed('editMode', false);
+                waterMr.classed('editMode', false);
+                pathMr.classed('editMode', false);
+            }
+
             if (enable) {
                 inactiveButton.style('opacity', '1');
                 activeButton.style('opacity', '1');
@@ -910,6 +950,12 @@ iD.TelenavLayer = function (context) {
                 owDot.style('visibility', 'hidden');
                 mrwDot.style('visibility', 'hidden');
                 trDot.style('visibility', 'hidden');
+
+                roadMr.classed('showShade', true);
+                parkingMr.classed('showShade', true);
+                bothMr.classed('showShade', true);
+                waterMr.classed('showShade', true);
+                pathMr.classed('showShade', true);
             } else {
                 inactiveButton.style('opacity', '0.2');
                 activeButton.style('opacity', '0.2');
@@ -918,6 +964,12 @@ iD.TelenavLayer = function (context) {
                 owDot.style('visibility', 'visible');
                 mrwDot.style('visibility', 'visible');
                 trDot.style('visibility', 'visible');
+
+                roadMr.classed('showShade', false);
+                parkingMr.classed('showShade', false);
+                bothMr.classed('showShade', false);
+                waterMr.classed('showShade', false);
+                pathMr.classed('showShade', false);
             }
         };
 
@@ -2022,6 +2074,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked');
         missing_roadContainer.append('label')
+            .attr('id', 'telenav_roadMr')
             .attr('for', 'ROAD')
             .text('Road');
         var missing_parkingContainer = missing_formWrap.append('div')
@@ -2031,6 +2084,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             //.attr('checked', 'checked');
         missing_parkingContainer.append('label')
+            .attr('id', 'telenav_parkingMr')
             .attr('for', 'PARKING')
             .text('Parking');
         var missing_bothContainer = missing_formWrap.append('div')
@@ -2040,6 +2094,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             //.attr('checked', 'checked');
         missing_bothContainer.append('label')
+            .attr('id', 'telenav_bothMr')
             .attr('for', 'BOTH')
             .text('Both');
         missing_formWrap.append('label')
@@ -2052,6 +2107,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             //.attr('checked', 'checked');
         missing_waterContainer.append('label')
+            .attr('id', 'telenav_waterMr')
             .attr('for', 'WATER')
             .text('Water Trail');
         var missing_pathContainer = missing_formWrap.append('div')
@@ -2061,6 +2117,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             //.attr('checked', 'checked');
         missing_pathContainer.append('label')
+            .attr('id', 'telenav_pathMr')
             .attr('for', 'PATH')
             .text('Path Trail');
 

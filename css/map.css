@@ -1846,6 +1846,47 @@ text.gpx {
     opacity: 0.8;
 }
 
+#telenav_roadMr.showShade {
+    /*background-color: #B452CD;*/
+    background-color: rgba(180, 82, 205, 0.2);
+}
+#telenav_parkingMr.showShade {
+    /*background-color: #EEEE00;*/
+    background-color: rgba(238, 238, 0, 0.2);
+}
+#telenav_bothMr.showShade {
+    /*background-color: #FFA500;*/
+    background-color: rgba(255, 165, 0, 0.2);
+}
+#telenav_waterMr.showShade {
+    /*background-color: #0000EE;*/
+    background-color: rgba(0, 0, 238, 0.2);
+}
+#telenav_pathMr.showShade {
+    /*background-color: #A0522D;*/
+    background-color: rgba(160, 82, 45, 0.2);
+}
+#telenav_roadMr.showShade.editMode {
+    /*background-color: #B452CD;*/
+    background-color: rgba(180, 82, 205, 0.4);
+}
+#telenav_parkingMr.showShade.editMode {
+    /*background-color: #EEEE00;*/
+    background-color: rgba(238, 238, 0, 0.4);
+}
+#telenav_bothMr.showShade.editMode {
+    /*background-color: #FFA500;*/
+    background-color: rgba(255, 165, 0, 0.4);
+}
+#telenav_waterMr.showShade.editMode {
+    /*background-color: #0000EE;*/
+    background-color: rgba(0, 0, 238, 0.4);
+}
+#telenav_pathMr.showShade.editMode {
+    /*background-color: #A0522D;*/
+    background-color: rgba(160, 82, 45, 0.4);
+}
+
 #telenav-oneWay-headerDot {
     background: #EE7600;
     left: 80px;
