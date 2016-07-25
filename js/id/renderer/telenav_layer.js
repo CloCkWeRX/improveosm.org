@@ -977,7 +977,7 @@ iD.TelenavLayer = function (context) {
             if(!_editPanel.editMode){
                 _editPanel.toggleEditMode(true);
 
-                d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
+                d3.selectAll('.DirectionOfFlowItem polyline.main').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
 
                 d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
@@ -985,7 +985,7 @@ iD.TelenavLayer = function (context) {
             } else {
                 _editPanel.toggleEditMode(false);
 
-                d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
+                d3.selectAll('.DirectionOfFlowItem polyline.main').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
 
                 d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
@@ -1474,15 +1474,15 @@ iD.TelenavLayer = function (context) {
                 return item.isA('TurnRestrictionItem');
             });
 
-            var dofPoly = dOFs.append('polyline');
+            var dofPoly = dOFs.append('polyline').attr('class', 'main');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
             if (_editPanel.editMode) {
                 dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
             } else {
                 dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
             }
-            //var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
-            //dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
+            owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
 
             mRs.html(function(d) {
                 var html = '';
@@ -1621,8 +1621,10 @@ iD.TelenavLayer = function (context) {
         clusterCircles.attr('cx', ClusterCircle.transformX);
         clusterCircles.attr('cy', ClusterCircle.transformY);
 
-        var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline');
+        var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline.main');
         directionOfFlowPolylines.attr('points', DirectionOfFlowItem.transformLinePoints);
+        var owHighlight = svg.selectAll('.DirectionOfFlowItem > polyline.selectable');
+        owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
 
         var missingRoadsCircles = svg.selectAll('.MissingRoadItem');
         missingRoadsCircles.html(function(d) {

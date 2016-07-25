@@ -1690,7 +1690,7 @@ text.gpx {
     fill-opacity: .8;
     stroke-width: 2;
 }
-.layer-telenav g.DirectionOfFlowItem.selected polyline:last-child {
+.layer-telenav g.DirectionOfFlowItem.selected polyline.main {
     stroke-width: 10;
     stroke-opacity: 1;
     stroke: #DC143C!important;
@@ -1745,6 +1745,18 @@ text.gpx {
 }
 .layer-telenav g.DirectionOfFlowItem polyline {
     stroke: #EE7600;
+}
+.layer-telenav g.DirectionOfFlowItem polyline.selectable {
+    stroke-linecap: round;
+    stroke: black;
+    stroke-width: 20;
+    opacity: .0;
+}
+.layer-telenav g.DirectionOfFlowItem polyline.selectable:hover {
+    stroke-linecap: round;
+    stroke: black;
+    stroke-width: 20;
+    opacity: .5;
 }
 .layer-telenav g.DirectionOfFlowItem  * {
     stroke: #EE7600;
