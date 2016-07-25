@@ -1500,7 +1500,7 @@ iD.TelenavLayer = function (context) {
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
-                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=1></circle>';
+                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
                 }
                 return html;
             });
@@ -1643,7 +1643,7 @@ iD.TelenavLayer = function (context) {
             for (var i = 0; i < d._points.length; i++) {
                 var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
-                html += '<circle cx=' + cx + ' cy=' + cy + ' r=1></circle>';
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
             }
             return html;
         });

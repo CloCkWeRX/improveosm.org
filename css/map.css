@@ -1795,10 +1795,14 @@ text.gpx {
     fill: #A0522D;
 }
 .layer-telenav g.MissingRoadItem circle {
-    stroke: #000;
+    stroke-width: 0px;
+    fill: #000;
+    fill-opacity: 1;
 }
-.editMode g.MissingRoadItem rect {
-    /*fill-opacity: .2;*/
+.layer-telenav.editMode g.MissingRoadItem circle {
+    stroke-width: 0px;
+    fill: #000;
+    fill-opacity: 1;
 }
 
 .trList ul {
