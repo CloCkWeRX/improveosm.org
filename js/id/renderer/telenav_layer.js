@@ -18,7 +18,7 @@ iD.TelenavLayer = function (context) {
         [20,30,40,50]
     ];
 
-    var enable = false,
+    var enable = true, //shows the telenav layer by default
         svg,
         requestQueue = [],
         //combinedItems = [],
