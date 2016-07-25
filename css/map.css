@@ -1748,7 +1748,7 @@ text.gpx {
 }
 .layer-telenav g.DirectionOfFlowItem  * {
     stroke: #EE7600;
-    fill: #EE7600;
+    /*fill: #EE7600;*/
 }
 
 .ClusterCircle.cluster,
