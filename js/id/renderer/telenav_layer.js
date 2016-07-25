@@ -1127,7 +1127,7 @@ iD.TelenavLayer = function (context) {
                     var TRdetailsRow_outgoing = TRdetailsContainer.append('tr');
                     TRdetailsRow_outgoing.append('th')
                         .attr('colspan', '3')
-                        .text(item.segments[item.segments.length - 1].numberOfTrips + ' trip(s) continued on the last segment');
+                        .text(item.numberOfPasses + ' trip(s) continued on the last segment');
                     var TRdetailsRow_status = TRdetailsContainer.append('tr');
                     TRdetailsRow_status.append('th')
                         .text('Status');
