@@ -1118,6 +1118,7 @@ iD.TelenavLayer = function (context) {
                             break;
                     }
                     d3.select('.itemDetails').html("");
+                    d3.select('#commentText').value('');
                     var TRdetailsContainer = d3.select('.itemDetails').append('table');
                     var TRdetailsRow_incoming = TRdetailsContainer.append('tr');
                     TRdetailsRow_incoming.append('th')
@@ -1148,6 +1149,7 @@ iD.TelenavLayer = function (context) {
                     var dateStamp = new Date(item.timestamp),
                         timestamp = dateStamp.getFullYear() + '-' + (dateStamp.getMonth() + 1) +  '-' + dateStamp.getDate() + ' ' + (dateStamp.getHours() + 1) + ':' + (dateStamp.getMinutes() + 1) + ':' + (dateStamp.getSeconds() + 1);
                     d3.select('.itemDetails').html("");
+                    d3.select('#commentText').value('');
                     var MRdetailsContainer = d3.select('.itemDetails').append('table');
                     var MRdetailsRow_type = MRdetailsContainer.append('tr');
                     MRdetailsRow_type.append('th')
@@ -1190,6 +1192,7 @@ iD.TelenavLayer = function (context) {
                             break;
                     }
                     d3.select('.itemDetails').html("");
+                    d3.select('#commentText').value('');
                     var DoFdetailsContainer = d3.select('.itemDetails').append('table');
                     var DoFdetailsRow_percetageOfTrips = DoFdetailsContainer.append('tr');
                     DoFdetailsRow_percetageOfTrips.append('th')
@@ -1228,7 +1231,7 @@ iD.TelenavLayer = function (context) {
                 if (err) {
                     context.connection().authenticate(function(err) {
                         if (err) {
-                            alert('Error');
+                            alert('Authentication Error');
                         } else {
                             This.setStatus(status);
                         }
@@ -1313,7 +1316,7 @@ iD.TelenavLayer = function (context) {
                 if (err) {
                     context.connection().authenticate(function(err) {
                         if (err) {
-                            alert('Error');
+                            alert('Authentication Error');
                         } else {
                             This.saveComment();
                         }
@@ -1334,6 +1337,7 @@ iD.TelenavLayer = function (context) {
 
                     var responseHandler = function (err, rawData) {
                         var data = JSON.parse(rawData.response);
+                        d3.select('#commentText').value('');
                         console.log("got response", data);
                     };
 
