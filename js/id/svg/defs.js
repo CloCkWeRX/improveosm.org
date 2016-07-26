@@ -129,7 +129,7 @@ iD.svg.Defs = function(context) {
 
         defs.append('marker')
             .attr({
-                id: 'telenav-arrow-marker-orange-opaque',
+                id: 'telenav-arrow-marker-orange-transparent',
                 viewBox: '0 0 6 6',
                 refY: 2,
                 refX: 3,
@@ -139,11 +139,11 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-marker-orange-opaque')
+            .attr('class', 'telenav-arrow-marker-orange-transparent')
             .attr('d', 'M0,0 L0,4 5,2 z')
             .attr('stroke', 'none')
             .attr('fill', '#EE7600')
-            .attr('opacity', '.5');
+            .attr('opacity', '.4');
 
 
         defs.append('marker')

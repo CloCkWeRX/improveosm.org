@@ -1,11 +1,33 @@
 iD.TelenavLayer = function (context) {
+
+    var CLUSTER_RADIUSES = [
+        [45,70,90,110],
+        [40,65,85,105],
+        [40,60,80,100],
+        [35,55,80,95],
+        [35,50,75,90],
+        [30,45,70,85],
+        [30,40,65,80],
+        [25,35,60,75],
+        [25,35,55,70],
+        [25,35,50,65],
+        [20,30,45,6],
+        [20,30,40,55],
+        [20,30,40,50],
+        [20,30,40,50],
+        [20,30,40,50]
+    ];
+
     var enable = false,
         svg,
         requestQueue = [],
-        combinedItems = [],
-        combinedClusters = [],
+        //combinedItems = [],
         //selectedItems = [],
+
+        visibleItems = null,
+
         status = 'OPEN',
+        heatMap = null,
         requestCount;
 
     var types = {
@@ -24,7 +46,8 @@ iD.TelenavLayer = function (context) {
     var mrSelectedDetails = ['ROAD'];
     var trSelectedDetails = ['C1'];
 
-    var getTileSquare = function(x, y) {
+    var Utils = {};
+    Utils.getTileSquare = function(x, y) {
         var n = Math.pow(2, 18);// HARD CODING the 18
         var longitudeMin = x/n * 360 - 180;
         var lat_rad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y/n)));
@@ -212,6 +235,45 @@ iD.TelenavLayer = function (context) {
 
     };
 
+    // ==============================
+    // ==============================
+    // VisibleItems
+    // ==============================
+    // ==============================
+    var VisibleItems = function() {
+
+        this.rawItems = [];
+        this.items = [];
+
+        this.loadOneWays = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new DirectionOfFlowItem(item));
+            }
+        };
+
+        this.loadMissingRoads = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new MissingRoadItem(item));
+            }
+        };
+
+        this.loadTurnRestrictions = function(rawData) {
+            for (var i = 0; i < rawData.length; i++) {
+                var item = rawData[i];
+                this.rawItems.push(item);
+                this.items.push(new TurnRestrictionItem(item));
+            }
+        };
+
+        this.getClusteredItems = function() {
+
+        };
+    };
+
     var selectedItems2 = new SelectedItems([]);
     var trNodes = new TRNodes([]);
 
@@ -274,7 +336,8 @@ iD.TelenavLayer = function (context) {
                     item.select(true);
                     //selectedItems.push(item);
                     selectedItems2.add(item);
-                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                    //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
                 }
             }
         } else {
@@ -284,7 +347,8 @@ iD.TelenavLayer = function (context) {
                 //////.attr('marker-end', 'url(#telenav-selected-arrow-marker)');/////???????? TODO
                 //selectedItems.push(item);
                 selectedItems2.add(item);
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
             } else {
                 svg.selectAll('g').classed('selected', false);
                 //selectedItems.length = 0;
@@ -293,7 +357,8 @@ iD.TelenavLayer = function (context) {
                 item.select(true);
                 //selectedItems.push(item);
                 selectedItems2.add(item);
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
+                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
             }
         }
         d3.event.stopPropagation();
@@ -313,6 +378,23 @@ iD.TelenavLayer = function (context) {
     };
     // ==============================
     // ==============================
+    // ClusteredItemView
+    // ==============================
+    // ==============================
+    var ClusteredItemView = function(rawItemData) {
+        // ---
+        this.className = 'ClusteredItemView';
+        this.id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
+        this.point = rawItemData.point;
+        this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
+
+        this.highlight = function(item, highlight) {
+
+        };
+    };
+
+    // ==============================
+    // ==============================
     // TurnRestrictionItem
     // ==============================
     // ==============================
@@ -326,6 +408,7 @@ iD.TelenavLayer = function (context) {
         this.turnType = rawItemData.turnType;
         this.status = rawItemData.status;
         this.segments = rawItemData.segments;
+        this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
 
         this.getPoint = function() {
             return rawItemData.point;
@@ -349,7 +432,7 @@ iD.TelenavLayer = function (context) {
             var x = rawItemData.segments[1].points[last].lon;
             var y = rawItemData.segments[1].points[last].lat;
             return {
-                val: rawItemData.segments[1].numberOfTrips,
+                val: rawItemData.numberOfPasses,
                 x: Math.floor(context.projection([x, y])[0]),
                 y: Math.floor(context.projection([x, y])[1])
             }
@@ -530,6 +613,9 @@ iD.TelenavLayer = function (context) {
         this.type = rawItemData.type;
         this.status = rawItemData.status;
         this.timestamp = rawItemData.timestamp;
+        this.spotId = [rawItemData.x, rawItemData.y].join(',');
+
+
         this.getX = function() {
             return rawItemData.x;
         };
@@ -556,19 +642,19 @@ iD.TelenavLayer = function (context) {
         return Math.floor(context.projection([lon, lat])[1]);
     };
     MissingRoadItem.transformTileX = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[0]);
     };
     MissingRoadItem.transformTileY = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[1]);
     };
     MissingRoadItem.transformTileWidth = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startX = Math.floor(context.projection([startLon, startLat])[0]);
@@ -578,7 +664,7 @@ iD.TelenavLayer = function (context) {
         return Math.abs(endX - startX);
     };
     MissingRoadItem.transformTileHeight = function(item) {
-        var squareCoords = getTileSquare(item.getX(), item.getY());
+        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startY = Math.floor(context.projection([startLon, startLat])[1]);
@@ -589,19 +675,19 @@ iD.TelenavLayer = function (context) {
     };
 
     MissingRoadItem.computeTileX = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[0]);
     };
     MissingRoadItem.computeTileY = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         return Math.floor(context.projection([startLon, startLat])[1]);
     };
     MissingRoadItem.computeTileWidth = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startX = Math.floor(context.projection([startLon, startLat])[0]);
@@ -611,7 +697,7 @@ iD.TelenavLayer = function (context) {
         return Math.abs(endX - startX);
     };
     MissingRoadItem.computeTileHeight = function(x, y) {
-        var squareCoords = getTileSquare(x, y);
+        var squareCoords = Utils.getTileSquare(x, y);
         var startLat = squareCoords.latMax;
         var startLon = squareCoords.lonMin;
         var startY = Math.floor(context.projection([startLon, startLat])[1]);
@@ -634,6 +720,7 @@ iD.TelenavLayer = function (context) {
         this.roadType = rawItemData.type;
         this.status = rawItemData.status;
         this.percentageOfTrips = rawItemData.percentOfTrips;
+        this.spotId = [rawItemData.fromNodeId, rawItemData.toNodeId, rawItemData.wayId].join(',');
 
         this.getPoints = function() {
             return rawItemData.points;
@@ -674,6 +761,7 @@ iD.TelenavLayer = function (context) {
         this.point = rawItemData.point;
         this.size = rawItemData.size;
         this.type = type;
+        this.pixelRadius = null;
     };
     ClusterCircle.transformClass = function(cluster) {
         return cluster.className;
@@ -688,7 +776,47 @@ iD.TelenavLayer = function (context) {
         return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[1]);
     };
     ClusterCircle.transformR = function(cluster) {
-        return 5 + ((cluster.size * 45) / maxCircleSize);
+        return cluster.pixelRadius;
+    };
+
+    // ==============================
+    // ==============================
+    // ClusterCircle
+    // ==============================
+    // ==============================
+    var HeatMap = function(zoom) {
+
+        this.radiuses = CLUSTER_RADIUSES[zoom];
+        this.maxCircleSize = 1;
+        this.clusters = [];
+
+        this.loadClusters = function(rawData, type) {
+            for (var i = 0; i < rawData.length; i++) {
+                if (this.maxCircleSize < rawData[i].size) {
+                    this.maxCircleSize = rawData[i].size;
+                }
+                this.clusters.push(new ClusterCircle(
+                    rawData[i], type
+                ));
+            }
+        };
+
+        this.categorizeClusters = function() {
+            for (var i = 0; i < this.clusters.length; i++) {
+                var cluster = this.clusters[i];
+                var fraction = this.maxCircleSize / 4;
+                if (cluster.size < fraction) {
+                    cluster.pixelRadius = this.radiuses[0] / 2;
+                } else if (cluster.size < fraction * 2) {
+                    cluster.pixelRadius = this.radiuses[1] / 2;
+                } else if (cluster.size < fraction * 3) {
+                    cluster.pixelRadius = this.radiuses[2] / 2;
+                } else {
+                    cluster.pixelRadius = this.radiuses[3] / 2;
+                }
+            }
+        };
+
     };
 
     // ==============================
@@ -737,7 +865,10 @@ iD.TelenavLayer = function (context) {
                     if (selected == siblings[i].id) {
                         element.classed('selected', true);
                     }
-                    element.append('span').attr('class', 'trListHeader').text(siblings[i].turnType.replace(/_/g, " ").toLowerCase());
+                    var span1 = element.append('span');
+                    span1.append('i');
+                    var span2 = element.append('span');
+                    span2.attr('class', 'trListHeader').text(siblings[i].turnType.replace(/_/g, " ").toLowerCase());
                     switch (siblings[i].confidenceLevel) {
                         case 'C1':
                             selectedConfidenceLvl = 'Highly Probable';
@@ -746,13 +877,23 @@ iD.TelenavLayer = function (context) {
                             selectedConfidenceLvl = 'Probable';
                             break;
                     }
-                    element.append('span').text(selectedConfidenceLvl);
-                    element.append('span').text(siblings[i].numberOfPasses);
+                    var span3 = element.append('span');
+                    span3
+                        .text(selectedConfidenceLvl);
+                    var span4 = element.append('span');
+                    span4
+                        .text(siblings[i].numberOfPasses);
+
                     element.on('click', function() {
                         var item = null;
-                        for (var i = 0; i < combinedItems.length; i++) {
-                            if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
-                                item = combinedItems[i];
+                        //for (var i = 0; i < combinedItems.length; i++) {
+                        //    if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
+                        //        item = combinedItems[i];
+                        //    }
+                        //}
+                        for (var i = 0; i < visibleItems.items.length; i++) {
+                            if (visibleItems.items[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
+                                item = visibleItems.items[i];
                             }
                         }
                         MapItem.handleSelection(item);
@@ -1025,6 +1166,8 @@ iD.TelenavLayer = function (context) {
 
         this.saveComment = function() {
 
+            var This = this;
+
             context.connection().userDetails(function(err, user) {
                 if (err) {
                     context.connection().authenticate(function(err) {
@@ -1091,22 +1234,11 @@ iD.TelenavLayer = function (context) {
 
     var _editPanel = new EditPanel();
 
-    var maxCircleSize = 1;
-
     var _synchClusterCallbacks = function(error, data, type) {
 
         if (data.hasOwnProperty('clusters')) {
-            for (var i = 0; i < data.clusters.length; i++) {
-                if (maxCircleSize < data.clusters[i].size) {
-                    maxCircleSize = data.clusters[i].size;
-                }
-                combinedClusters.push(new ClusterCircle(
-                    data.clusters[i], type
-                ));
-            }
+            heatMap.loadClusters(data.clusters, type);
         }
-
-
 
         if (!--requestCount) {
 
@@ -1115,8 +1247,9 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
+            heatMap.categorizeClusters();
             var g = svg.selectAll('g.cluster')
-                .data(combinedClusters, function(cluster) {
+                .data(heatMap.clusters, function(cluster) {
                     return cluster.id;
                     //return item;
                 });
@@ -1132,8 +1265,6 @@ iD.TelenavLayer = function (context) {
                 .attr('cy', ClusterCircle.transformY)
                 .attr('r', ClusterCircle.transformR);
 
-            maxCircleSize = 1;
-
             g.exit()
                 .remove();
         }
@@ -1142,25 +1273,29 @@ iD.TelenavLayer = function (context) {
     var _synchCallbacks = function(error, data) {
 
         if (data.hasOwnProperty('roadSegments')) {
-            for (var i = 0; i < data.roadSegments.length; i++) {
-                combinedItems.push(new DirectionOfFlowItem(
-                    data.roadSegments[i]
-                ));
-            }
+            visibleItems.loadOneWays(data.roadSegments);
+            //for (var i = 0; i < data.roadSegments.length; i++) {
+            //    combinedItems.push(new DirectionOfFlowItem(
+            //        data.roadSegments[i]
+            //    ));
+            //}
+
         }
         if (data.hasOwnProperty('tiles')) {
-            for (var i = 0; i < data.tiles.length; i++) {
-                combinedItems.push(new MissingRoadItem(
-                    data.tiles[i]
-                ));
-            }
+            visibleItems.loadMissingRoads(data.tiles);
+            //for (var i = 0; i < data.tiles.length; i++) {
+            //    combinedItems.push(new MissingRoadItem(
+            //        data.tiles[i]
+            //    ));
+            //}
         }
         if (data.hasOwnProperty('entities')) {
-            for (var i = 0; i < data.entities.length; i++) {
-                combinedItems.push(new TurnRestrictionItem(
-                    data.entities[i]
-                ));
-            }
+            visibleItems.loadTurnRestrictions(data.entities);
+            //for (var i = 0; i < data.entities.length; i++) {
+            //    combinedItems.push(new TurnRestrictionItem(
+            //        data.entities[i]
+            //    ));
+            //}
         }
 
 
@@ -1171,15 +1306,14 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
-
-            selectedItems2.update(combinedItems);
-            trNodes.render(combinedItems);
+            selectedItems2.update(visibleItems.items);
 
             var g = svg.selectAll('g.item')
-                .data(combinedItems, function(item) {
+                .data(visibleItems.items, function(item) {
                     return item.id;
                     //return item;
                 });
+
 
             var enter = g.enter().append('g')
                 .attr('class', MapItem.transformClass)
@@ -1197,7 +1331,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
             var dofSelPoly = dOFs.append('polyline').attr('class', 'highlight');
             dofSelPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1221,23 +1355,6 @@ iD.TelenavLayer = function (context) {
                 }
                 return html;
             });
-
-            //var mrRect = mRs.append('rect');
-            //mrRect.attr('x', MissingRoadItem.transformTileX);
-            //mrRect.attr('y', MissingRoadItem.transformTileY);
-            //mrRect.attr('width', MissingRoadItem.transformTileWidth);
-            //mrRect.attr('height', MissingRoadItem.transformTileHeight);
-            //mrRect.attr('fill', '#044B94');
-            //mrRect.attr('fill-opacity', '0.4');
-            //
-            //var mrSelRect = mRs.append('rect');
-            //mrSelRect.attr('class', 'highlight')
-            //mrSelRect.attr('x', MissingRoadItem.transformTileX);
-            //mrSelRect.attr('y', MissingRoadItem.transformTileY);
-            //mrSelRect.attr('width', MissingRoadItem.transformTileWidth);
-            //mrSelRect.attr('height', MissingRoadItem.transformTileHeight);
-            //mrSelRect.attr('fill', '#044B94');
-            //mrSelRect.attr('fill-opacity', '0.4');
 
             var trCircle = tRs.append('circle')
                 .attr('class', 'telenav-tr-marker')
@@ -1283,12 +1400,14 @@ iD.TelenavLayer = function (context) {
             tRs.on('click', MapItem.handleSelection);
 
             dOFs.on('mouseover', MapItem.handleMouseOver);
-            mRs.on('mouseover', MapItem.handleMouseOver);
+            //mRs.on('mouseover', MapItem.handleMouseOver);
             tRs.on('mouseover', MapItem.handleMouseOver);
 
             dOFs.on('mouseout', MapItem.handleMouseOut);
-            mRs.on('mouseout', MapItem.handleMouseOut);
+            //mRs.on('mouseout', MapItem.handleMouseOut);
             tRs.on('mouseout', MapItem.handleMouseOut);
+
+            trNodes.render(visibleItems.items);
 
             g.exit()
                 .remove();
@@ -1312,6 +1431,29 @@ iD.TelenavLayer = function (context) {
             .data([0]);
 
         svg.enter().append('svg');
+
+        // *****************************
+        // HANDLING OF CLICK DESELECTION
+        // *****************************
+        svg.selectAll('g.deselectSurface')
+            .remove();
+        var deselectionRectangle = svg
+            .insert('g', ':first-child')
+                .attr('class', 'deselectSurface')
+                .append('rect')
+                    .attr('width', svg.attr('width'))
+                    .attr('height', svg.attr('height'));
+        deselectionRectangle.on('click', function() {
+            if (selectedItems2.getSize() > 0) {
+                svg.selectAll('g').classed('selected', false);
+                selectedItems2.empty();
+                _editPanel.goToMain();
+            }
+        });
+
+        // *****************************
+        // HANDLING OF CLICK DESELECTION
+        // *****************************
 
         svg.style('display', enable ? 'block' : 'none');
 
@@ -1427,8 +1569,8 @@ iD.TelenavLayer = function (context) {
         }
 
         requestCount = requestUrlQueue.length;
-        combinedItems.length = 0;
-        combinedClusters.length = 0;
+        //combinedItems.length = 0;
+        visibleItems = new VisibleItems();
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
@@ -1439,6 +1581,7 @@ iD.TelenavLayer = function (context) {
         } else if (requestUrlQueue.length !== 0) {
             svg.selectAll('g.item')
                 .remove();
+            heatMap = new HeatMap(zoom);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
                 !function (type) {
@@ -1634,7 +1777,7 @@ iD.TelenavLayer = function (context) {
                         .classed('off', true)
                     d3.select('.layer-telenav').classed('editMode', false);
 
-                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-opaque)');
+                    d3.selectAll('.DirectionOfFlowItem polyline').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
 
                     d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                     d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
@@ -1731,8 +1874,8 @@ iD.TelenavLayer = function (context) {
             .attr('id', 'dofFilter');
         direction_form.append('label')
             .attr('class', 'form-label')
-            .attr('for', 'oneWayConfidence')
-            .text('One Way Confidence')
+            .attr('for', 'oneWay')
+            .text('One Way')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1741,7 +1884,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'oneWayConfidence');
+            .attr('id', 'oneWay');
         var direction_formWrap = direction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var direction_highlyProbableContainer = direction_formWrap.append('div')
@@ -1778,7 +1921,7 @@ iD.TelenavLayer = function (context) {
         missing_form.append('label')
             .attr('class', 'form-label')
             .attr('for', 'missingRoadType')
-            .text('Missing road type')
+            .text('Missing roads')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1787,7 +1930,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'missingRoadType');
+            .attr('id', 'missingRoads');
         var missing_formWrap = missing_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var missing_roadContainer = missing_formWrap.append('div')
@@ -1845,8 +1988,8 @@ iD.TelenavLayer = function (context) {
             .attr('id', 'trFilter');
         restriction_form.append('label')
             .attr('class', 'form-label')
-            .attr('for', 'missingRoadType')
-            .text('Turn restriction Confidence')
+            .attr('for', 'missingRoads')
+            .text('Turn Restriction')
             .append('div')
             .attr('class', 'form-label-button-wrap')
             .append('div')
@@ -1855,7 +1998,7 @@ iD.TelenavLayer = function (context) {
             .attr('type', 'checkbox')
             .attr('checked', 'checked')
             .attr('class', 'filterActivation')
-            .attr('id', 'turnRestrictionConfidence');
+            .attr('id', 'turnRestriction');
         var restriction_formWrap = restriction_form.append('form')
             .attr('class', 'filterForm optionsContainer');
         var restriction_highlyProbableContainer = restriction_formWrap.append('div')
@@ -1899,16 +2042,16 @@ iD.TelenavLayer = function (context) {
         // ++++++++++++
 
 
-        d3.select('.toggleEditModeContainer').on('click', function() {
-            if (d3.select('.layer-telenav').classed('editMode')) {
-                d3.select('.layer-telenav').classed('editMode', false);
-            } else {
-                d3.select('.layer-telenav').classed('editMode', true);
-            }
-        });
+        //d3.select('.toggleEditModeContainer').on('click', function() {
+        //    if (d3.select('.layer-telenav').classed('editMode')) {
+        //        d3.select('.layer-telenav').classed('editMode', false);
+        //    } else {
+        //        d3.select('.layer-telenav').classed('editMode', true);
+        //    }
+        //});
 
-        d3.select('#oneWayConfidence').on('click', function() {
-            if (d3.select('#oneWayConfidence').property('checked')) {
+        d3.select('#oneWay').on('click', function() {
+            if (d3.select('#oneWay').property('checked')) {
                 selectedTypes.push('dof');
                 //---
                 dofSelectedDetails = dofDetails.slice(0);
@@ -1929,8 +2072,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#dofFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
             if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#oneWayConfidence').property('checked')) {
-                    d3.select('#oneWayConfidence').property('checked', true);
+                if (!d3.select('#oneWay').property('checked')) {
+                    d3.select('#oneWay').property('checked', true);
                     selectedTypes.push('dof');
                 }
                 dofSelectedDetails.push(d3.event.target.id);
@@ -1938,7 +2081,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#oneWayConfidence').property('checked', false);
+                    d3.select('#oneWay').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
                 }
                 dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -1949,8 +2092,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#mrFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
             if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#missingRoadType').property('checked')) {
-                    d3.select('#missingRoadType').property('checked', true);
+                if (!d3.select('#missingRoads').property('checked')) {
+                    d3.select('#missingRoads').property('checked', true);
                     selectedTypes.push('mr');
                 }
                 mrSelectedDetails.push(d3.event.target.id);
@@ -1958,7 +2101,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#missingRoadType').property('checked', false);
+                    d3.select('#missingRoads').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
                 }
                 mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -1969,8 +2112,8 @@ iD.TelenavLayer = function (context) {
         d3.selectAll('#trFilter form input').on('click', function() {
             var allCheckboxes = d3.selectAll('#trFilter form input')[0];
             if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#turnRestrictionConfidence').property('checked')) {
-                    d3.select('#turnRestrictionConfidence').property('checked', true);
+                if (!d3.select('#turnRestriction').property('checked')) {
+                    d3.select('#turnRestriction').property('checked', true);
                     selectedTypes.push('tr');
                 }
                 trSelectedDetails.push(d3.event.target.id);
@@ -1978,7 +2121,7 @@ iD.TelenavLayer = function (context) {
                 var noneSelected = true;
                 var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
                 if (checkedItems.length == 0) {
-                    d3.select('#turnRestrictionConfidence').property('checked', false);
+                    d3.select('#turnRestriction').property('checked', false);
                     selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
                 }
                 trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
@@ -1986,8 +2129,8 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         });
 
-        d3.select('#missingRoadType').on('click', function() {
-            if (d3.select('#missingRoadType').property('checked')) {
+        d3.select('#missingRoads').on('click', function() {
+            if (d3.select('#missingRoads').property('checked')) {
                 selectedTypes.push('mr');
                 //---
                 mrSelectedDetails = mrDetails.slice(0);
@@ -2009,8 +2152,8 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         });
 
-        d3.select('#turnRestrictionConfidence').on('click', function() {
-            if (d3.select('#turnRestrictionConfidence').property('checked')) {
+        d3.select('#turnRestriction').on('click', function() {
+            if (d3.select('#turnRestriction').property('checked')) {
                 selectedTypes.push('tr');
                 //---
                 trSelectedDetails = trDetails.slice(0);
