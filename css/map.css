@@ -1551,7 +1551,13 @@ text.gpx {
     fill-opacity: 0.6;
 }
 
-/* Telenav Layer */
+/* ================================================== */
+/* ================================================== */
+/* === TELENAV LAYER ================================ */
+/* ================================================== */
+/* ================================================== */
+
+/* --- POINTER EVENTS -------------------------- */
 
 .layer-telenav {
     pointer-events: none;
@@ -1567,200 +1573,249 @@ text.gpx {
     cursor: url(img/cursor-select-mapillary.png) 6 1, pointer; /* FF */
 }
 
-.layer-telenav g * {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-/*    stroke-opacity: .4;
-    fill-opacity: .4;*/
-}
+/* --- NODE HACK ------------------------------- */
 
 .layer-telenav g.tr-node text {
     stroke-opacity: 1;
     fill-opacity: 1;
 }
 
-.layer-telenav.selected {
-    stroke-width: 3;
-    stroke: red;
-    fill: none;
-}
-
-.telenavDrawing circle {
-    stroke: red;
-    fill: white;
-    stroke-opacity: .6;
-    fill-opacity: .6;
-}
-.turnRestriction polyline {
-    display: none;
-}
-
-.TurnRestrictionItem circle {
-    stroke: red;
-    fill: white;
-/*    stroke-opacity: 1;
-    fill-opacity: 1;*/
-}
-.editMode .TurnRestrictionItem circle {
-/*    stroke-opacity: .6;
-    fill-opacity: .6;*/
-}
-.editMode .TurnRestrictionItem text {
-    //fill: black;
-}
-
-.TurnRestrictionItem text,
-.TurnRestrictionItem rect,
-.TurnRestrictionItem polyline.wayIn1,
-.TurnRestrictionItem polyline.wayIn2,
-.TurnRestrictionItem polyline.wayOut {
-    display: none;
-}
-.TurnRestrictionItem.selected text,
-.TurnRestrictionItem.selected rect,
-.TurnRestrictionItem.selected polyline.wayIn1,
-.TurnRestrictionItem.selected polyline.wayIn2,
-.TurnRestrictionItem.selected polyline.wayOut {
-    display: block;
-}
-.turnRestriction:hover circle {
-    fill: white;
-/*    stroke-opacity: 1;
-    fill-opacity: 1;*/
-}
-.turnRestriction:hover polyline {
-    display: block;
-}
-
-.layer-telenav svg * {
-    stroke-opacity: .4;
-    fill-opacity: .4;
-}
+/* --------------------------------------------- */
+/* --- DESELECTION SURFACE --------------------- */
+/* --------------------------------------------- */
 
 .layer-telenav svg > g.deselectSurface > rect {
     stroke-opacity: .0;
     fill-opacity: .0;
 }
 
-.layer-telenav.editMode svg * {
-    stroke-opacity: 1;
-    fill-opacity: 1;
-}
-
 .layer-telenav.editMode svg > g.deselectSurface > rect {
-    stroke-opacity: .0;
-    fill-opacity: .0;
+    opacity: .0;
 }
 
-.layer-telenav g.selected:not(.MissingRoadItem) .highlight {
-    stroke-width: 10;
-    stroke-opacity: 0;
-    stroke: orange;
+/* --------------------------------------------- */
+/* --- KEYFRAMES ------------------------------- */
+/* --------------------------------------------- */
+
+@keyframes pulsingThickness-2-8 {
+    0%   {stroke-width: 2;}
+    50%  {stroke-width: 8;}
+    100% {stroke-width: 2;}
+}
+@keyframes pulsingThickness-3-12 {
+    0%   {stroke-width: 3;}
+    50%  {stroke-width: 12;}
+    100% {stroke-width: 3;}
 }
 
-.layer-telenav g .highlightOff {
-    stroke: orange;
-    cursor: pointer;
+/* --------------------------------------------- */
+/* --- TURN RESTRICTION ------------------------ */
+/* --------------------------------------------- */
+
+.layer-telenav svg g.TurnRestrictionItem {
+    opacity: .4;
 }
-.layer-telenav g:not(.MissingRoadItem) .highlightOn {
-    stroke-width: 10;
-    stroke-opacity: 1;
-    stroke: #DC143C!important;
+.layer-telenav svg g.TurnRestrictionItem circle {
+    stroke: red;
+    stroke-width: 3px;
+    fill: white;
 }
-.layer-telenav g.MissingRoadItem rect,
-.layer-telenav g.MissingRoadItem circle{
-    fill-opacity: .2;
-    stroke-opacity: .2;
-}
-.layer-telenav.editMode g.MissingRoadItem rect,
-.layer-telenav.editMode g.MissingRoadItem circle{
-    fill-opacity: .4;
-    stroke-opacity: .4;
-}
-.layer-telenav g.MissingRoadItem circle {
-    stroke-opacity: .4;
-    stroke-width: 1;
-}
-/*.layer-telenav g.MissingRoadItem:hover rect, */.layer-telenav g.MissingRoadItem.selected rect {
-    fill-opacity: .75;
-    stroke-opacity: .75;
-}
-/*.layer-telenav g.MissingRoadItem:hover circle, */.layer-telenav g.MissingRoadItem.selected circle {
-    fill-opacity: .8;
-    stroke-width: 2;
-}
-.layer-telenav g.DirectionOfFlowItem.selected polyline.main {
-    stroke-width: 10;
-    stroke-opacity: 1;
-    stroke: #DC143C!important;
-    marker-end: url(#telenav-selected-arrow-marker);
+.layer-telenav svg g.TurnRestrictionItem.selected circle {
+    stroke: red;
+    stroke-width: 3px;
+    fill: white;
+
+    animation-name: pulsingThickness-3-12;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
 }
 
-.layer-telenav g polyline.wayIn1,
-.layer-telenav g polyline.wayIn2 {
+.layer-telenav.editMode svg g.TurnRestrictionItem {
+    opacity: 1;
+}
+.layer-telenav.editMode svg g.TurnRestrictionItem circle.selectable {
+    opacity: .0;
+}
+.layer-telenav.editMode svg g.TurnRestrictionItem circle.selectable:hover {
+    stroke: black;
+    stroke-width: 20;
+    opacity: .5;
+}
+
+.layer-telenav svg g.TurnRestrictionItem text,
+.layer-telenav svg g.TurnRestrictionItem rect,
+.layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav svg g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav svg g.TurnRestrictionItem polyline.wayOut {
+    display: none;
+}
+.layer-telenav svg g.TurnRestrictionItem.selected text,
+.layer-telenav svg g.TurnRestrictionItem.selected rect,
+.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayIn1,
+.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayIn2,
+.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayOut {
+    display: block;
+}
+
+.layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav svg g.TurnRestrictionItem polyline.wayIn2 {
+    stroke-width: 3px;
     stroke: #00CD00;
+    fill: none;
+
+    animation-name: pulsingThickness-3-12;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
 }
-.layer-telenav g text {
-    stroke-width: .7;
+
+.layer-telenav svg g.TurnRestrictionItem text {
     fill: #000;
     stroke: #000;
 }
 
 
-.layer-telenav g polyline.wayOut {
+.layer-telenav svg g.TurnRestrictionItem polyline.wayOut {
+    stroke-width: 3px;
     stroke: #FF0000;
-    /*stroke-opacity: .4;*/
+    fill: none;
+
+    animation-name: pulsingThickness-3-12;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
 }
 
-.layer-telenav g rect.noInRect,
-.layer-telenav g rect.noOutRect {
+.layer-telenav svg g.TurnRestrictionItem rect.noInRect,
+.layer-telenav svg g.TurnRestrictionItem rect.noOutRect {
     stroke-width: 1;
     stroke: #FFF;
     fill: white;
-    height: 10px;
+    height: 16px;
 }
 
-.layer-telenav g:hover path.viewfield,
-.layer-telenav g.selected path.viewfield,
-.layer-telenav g path.viewfield {
-    stroke-width: 0;
-    /*fill-opacity: 0.6;*/
+
+
+
+/* --------------------------------------------- */
+/* --- MISSING ROAD ---------------------------- */
+/* --------------------------------------------- */
+
+.layer-telenav svg g.MissingRoadItem :not(circle),
+.layer-telenav.editMode svg g.MissingRoadItem :not(circle),
+.layer-telenav.editMode svg g.MissingRoadItem.selected :not(circle) {
+    stroke-width: 2px;
 }
 
-.layer-telenav g.cluster circle.dof {
-    fill: #EE7600;
-/*    fill-opacity: 0.8;*/
-    stroke-width: 0;
+.layer-telenav svg g.MissingRoadItem :not(circle) {
+    opacity: .2;
 }
-.layer-telenav g.cluster circle.mr {
-    fill: #B0171F;
-    /*fill-opacity: 0.8;*/
-    stroke-width: 0;
+.layer-telenav.editMode g.MissingRoadItem :not(circle) {
+    opacity: .4;
 }
-.layer-telenav g.cluster circle.tr {
-    fill: #1E90FF;
-    /*fill-opacity: 0.8;*/
-    stroke-width: 0;
+.layer-telenav.editMode svg g.MissingRoadItem.selected :not(circle):not(.selectable) {
+    opacity: .75;
+    animation-name: pulsingThickness-2-8;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+ }
+
+.layer-telenav svg g.MissingRoadItem rect.selectable,
+.layer-telenav.editMode svg g.MissingRoadItem rect.selectable,
+.layer-telenav.editMode svg g.MissingRoadItem.selected rect.selectable {
+    opacity: .0;
 }
-.layer-telenav g.DirectionOfFlowItem polyline {
-    stroke: #EE7600;
-}
-.layer-telenav g.DirectionOfFlowItem polyline.selectable {
-    stroke-linecap: round;
+
+.layer-telenav.editMode svg g.MissingRoadItem rect.selectable:hover,
+.layer-telenav.editMode svg g.MissingRoadItem.selected rect.selectable:hover {
+    stroke-linejoin: round;
     stroke: black;
+    stroke-width: 20;
+    opacity: .5;
+}
+
+.layer-telenav svg g.MissingRoadItem circle,
+.layer-telenav.editMode svg g.MissingRoadItem circle,
+.layer-telenav.editMode svg g.MissingRoadItem.selected circle {
+    opacity: 1;
+    stroke-width: 0px;
+}
+
+/*  item coloring  */
+.layer-telenav svg g.MissingRoadItem.open rect {
+    stroke: #4682B4;
+}
+.layer-telenav svg g.MissingRoadItem.solved rect {
+    stroke: #3CB371;
+}
+.layer-telenav svg g.MissingRoadItem.invalid rect {
+    stroke: #FF6347;
+}
+.layer-telenav svg g.MissingRoadItem.road rect {
+    fill: #B452CD;
+}
+.layer-telenav svg g.MissingRoadItem.parking rect {
+    fill: #EEEE00;
+}
+.layer-telenav svg g.MissingRoadItem.both rect {
+    fill: #FFA500;
+}
+.layer-telenav svg g.MissingRoadItem.water rect {
+    fill: #0000EE;
+}
+.layer-telenav svg g.MissingRoadItem.path rect {
+    fill: #A0522D;
+}
+
+/* --------------------------------------------- */
+/* --- ONE WAY --------------------------------- */
+/* --------------------------------------------- */
+
+.layer-telenav svg g.DirectionOfFlowItem polyline.main {
+    stroke-width: 3;
+    stroke: #EE7600;
+    opacity: .4;
+}
+.layer-telenav.editMode svg g.DirectionOfFlowItem polyline.main {
+    stroke-width: 3;
+    stroke: #EE7600;
+    opacity: 1;
+}
+/* --- GRAY HIGHLIGHTING ------------------------*/
+.layer-telenav svg g.DirectionOfFlowItem polyline.selectable {
     stroke-width: 20;
     opacity: .0;
 }
-.layer-telenav g.DirectionOfFlowItem polyline.selectable:hover {
+.layer-telenav svg g.DirectionOfFlowItem polyline.selectable:hover {
     stroke-linecap: round;
     stroke: black;
     stroke-width: 20;
     opacity: .5;
 }
-.layer-telenav g.DirectionOfFlowItem  * {
-    stroke: #EE7600;
-    /*fill: #EE7600;*/
+/* --- PULSATING SELECTION ----------------------*/
+.layer-telenav svg g.DirectionOfFlowItem.selected polyline.main {
+    stroke-width: 10;
+    stroke: #DC143C;
+    marker-end: url(#telenav-selected-arrow-marker);
+    animation-name: pulsingThickness-3-12;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+
+/* --------------------------------------------- */
+/* --- HEAT MAP -------------------------------- */
+/* --------------------------------------------- */
+
+.layer-telenav g.cluster circle.dof {
+    fill: #EE7600;
+    stroke-width: 0;
+}
+.layer-telenav g.cluster circle.mr {
+    fill: #B0171F;
+    stroke-width: 0;
+}
+.layer-telenav g.cluster circle.tr {
+    fill: #1E90FF;
+    stroke-width: 0;
 }
 
 .ClusterCircle.cluster,
@@ -1769,41 +1824,10 @@ text.gpx {
     fill-opacity: 0.8;
 }
 
-/*  missing road item coloring  */
-.layer-telenav g.open rect {
-    stroke: #4682B4;
-}
-.layer-telenav g.solved rect {
-    stroke: #3CB371;
-}
-.layer-telenav g.invalid rect {
-    stroke: #FF6347;
-}
-.layer-telenav g.road rect {
-    fill: #B452CD;
-}
-.layer-telenav g.parking rect {
-    fill: #EEEE00;
-}
-.layer-telenav g.both rect {
-    fill: #FFA500;
-}
-.layer-telenav g.water rect {
-    fill: #0000EE;
-}
-.layer-telenav g.path rect {
-    fill: #A0522D;
-}
-.layer-telenav g.MissingRoadItem circle {
-    stroke-width: 0px;
-    fill: #000;
-    fill-opacity: 1;
-}
-.layer-telenav.editMode g.MissingRoadItem circle {
-    stroke-width: 0px;
-    fill: #000;
-    fill-opacity: 1;
-}
+
+/* --------------------------------------------- */
+/* --- PANEL ----------------------------------- */
+/* --------------------------------------------- */
 
 .trList ul {
     list-style-type: none;
@@ -1915,6 +1939,11 @@ text.gpx {
     background: #1E90FF;
     left: 130px;
 }
+/* ================================================== */
+/* ================================================== */
+/* ================================================== */
+/* ================================================== */
+/* ================================================== */
 
 /* Modes */
 

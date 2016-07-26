@@ -604,7 +604,7 @@ iD.TelenavLayer = function (context) {
         return item.getInNo().x - 10;
     };
     TurnRestrictionItem.transformInNoY = function(item) {
-        return item.getInNo().y - 10;
+        return item.getInNo().y - 25;
     };
     TurnRestrictionItem.transformInNo = function(item) {
         return item.getInNo().val;
@@ -613,29 +613,29 @@ iD.TelenavLayer = function (context) {
         return item.getOutNo().x - 10;
     };
     TurnRestrictionItem.transformOutNoY = function(item) {
-        return item.getOutNo().y - 10;
+        return item.getOutNo().y - 25;
     };
     TurnRestrictionItem.transformOutNo = function(item) {
         return item.getOutNo().val;
     };
 
     TurnRestrictionItem.transformInNoRectX = function(item) {
-        return item.getInNo().x - 10;
+        return item.getInNo().x - 13;
     };
     TurnRestrictionItem.transformInNoRectY = function(item) {
-        return item.getInNo().y - 19;
+        return item.getInNo().y - 36;
     };
     TurnRestrictionItem.transformOutNoRectX = function(item) {
-        return item.getOutNo().x - 10;
+        return item.getOutNo().x - 13;
     };
     TurnRestrictionItem.transformOutNoRectY = function(item) {
-        return item.getOutNo().y - 19;
+        return item.getOutNo().y - 36;
     };
     TurnRestrictionItem.transformInNoRectWidth = function(item) {
-        return item.getInNo().val.toString().length * 6;
+        return (item.getInNo().val.toString().length * 6) + 6;
     };
     TurnRestrictionItem.transformOutNoRectWidth = function(item) {
-        return item.getOutNo().val.toString().length * 6;
+        return (item.getOutNo().val.toString().length * 6) + 6;
     };
     // ==============================
     // ==============================
@@ -979,15 +979,11 @@ iD.TelenavLayer = function (context) {
             if(!_editPanel.editMode){
                 _editPanel.toggleEditMode(true);
 
-                d3.selectAll('.DirectionOfFlowItem polyline.main').attr('marker-end', 'url(#telenav-arrow-marker-orange)');
-
                 d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
                 //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
             } else {
                 _editPanel.toggleEditMode(false);
-
-                d3.selectAll('.DirectionOfFlowItem polyline.main').attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
 
                 d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
@@ -1478,11 +1474,7 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline').attr('class', 'main');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            if (_editPanel.editMode) {
-                dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
-            } else {
-                dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange-transparent)');
-            }
+            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
             var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
             owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1493,17 +1485,17 @@ iD.TelenavLayer = function (context) {
                     + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                     + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
                     + '></rect>';
-                //html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                //    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                //    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                //    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-                //    + ' class="highlight"' + '0.4'
-                //    + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
                     html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
                 }
+                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                    + ' class="selectable"'
+                    + '></rect>';
                 return html;
             });
 
@@ -1540,11 +1532,10 @@ iD.TelenavLayer = function (context) {
                 .attr('cx', TurnRestrictionItem.transformX)
                 .attr('cy', TurnRestrictionItem.transformY)
                 .attr('r', '10');
-            //var trSelCircle = tRs.append('circle').attr('class', 'highlight highlightOff')
-            //    .attr('class', 'telenav-tr-marker')
-            //    .attr('cx', TurnRestrictionItem.transformX)
-            //    .attr('cy', TurnRestrictionItem.transformY)
-            //    .attr('r', '10');
+            var trSelCircle = tRs.append('circle').attr('class', 'selectable')
+                .attr('cx', TurnRestrictionItem.transformX)
+                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('r', '10');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);
@@ -1636,26 +1627,26 @@ iD.TelenavLayer = function (context) {
                 + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
                 + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
                 + '></rect>';
-            //html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-            //    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-            //    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-            //    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
-            //    + ' class="highlight"' + '0.4'
-            //    + '></rect>';
             for (var i = 0; i < d._points.length; i++) {
                 var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
                 html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
             }
+            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
+                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
+                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
+                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                + ' class="selectable"'
+                + '></rect>';
             return html;
         });
 
         var trCircle = svg.selectAll('.TurnRestrictionItem > circle');
         trCircle.attr('cx', TurnRestrictionItem.transformX);
         trCircle.attr('cy', TurnRestrictionItem.transformY);
-        //var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.highlight');
-        //trSelCircle.attr('cx', TurnRestrictionItem.transformX);
-        //trSelCircle.attr('cy', TurnRestrictionItem.transformY);
+        var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.selectable');
+        trSelCircle.attr('cx', TurnRestrictionItem.transformX);
+        trSelCircle.attr('cy', TurnRestrictionItem.transformY);
         var turnRestrictionPolylinesIn1 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn1');
         turnRestrictionPolylinesIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
         var turnRestrictionPolylinesIn2 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn2');
