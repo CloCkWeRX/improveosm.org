@@ -77,6 +77,15 @@ iD.TelenavLayer = function (context) {
     });
     // === IMPROVE OSM HEADER logging in part === end
 
+    d3.select('.subscribe').on('click', function(){
+        $('#subscriptionPanel').dialog({
+            modal: true
+        });
+
+        $('#mc-embedded-subscribe').click(function(){
+            $('#subscriptionPanel').dialog('close');
+        })
+    })
 
     var Utils = {};
     Utils.getTileSquare = function(x, y) {

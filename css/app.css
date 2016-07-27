@@ -3430,3 +3430,34 @@ div.full-screen > button:hover {
     background: none;
     color: #337ab7!important;
 }
+
+.ui-widget-overlay {
+    background: black!important;
+    opacity: .6!important;
+    z-index: 10000!important;
+}
+.ui-widget-header {
+    background: #337ab7;
+    border: #2e6da4;
+    color: #fff;
+}
+.ui-dialog {
+    padding: 0;
+}
+.btn-primary {
+    height: 30px;
+    color: white;
+    border: 0;
+    background: #337ab7;
+    padding: 0 15px;
+}
+.input-group .form-control {
+    width: calc(100% - 88px);
+}
+.btn-primary:focus,
+.btn-primary:hover,
+.btn-primary.focus {
+    color: #fff;
+    background-color: #286090;
+    border-color: #122b40;
+}
