@@ -46,6 +46,38 @@ iD.TelenavLayer = function (context) {
     var mrSelectedDetails = ['ROAD'];
     var trSelectedDetails = ['C1'];
 
+
+    // === IMPROVE OSM HEADER logging in part === begin
+    context.connection().userDetails(function(err, user) {
+        if (!err) {
+            d3.select('#telenavHeaderLogin').classed('hidden', true);
+            d3.select('#telenavHeaderLogout').classed('hidden', false);
+            d3.select('#telenavHeaderLogout span').text('Hello ' + user.display_name + '!')
+        }
+    });
+    d3.select('#telenavHeaderLogin').on('click', function() {
+        context.connection().authenticate(function(err) {
+            if (err) {
+                alert('Authentication Error');
+            } else {
+                d3.select('#telenavHeaderLogin').classed('hidden', true);
+                d3.select('#telenavHeaderLogout').classed('hidden', false);
+                context.connection().userDetails(function(err, user) {
+                    if (!err) {
+                        d3.select('#telenavHeaderLogout span').text('Hello ' + user.display_name + '!')
+                    }
+                });
+            }
+        });
+    });
+    d3.select('#telenavHeaderLogout .logout-btn').on('click', function() {
+        context.connection().logout();
+        d3.select('#telenavHeaderLogin').classed('hidden', false);
+        d3.select('#telenavHeaderLogout').classed('hidden', true);
+    });
+    // === IMPROVE OSM HEADER logging in part === end
+
+
     var Utils = {};
     Utils.getTileSquare = function(x, y) {
         var n = Math.pow(2, 18);// HARD CODING the 18

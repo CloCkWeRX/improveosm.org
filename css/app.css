@@ -2574,7 +2574,7 @@ div.full-screen > button:hover {
 }
 
 .shaded {
-    z-index: 49;
+    z-index: 10000;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -3412,4 +3412,21 @@ div.full-screen > button:hover {
 }
 .topbar .nav > li.hidden {
     display: none;
+}
+.topbar .userInfo {
+    line-height: 50px;
+    padding:0 10px;
+}
+.topbar .navbar-nav > li > a.logout-btn {
+    padding: 0;
+    line-height: 0;
+    display: inline;
+    text-decoration: underline;
+    color: #337ab7;
+    font-size: inherit;
+}
+.topbar .navbar-nav > li > a.logout-btn:hover {
+    text-decoration: none;
+    background: none;
+    color: #337ab7!important;
 }
