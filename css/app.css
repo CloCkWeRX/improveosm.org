@@ -658,17 +658,17 @@ button.save.has-count .count::before {
 ------------------------------------------------------- */
 .telenavwrap {
     position: absolute;
-    width: 300%;
+    width: 200%;
     height: 100%;
-    right: -100%;
+    right: 0%;
     /*right: -200%;*/
     transition: transform .3s ease-in-out;
 }
 .telenavwrap .pane {
-    width: 33.33%;
+    width: 50%;
 }
 .pane-middle {
-    left: 33.33%
+    left: 50%
 }
 .pane-telenav {
     position: absolute;
@@ -678,8 +678,62 @@ button.save.has-count .count::before {
     overflow: hidden;
 }
 .telenavwrap .header {
-    border-top: 1px solid #eee;
+    border-top: 1px solid #ddd;
 }
+.pane-telenav .header .main-header {
+    display: inline-block;
+}
+.pane-telenav .header .button-wrap {
+     display: inline-block;
+     height: 100%;
+     margin-right: 10px
+}
+.pane-telenav .header .button-wrap:hover {
+    opacity: 0.85;
+}
+.pane-telenav .header .button-wrap button {
+    border-right: 0px;
+    margin: 10px 0;
+    height: calc(100% - 20px);
+}
+.pane-telenav .header .button-wrap button:first-child {
+    border-radius: 4px 0 0 4px;
+}
+.pane-telenav .header .button-wrap button:last-child {
+    border-radius: 0 4px 4px 0;
+}
+.pane-telenav .header .button-wrap.single button:last-child {
+    border-radius: 4px 4px 4px 4px;
+}
+
+/*.pane-telenav .header .telenav-header-button:focus {*/
+    /*background: none;*/
+/*}*/
+.pane-telenav .header .telenav-header-button {
+    border-radius: 0px;
+    min-width: 75px;
+    border: 0px;
+    background-color: lightgrey;
+}
+.pane-telenav .header .telenav-header-button span {
+/*    border: 1px solid #666;
+    height: 30px;
+    line-height: 30px;*/
+    color: dimgrey;
+    display: block;
+    padding-left: 10px; padding-right: 10px;
+    border-radius: 4px;
+}
+.pane-telenav .header .telenav-header-button.active.selected {
+    background: limegreen;
+}
+.pane-telenav .header .telenav-header-button.inactive.selected {
+    background: #D32232;
+}
+.pane-telenav .header .telenav-header-button.selected span {
+    color: white;
+}
+
 .telenav-body{
     overflow-y: scroll;
     overflow-x: hidden;
@@ -723,7 +777,7 @@ label .form-label-button-wrap .input {
     padding: 5px 10px;
 }
 .form-subLabel {
-    background: #ECECEC;
+    background: #F6F6F6;
     padding: 3px 10px;
     width: calc(100% + 10px)!important;
     margin-left: -10px;
