@@ -6,6 +6,11 @@
         <link rel='stylesheet' href='css/reset.css'>
         <link rel='stylesheet' href='css/map.css'>
         <link rel='stylesheet' href='css/app.css'>
+<!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        &lt;!&ndash;<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">&ndash;&gt;
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+-->
 
         <!-- mobile devices -->
         <meta name='viewport' content='initial-scale=1.0 maximum-scale=1.0'>
@@ -245,7 +250,29 @@
         <script src='data/introGraph.js'></script>
     </head>
     <body>
-        <div id='id-container'></div>
+
+    <div class="topbar" id="TOPBAR">
+        <img src="../dist/img/osmImprove-logo.jpg" alt="OSMImprove logo" class="logo" />
+        <nav class="collapse navbar-collapse pull-right">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <button class="dropbtn">Other Tools</button>
+                    <div class="dropdown-content">
+                        <a href="http://cygnus.improve-osm.org/" target='_blank'>Cygnus Tool</a>
+                    </div>
+                </li>
+                <li><a href="{{ app.community.tutorials }}" class="" target='_blank'>Tutorial</a></li>
+                <li><a href="{{ app.community.blog }}" class="" target='_blank'>Blog</a></li>
+                <li><a href="#" class='subscribe'>Subscribe</a></li>
+                <li class="userInfo hidden" id="telenavHeaderLogout">Hello username! | <a class="logout-btn">Logout</a></li>
+                <li id="telenavHeaderLogin"><a class="login-btn">Login with OSM</a></li>
+                <li><script async defer src="http://slack.improve-osm.org:3000/slackin.js"></script></li>-->
+            </ul>
+        </nav>
+    </div>
+
+
+    <div id='id-container'></div>
         <script>
             iD.data.load(function() {
                 id = iD()
