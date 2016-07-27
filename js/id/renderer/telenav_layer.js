@@ -77,7 +77,6 @@ iD.TelenavLayer = function (context) {
     });
     // === IMPROVE OSM HEADER logging in part === end
 
-
     var Utils = {};
     Utils.getTileSquare = function(x, y) {
         var n = Math.pow(2, 18);// HARD CODING the 18
@@ -896,7 +895,7 @@ iD.TelenavLayer = function (context) {
     var EditPanel = function() {
 
         this._location = 'MAIN';
-        this.editMode = false;
+        this.editMode = true;
 
         //get the width of the panel for animation effect
         this._panelWidth = function(){
@@ -1945,12 +1944,12 @@ iD.TelenavLayer = function (context) {
         var switchWrapper = generalWindowsWindowHeader.append('div')
             .attr('class', 'button-wrap joined fr')
         switchWrapper.append('button')
-            .attr('class', 'telenav-header-button active')
+            .attr('class', 'telenav-header-button active selected')
             .attr('id', 'telenav-active')
             .append('span')
             .text('Active');
         switchWrapper.append('button')
-            .attr('class', 'telenav-header-button inactive selected')
+            .attr('class', 'telenav-header-button inactive')
             .attr('id', 'telenav-inactive')
             .append('span')
             .text('Inactive');

@@ -104,7 +104,7 @@ iD.Background = function(context) {
             .data([0]);
 
         telenav.enter().insert('div')
-            .attr('class', 'layer-layer layer-telenav');
+            .attr('class', 'layer-layer layer-telenav editMode'); // editMode is the default
 
         telenav.call(telenavLayer);
     }
