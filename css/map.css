@@ -1620,7 +1620,7 @@ text.gpx {
     stroke-width: 6;
     fill: white;
 }
-.layer-telenav svg g.TurnRestrictionItem.selected circle {
+.layer-telenav svg g.TurnRestrictionItem.selected circle:not(.selectable) {
     stroke: red;
     stroke-width: 3px;
     fill: white;
@@ -1657,6 +1657,10 @@ text.gpx {
     display: block;
 }
 
+.layer-telenav svg g.TurnRestrictionItem polyline.wayIn1 {
+    marker-end: url(#telenav-arrow-green);
+}
+
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn2 {
     stroke-width: 3;
@@ -1678,6 +1682,8 @@ text.gpx {
     stroke-width: 3;
     stroke: #FF0000;
     fill: none;
+
+    marker-end: url(#telenav-arrow-red);
 
     animation-name: pulsingThickness-3-12;
     animation-duration: 1s;
@@ -1713,6 +1719,7 @@ text.gpx {
 }
 .layer-telenav.editMode svg g.MissingRoadItem.selected :not(circle):not(.selectable) {
     opacity: .75;
+
     animation-name: pulsingThickness-2-8;
     animation-duration: 1s;
     animation-iteration-count: infinite;
@@ -1779,13 +1786,21 @@ text.gpx {
     stroke: #EE7600;
     opacity: 1;
 }
+
+.layer-telenav.editMode svg g.DirectionOfFlowItem polyline.main {
+    marker-end: url(#telenav-arrow-orange);
+}
+
+.layer-telenav.editMode svg g.DirectionOfFlowItem polyline.selectable {
+    marker-end: url(#telenav-arrow-black);
+}
+
 /* --- GRAY HIGHLIGHTING ------------------------*/
 .layer-telenav svg g.DirectionOfFlowItem polyline.selectable {
     stroke-width: 20;
     opacity: .0;
 }
 .layer-telenav svg g.DirectionOfFlowItem polyline.selectable:hover {
-    stroke-linecap: round;
     stroke: black;
     stroke-width: 20;
     opacity: .5;
@@ -1793,7 +1808,9 @@ text.gpx {
 /* --- PULSATING SELECTION ----------------------*/
 .layer-telenav svg g.DirectionOfFlowItem.selected polyline.main {
     stroke: #DC143C;
-    marker-end: url(#telenav-selected-arrow-marker);
+
+    marker-end: url(#telenav-arrow-purple);
+
     animation-name: pulsingThickness-3-12;
     animation-duration: 1s;
     animation-iteration-count: infinite;

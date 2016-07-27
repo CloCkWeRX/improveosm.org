@@ -801,10 +801,10 @@ iD.TelenavLayer = function (context) {
             }];
         };
         this.highlight = function(item, highlight) {
-            d3.selectAll('#' + item.id)
-                .classed('highlightOn', highlight)
-                .classed('highlightOff', !highlight)
-                .attr('marker-end', highlight ? 'url(#telenav-selected-arrow-marker)' : null);
+            //d3.selectAll('#' + item.id)
+            //    .classed('highlightOn', highlight)
+            //    .classed('highlightOff', !highlight)
+            //    .attr('marker-end', highlight ? 'url(#telenav-selected-arrow-marker)' : null);
         };
 
     };
@@ -1009,16 +1009,8 @@ iD.TelenavLayer = function (context) {
         this.onActivationSwitchClick = function() {
             if(!_editPanel.editMode){
                 _editPanel.toggleEditMode(true);
-
-                //d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
-                d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
-                //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
             } else {
                 _editPanel.toggleEditMode(false);
-
-                //d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
-                d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
-                //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
             }
         }
 
@@ -1505,7 +1497,6 @@ iD.TelenavLayer = function (context) {
 
             var dofPoly = dOFs.append('polyline').attr('class', 'main');
             dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
-            dofPoly.attr('marker-end', 'url(#telenav-arrow-marker-orange)');
             var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
             owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
 
@@ -1532,7 +1523,6 @@ iD.TelenavLayer = function (context) {
 
             var trPolyIn1 = tRs.append('polyline');
             trPolyIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
-            trPolyIn1.attr('marker-end', 'url(#telenav-arrow-marker-green)');
             trPolyIn1.attr('class', 'wayIn1');
             var trPolyIn2 = tRs.append('polyline');
             trPolyIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
@@ -1555,7 +1545,6 @@ iD.TelenavLayer = function (context) {
                 .html(TurnRestrictionItem.transformOutNo);
             var trPolyOut = tRs.append('polyline');
             trPolyOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
-            trPolyOut.attr('marker-end', 'url(#telenav-arrow-marker)');
             //trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
             trPolyOut.attr('class', 'wayOut');
             var trCircle = tRs.append('circle')

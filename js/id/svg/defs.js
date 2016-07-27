@@ -37,95 +37,82 @@ iD.svg.Defs = function(context) {
             .attr('fill', '#000')
             .attr('opacity', '0.5');
 
+        // red arrow
         defs.append('marker')
             .attr({
-                id: 'telenav-arrow-marker',
-                viewBox: '0 0 6 6',
-                refY: 2,
-                refX: 3,
-                markerWidth: 6,
-                markerHeight: 6,
-                markerUnits: 'strokeWidth',
+                id: 'telenav-arrow-red',
+                viewBox: '0 0 3 3',
+                refY: 1,
+                refX: 1,
+                markerWidth: 3,
+                markerHeight: 3,
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-marker')
-            .attr('d', 'M0,0 L0,4 5,2 z')
-            .attr('stroke', 'none')
-            .attr('fill', '#f00')
-            .attr('opacity', '1');
-
-        defs.append('marker')
-            .attr({
-                id: 'telenav-arrow-marker-opaque',
-                viewBox: '0 0 6 6',
-                refY: 2,
-                refX: 3,
-                markerWidth: 6,
-                markerHeight: 6,
-                markerUnits: 'strokeWidth',
-                orient: 'auto'
-            })
-            .append('path')
-            .attr('class', 'telenav-arrow-marker-opaque')
-            .attr('d', 'M0,0 L0,4 5,2 z')
-            .attr('stroke', 'none')
-            .attr('fill', '#f00')
-            .attr('opacity', '.2');
+            .attr('class', 'telenav-arrow-red')
+            .attr('d', 'M0,0 L0,2 L3,1 z')
+            .attr('fill', '#f00');
 
         // green arrow
         defs.append('marker')
             .attr({
-                id: 'telenav-arrow-marker-green',
-                viewBox: '0 0 6 6',
-                refY: 2,
-                refX: 3,
-                markerWidth: 6,
-                markerHeight: 6,
-                //markerUnits: 'strokeWidth',
-                orient: 'auto'
-            })
-            .append('path')
-            .attr('class', 'telenav-arrow-marker-green')
-            .attr('d', 'M0,0 L0,4 5,2 z')
-            //.attr('stroke', 'none')
-            .attr('fill', '#00CD00')
-            //.attr('opacity', '1');
-
-        defs.append('marker')
-            .attr({
-                id: 'telenav-arrow-marker-orange',
-                viewBox: '0 0 6 6',
-                refY: 2,
-                refX: 3,
-                markerWidth: 6,
-                markerHeight: 6,
-                markerUnits: 'strokeWidth',
-                orient: 'auto'
-            })
-            .append('path')
-            .attr('class', 'telenav-arrow-marker-orange')
-            .attr('d', 'M0,0 L0,4 5,2 z')
-            .attr('stroke', 'none')
-            .attr('fill', '#EE7600')
-
-        defs.append('marker')
-            .attr({
-                id: 'telenav-selected-arrow-marker',
+                id: 'telenav-arrow-green',
                 viewBox: '0 0 3 3',
                 refY: 1,
-                refX: 0,
+                refX: 1,
                 markerWidth: 3,
                 markerHeight: 3,
-                markerUnits: 'strokeWidth',
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-selected-arrow-marker')
+            .attr('class', 'telenav-arrow-green')
             .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('stroke', 'none')
-            .attr('fill', '#DC143C')
-            .attr('opacity', '1');
+            .attr('fill', '#00CD00');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-orange',
+                viewBox: '0 0 3 3',
+                refY: 1,
+                refX: 1,
+                markerWidth: 3,
+                markerHeight: 3,
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-orange')
+            .attr('d', 'M0,0 L0,2 L3,1 z')
+            .attr('fill', '#EE7600');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-purple',
+                viewBox: '0 0 3 3',
+                refY: 1,
+                refX: 1,
+                markerWidth: 3,
+                markerHeight: 3,
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-purple')
+            .attr('d', 'M0,0 L0,2 L3,1 z')
+            .attr('fill', '#DC143C');
+
+        defs.append('marker')
+            .attr({
+                id: 'telenav-arrow-black',
+                viewBox: '0 0 3 3',
+                refY: 1,
+                refX: 1,
+                markerWidth: 3,
+                markerHeight: 3,
+                orient: 'auto'
+            })
+            .append('path')
+            .attr('class', 'telenav-arrow-black')
+            .attr('d', 'M0,0 L0,2 L3,1 z')
+            .attr('fill', '#000');
 
         // patterns
         var patterns = defs.selectAll('pattern')
