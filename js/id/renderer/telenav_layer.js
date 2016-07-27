@@ -212,8 +212,8 @@ iD.TelenavLayer = function (context) {
                 //    .attr('cy', cy)
                 //    .attr('r', 10);
                 var textElem = gElem.append('text')
-                    .attr('x', cx - 2)
-                    .attr('y', cy + 4)
+                    .attr('x', cx - 5)
+                    .attr('y', cy + 7)
                     .html(node.amount);
             }
         };
@@ -979,13 +979,13 @@ iD.TelenavLayer = function (context) {
             if(!_editPanel.editMode){
                 _editPanel.toggleEditMode(true);
 
-                d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
+                //d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker)');
                 //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker)');
             } else {
                 _editPanel.toggleEditMode(false);
 
-                d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
+                //d3.selectAll('.TurnRestrictionItem polyline.wayIn1').attr('marker-end', 'url(#telenav-arrow-marker-green-opaque)');
                 d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-end', 'url(#telenav-arrow-marker-opaque)');
                 //d3.selectAll('.TurnRestrictionItem polyline.wayOut').attr('marker-start', 'url(#telenav-tr-marker-opaque)');
             }
@@ -1531,11 +1531,11 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'telenav-tr-marker')
                 .attr('cx', TurnRestrictionItem.transformX)
                 .attr('cy', TurnRestrictionItem.transformY)
-                .attr('r', '10');
+                .attr('r', '20');
             var trSelCircle = tRs.append('circle').attr('class', 'selectable')
                 .attr('cx', TurnRestrictionItem.transformX)
                 .attr('cy', TurnRestrictionItem.transformY)
-                .attr('r', '10');
+                .attr('r', '20');
 
             dOFs.on('click', MapItem.handleSelection);
             mRs.on('click', MapItem.handleSelection);

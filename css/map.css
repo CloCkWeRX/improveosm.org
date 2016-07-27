@@ -1576,8 +1576,8 @@ text.gpx {
 /* --- NODE HACK ------------------------------- */
 
 .layer-telenav g.tr-node text {
-    stroke-opacity: 1;
-    fill-opacity: 1;
+    font-size: 20px;
+    font-weight: bolder;
 }
 
 /* --------------------------------------------- */
@@ -1617,7 +1617,7 @@ text.gpx {
 }
 .layer-telenav svg g.TurnRestrictionItem circle {
     stroke: red;
-    stroke-width: 3px;
+    stroke-width: 6;
     fill: white;
 }
 .layer-telenav svg g.TurnRestrictionItem.selected circle {
@@ -1659,7 +1659,7 @@ text.gpx {
 
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn2 {
-    stroke-width: 3px;
+    stroke-width: 3;
     stroke: #00CD00;
     fill: none;
 
@@ -1675,7 +1675,7 @@ text.gpx {
 
 
 .layer-telenav svg g.TurnRestrictionItem polyline.wayOut {
-    stroke-width: 3px;
+    stroke-width: 3;
     stroke: #FF0000;
     fill: none;
 
@@ -1769,13 +1769,13 @@ text.gpx {
 /* --- ONE WAY --------------------------------- */
 /* --------------------------------------------- */
 
-.layer-telenav svg g.DirectionOfFlowItem polyline.main {
-    stroke-width: 3;
+.layer-telenav svg g.DirectionOfFlowItem {
+    stroke-width: 12;
     stroke: #EE7600;
     opacity: .4;
 }
-.layer-telenav.editMode svg g.DirectionOfFlowItem polyline.main {
-    stroke-width: 3;
+.layer-telenav.editMode svg g.DirectionOfFlowItem {
+    stroke-width: 12;
     stroke: #EE7600;
     opacity: 1;
 }
@@ -1792,7 +1792,6 @@ text.gpx {
 }
 /* --- PULSATING SELECTION ----------------------*/
 .layer-telenav svg g.DirectionOfFlowItem.selected polyline.main {
-    stroke-width: 10;
     stroke: #DC143C;
     marker-end: url(#telenav-selected-arrow-marker);
     animation-name: pulsingThickness-3-12;
