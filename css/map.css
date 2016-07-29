@@ -1780,14 +1780,16 @@ text.gpx {
     stroke-width: 12;
     stroke: #EE7600;
     opacity: .4;
+    fill: none;
 }
 .layer-telenav.editMode svg g.DirectionOfFlowItem {
     stroke-width: 12;
     stroke: #EE7600;
     opacity: 1;
+    fill: none;
 }
 
-.layer-telenav.editMode svg g.DirectionOfFlowItem polyline.main {
+.layer-telenav svg g.DirectionOfFlowItem polyline.main {
     marker-end: url(#telenav-arrow-orange);
 }
 
