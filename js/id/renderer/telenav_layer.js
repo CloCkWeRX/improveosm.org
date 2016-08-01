@@ -1,6 +1,6 @@
 iD.TelenavLayer = function (context) {
 
-    // automated deploy constants
+    // automated deploy constants - BEGIN
     var PRODUCTION_API_PATHS = false;
     var TEST_API_SERVER_OW_SERVER = 'http://fcd-ss.skobbler.net:2680/directionOfFlowService_test';
     var TEST_API_SERVER_MR_SERVER = 'http://fcd-ss.skobbler.net:2680/missingGeoService_test';
@@ -20,6 +20,7 @@ iD.TelenavLayer = function (context) {
         API_MR_SERVER = TEST_API_SERVER_MR_SERVER;
         API_TR_SERVER = TEST_API_SERVER_TR_SERVER;
     }
+    // automated deploy constants - END
 
     var CLUSTER_RADIUSES = [
         [45,70,90,110],
