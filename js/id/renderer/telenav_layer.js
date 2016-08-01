@@ -1,6 +1,9 @@
 iD.TelenavLayer = function (context) {
 
-    // the next line should always be line no. 4 for the automated deploy
+    // automated deploy constants
+    var TEST_API_SERVER = 'http://fcd-ss.skobbler.net:2680/';
+    var PRODUCTION_API_SERVER = 'http://directionofflow.skobbler.net';
+    var API_SERVER = TEST_API_SERVER;
     var API_SERVER_SUFIX = '_test';
 
     var CLUSTER_RADIUSES = [
@@ -24,8 +27,6 @@ iD.TelenavLayer = function (context) {
     var enable = true, //shows the telenav layer by default
         svg,
         requestQueue = [],
-        //combinedItems = [],
-        //selectedItems = [],
 
         visibleItems = null,
 
@@ -34,9 +35,9 @@ iD.TelenavLayer = function (context) {
         requestCount;
 
     var types = {
-        dof: 'http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/search',
-        mr: 'http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/search',
-        tr: 'http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/search'
+        dof: API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/search',
+        mr: API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/search',
+        tr: API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/search'
     };
 
     var selectedTypes = ['dof', 'mr', 'tr'];
@@ -341,7 +342,7 @@ iD.TelenavLayer = function (context) {
         };
     };
 
-    var selectedItems2 = new SelectedItems([]);
+    var selectedItems = new SelectedItems([]);
     var trNodes = new TRNodes([]);
 
     // ==============================
@@ -381,56 +382,35 @@ iD.TelenavLayer = function (context) {
         if (node.classed('selected')) {
         //if (item.selected) {
             if (d3.event.ctrlKey) {
-                //node.classed('selected', false);
                 item.select(false);
-                //for (var i = 0; i < selectedItems.length; i++) {
-                //    if (selectedItems[i].id === item.id) {
-                //        selectedItems.splice(i, 1);
-                //    }
-                //}
-                selectedItems2.removeItemById(item.id);
+                selectedItems.removeItemById(item.id);
             } else {
                 if (svg.selectAll('g.selected')[0].length === 1) {
-                    //node.classed('selected', false);
                     item.select(false);
-                    //selectedItems.length = 0;
-                    selectedItems2.empty();
+                    selectedItems.empty();
                 } else {
                     svg.selectAll('g').classed('selected', false);
-                    //selectedItems.length = 0;
-                    selectedItems2.empty();
-                    //node.classed('selected', true);
+                    selectedItems.empty();
                     item.select(true);
-                    //selectedItems.push(item);
-                    selectedItems2.add(item);
-                    //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
-                    _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
+                    selectedItems.add(item);
+                    _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
                 }
             }
         } else {
             if (d3.event.ctrlKey) {
-                //node.classed('selected', true);
                 item.select(true);
-                //////.attr('marker-end', 'url(#telenav-selected-arrow-marker)');/////???????? TODO
-                //selectedItems.push(item);
-                selectedItems2.add(item);
-                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
+                selectedItems.add(item);
+                _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
             } else {
                 svg.selectAll('g').classed('selected', false);
-                //selectedItems.length = 0;
-                selectedItems2.empty();
-                //node.classed('selected', true);
+                selectedItems.empty();
                 item.select(true);
-                //selectedItems.push(item);
-                selectedItems2.add(item);
-                //_editPanel.showSiblings(selectedItems2.getSiblings(item.id, combinedItems));
-                _editPanel.showSiblings(selectedItems2.getSiblings(item.id, visibleItems.items));
+                selectedItems.add(item);
+                _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
             }
         }
         d3.event.stopPropagation();
-        if (selectedItems2.getSize() === 0) {
-        //if (selectedItems.length === 0) {
+        if (selectedItems.getSize() === 0) {
             _editPanel.goToMain();
         } else {
             _editPanel.goToEdit(item);
@@ -814,10 +794,7 @@ iD.TelenavLayer = function (context) {
             }];
         };
         this.highlight = function(item, highlight) {
-            //d3.selectAll('#' + item.id)
-            //    .classed('highlightOn', highlight)
-            //    .classed('highlightOff', !highlight)
-            //    .attr('marker-end', highlight ? 'url(#telenav-selected-arrow-marker)' : null);
+            // TODO: highlight
         };
 
     };
@@ -956,8 +933,7 @@ iD.TelenavLayer = function (context) {
 
         this.deselectAll = function() {
             svg.selectAll('g').classed('selected', false);
-            //selectedItems.length = 0;
-            selectedItems2.empty();
+            selectedItems.empty();
             this.goToMain();
         };
 
@@ -1061,11 +1037,6 @@ iD.TelenavLayer = function (context) {
 
                     element.on('click', function() {
                         var item = null;
-                        //for (var i = 0; i < combinedItems.length; i++) {
-                        //    if (combinedItems[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
-                        //        item = combinedItems[i];
-                        //    }
-                        //}
                         for (var i = 0; i < visibleItems.items.length; i++) {
                             if (visibleItems.items[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
                                 item = visibleItems.items[i];
@@ -1273,28 +1244,9 @@ iD.TelenavLayer = function (context) {
                     return;
                 }
 
-                //var userLink = d3.select(document.createElement('div'));
-                //
-                //if (user.image_url) {
-                //    userLink.append('img')
-                //        .attr('src', user.image_url)
-                //        .attr('class', 'icon pre-text user-icon');
-                //}
-                //
-                //userLink.append('a')
-                //    .attr('class','user-info')
-                //    .text(user.display_name)
-                //    .attr('href', context.connection().userURL(user.display_name))
-                //    .attr('tabindex', -1)
-                //    .attr('target', '_blank');
-                //
-                //prose.html(t('commit.upload_explanation_with_user', {user: userLink.html()}));
-
                 status = status.toUpperCase();
-                //for (var i = 0; i < selectedItems.length; i++) {
-                for (var i = 0; i < selectedItems2.getSize(); i++) {
-                    //var currentItem = selectedItems[i];
-                    var currentItem = selectedItems2.getItem(i);
+                for (var i = 0; i < selectedItems.getSize(); i++) {
+                    var currentItem = selectedItems.getItem(i);
 
                     var dataToPost = {
                         username: user.display_name,
@@ -1310,7 +1262,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1319,7 +1271,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1328,7 +1280,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1359,10 +1311,8 @@ iD.TelenavLayer = function (context) {
                 }
                 var comment = d3.select('#commentText').property('value');
 
-                //for (var i = 0; i < selectedItems.length; i++) {
-                for (var i = 0; i < selectedItems2.getSize(); i++) {
-                //    var currentItem = selectedItems[i];
-                    var currentItem = selectedItems2.getItem(i);
+                for (var i = 0; i < selectedItems.getSize(); i++) {
+                    var currentItem = selectedItems.getItem(i);
 
                     var dataToPost = {
                         username: 'Tudor009',
@@ -1378,7 +1328,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1387,7 +1337,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1396,7 +1346,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1453,31 +1403,13 @@ iD.TelenavLayer = function (context) {
 
         if (data.hasOwnProperty('roadSegments')) {
             visibleItems.loadOneWays(data.roadSegments);
-            //for (var i = 0; i < data.roadSegments.length; i++) {
-            //    combinedItems.push(new DirectionOfFlowItem(
-            //        data.roadSegments[i]
-            //    ));
-            //}
-
         }
         if (data.hasOwnProperty('tiles')) {
             visibleItems.loadMissingRoads(data.tiles);
-            //for (var i = 0; i < data.tiles.length; i++) {
-            //    combinedItems.push(new MissingRoadItem(
-            //        data.tiles[i]
-            //    ));
-            //}
         }
         if (data.hasOwnProperty('entities')) {
             visibleItems.loadTurnRestrictions(data.entities);
-            //for (var i = 0; i < data.entities.length; i++) {
-            //    combinedItems.push(new TurnRestrictionItem(
-            //        data.entities[i]
-            //    ));
-            //}
         }
-
-
 
         if (!--requestCount) {
             if (error) {
@@ -1485,7 +1417,7 @@ iD.TelenavLayer = function (context) {
                     .remove();
                 return;
             }
-            selectedItems2.update(visibleItems.items);
+            selectedItems.update(visibleItems.items);
 
             var g = svg.selectAll('g.item')
                 .data(visibleItems.items, function(item) {
@@ -1619,9 +1551,9 @@ iD.TelenavLayer = function (context) {
                     .attr('width', svg.attr('width'))
                     .attr('height', svg.attr('height'));
         deselectionRectangle.on('click', function() {
-            if (selectedItems2.getSize() > 0) {
+            if (selectedItems.getSize() > 0) {
                 svg.selectAll('g').classed('selected', false);
-                selectedItems2.empty();
+                selectedItems.empty();
                 _editPanel.goToMain();
             }
         });
@@ -1686,8 +1618,6 @@ iD.TelenavLayer = function (context) {
         turnRestrictionPolylinesIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
         var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
         turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
-        //var turnRestrictionPolylinesHighlight = svg.selectAll('.TurnRestrictionItem > polyline.highlight');
-        //turnRestrictionPolylinesHighlight.attr('points', TurnRestrictionItem.transformLinePoints);
 
         var tRinNo = svg.selectAll('.TurnRestrictionItem > text.inNo');
         tRinNo
@@ -1807,16 +1737,6 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'entity-editor-pane pane');
         var userWindowHeader = userWindow.append('div')
             .attr('class', 'header fillL cf');
-        //userWindowHeader.append('button')
-        //    .attr('class', 'fr preset-reset')
-        //    .on('click', function() {
-        //        _editPanel.deselectAll();
-        //        render(d3.select('.layer-telenav'));
-        //        //telenavWrap.transition()
-        //        //    .style('transform', 'translate3d(0px, 0px, 0px)');
-        //    })
-        //    .append('span')
-        //    .html('&#9658;');
 
         userWindowHeader.append('h3')
             .attr('class', 'main-header')
@@ -1931,15 +1851,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'entity-editor-pane pane pane-middle');
         var generalWindowsWindowHeader = generalSettingsWindow.append('div')
             .attr('class', 'header fillL cf');
-        //generalWindowsWindowHeader.append('button')
-        //    .attr('class', 'fr preset-reset')
-        //    .on('click', function() {
-        //        _editPanel.goToMore();
-        //        //telenavWrap.transition()
-        //        //    .style('transform', 'translate3d(-' + panelWidth() + 'px, 0px,  0px)');
-        //    })
-        //    .append('span')
-        //    .html('&#9658;');
+
         generalWindowsWindowHeader.append('h3')
             .attr('class', 'main-header')
             .text('Improve OSM panel');
@@ -2008,29 +1920,6 @@ iD.TelenavLayer = function (context) {
         //  END 1st container div
 
         //  START 2st container div
-        //var optionsWindow = telenavWrap.append('div')
-        //    .attr('id', 'optionsWindow')
-        //    .attr('class', 'entity-editor-pane pane');
-        //var optionsWindowHeader = optionsWindow.append('div')
-        //    .attr('class', 'header fillL cf');
-        //optionsWindowHeader.append('button')
-        //    .attr('class', 'fl preset-reset preset-choose')
-        //    .on('click', function() {
-        //        _editPanel.goToMain();
-        //    })
-        //    .append('span')
-        //    .html('&#9668;');
-        //
-        //optionsWindowHeader.append('h3')
-        //    .text('Telenav Layers');
-        //var optionsWindowBody = optionsWindow.append('div')
-        //    .attr('class', 'telenav-body');
-        //var optionsWindowInner = optionsWindowBody.append('div')
-        //    .attr('class', 'inspector-border inspector-preset')
-        //    .append('div');
-        //var optionsContainer = optionsWindowInner.append('div')
-        //    .attr('class', 'preset-form inspector-inner');
-
         var direction_form = presetFormContainer.append('div')
             .attr('class', 'form-field')
             .attr('id', 'dofFilter');
@@ -2064,8 +1953,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_mostLikelyContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         direction_mostLikelyContainer.append('label')
             .attr('for', 'C2')
             .text('Most Likely');
@@ -2073,8 +1961,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         direction_probableContainer.append('input')
             .attr('id', 'C3')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         direction_probableContainer.append('label')
             .attr('for', 'C3')
             .text('Probable');
@@ -2087,7 +1974,7 @@ iD.TelenavLayer = function (context) {
             .attr('for', 'missingRoadType')
             .text('Missing roads')
             .append('div')
-            .attr('class', 'form-label-button-wrap')
+            .attr('class', 'form-label-button-wrap');
             mrHeadWrap.append('span').append('i')
                 .attr('id', 'telenav-missingRoad-headerDot');
             mrHeadWrap.append('div')
@@ -2113,8 +2000,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_parkingContainer.append('input')
             .attr('id', 'PARKING')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         missing_parkingContainer.append('label')
             .attr('id', 'telenav_parkingMr')
             .attr('for', 'PARKING')
@@ -2123,8 +2009,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_bothContainer.append('input')
             .attr('id', 'BOTH')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         missing_bothContainer.append('label')
             .attr('id', 'telenav_bothMr')
             .attr('for', 'BOTH')
@@ -2136,8 +2021,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_waterContainer.append('input')
             .attr('id', 'WATER')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         missing_waterContainer.append('label')
             .attr('id', 'telenav_waterMr')
             .attr('for', 'WATER')
@@ -2146,8 +2030,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         missing_pathContainer.append('input')
             .attr('id', 'PATH')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         missing_pathContainer.append('label')
             .attr('id', 'telenav_pathMr')
             .attr('for', 'PATH')
@@ -2187,8 +2070,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'tel_displayInline');
         restriction_probableContainer.append('input')
             .attr('id', 'C2')
-            .attr('type', 'checkbox')
-            //.attr('checked', 'checked');
+            .attr('type', 'checkbox');
         restriction_probableContainer.append('label')
             .attr('for', 'C2')
             .text('Probable');
@@ -2197,15 +2079,6 @@ iD.TelenavLayer = function (context) {
         // ++++++++++++
         // events
         // ++++++++++++
-
-
-        //d3.select('.toggleEditModeContainer').on('click', function() {
-        //    if (d3.select('.layer-telenav').classed('editMode')) {
-        //        d3.select('.layer-telenav').classed('editMode', false);
-        //    } else {
-        //        d3.select('.layer-telenav').classed('editMode', true);
-        //    }
-        //});
 
         d3.select('#oneWay').on('click', function() {
             if (d3.select('#oneWay').property('checked')) {
