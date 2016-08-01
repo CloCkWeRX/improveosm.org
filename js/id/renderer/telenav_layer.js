@@ -1,5 +1,8 @@
 iD.TelenavLayer = function (context) {
 
+    // the next line should always be line no. 4 for the automated deploy
+    var API_SERVER_SUFIX = '_test';
+
     var CLUSTER_RADIUSES = [
         [45,70,90,110],
         [40,65,85,105],
@@ -31,9 +34,9 @@ iD.TelenavLayer = function (context) {
         requestCount;
 
     var types = {
-        dof: 'http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/search',
-        mr: 'http://fcd-ss.skobbler.net:2680/missingGeoService_test/search',
-        tr: 'http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/search'
+        dof: 'http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/search',
+        mr: 'http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/search',
+        tr: 'http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/search'
     };
 
     var selectedTypes = ['dof', 'mr', 'tr'];
@@ -1307,7 +1310,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1316,7 +1319,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1325,7 +1328,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1375,7 +1378,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1384,7 +1387,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/missingGeoService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1393,7 +1396,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/comment')
+                            d3.xhr('http://fcd-ss.skobbler.net:2680/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
