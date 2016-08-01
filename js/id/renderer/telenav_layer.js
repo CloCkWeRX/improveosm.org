@@ -1,10 +1,25 @@
 iD.TelenavLayer = function (context) {
 
     // automated deploy constants
-    var TEST_API_SERVER = 'http://fcd-ss.skobbler.net:2680/';
-    var PRODUCTION_API_SERVER = 'http://directionofflow.skobbler.net';
-    var API_SERVER = TEST_API_SERVER;
-    var API_SERVER_SUFIX = '_test';
+    var PRODUCTION_API_PATHS = false;
+    var TEST_API_SERVER_OW_SERVER = 'http://fcd-ss.skobbler.net:2680/directionOfFlowService_test/';
+    var TEST_API_SERVER_MR_SERVER = 'http://fcd-ss.skobbler.net:2680/missingGeoService_test/';
+    var TEST_API_SERVER_TR_SERVER = 'http://fcd-ss.skobbler.net:2680/turnRestrictionService_test/';
+
+    var PRODUCTION_API_OW_SERVER = 'http://directionofflow.skobbler.net/directionOfFlowService/';
+    var PRODUCTION_API_MR_SERVER = 'http://missingroads.skobbler.net/missingGeoService/';
+    var PRODUCTION_API_TR_SERVER = 'http://turnrestrictionservice.skobbler.net/turnRestrictionService/';
+
+    var API_OW_SERVER, API_MR_SERVER, API_TR_SERVER;
+    if (PRODUCTION_API_PATHS) {
+        API_OW_SERVER = PRODUCTION_API_OW_SERVER;
+        API_MR_SERVER = PRODUCTION_API_MR_SERVER;
+        API_TR_SERVER = PRODUCTION_API_TR_SERVER;
+    } else {
+        API_OW_SERVER = TEST_API_SERVER_OW_SERVER;
+        API_MR_SERVER = TEST_API_SERVER_MR_SERVER;
+        API_TR_SERVER = TEST_API_SERVER_TR_SERVER;
+    }
 
     var CLUSTER_RADIUSES = [
         [45,70,90,110],
@@ -35,9 +50,9 @@ iD.TelenavLayer = function (context) {
         requestCount;
 
     var types = {
-        dof: API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/search',
-        mr: API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/search',
-        tr: API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/search'
+        dof: API_OW_SERVER + '/search',
+        mr: API_MR_SERVER + '/search',
+        tr: API_TR_SERVER + '/search'
     };
 
     var selectedTypes = ['dof', 'mr', 'tr'];
@@ -1262,7 +1277,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_OW_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1271,7 +1286,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_MR_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1280,7 +1295,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_TR_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1328,7 +1343,7 @@ iD.TelenavLayer = function (context) {
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
                             dataToPost.roadSegments = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/directionOfFlowService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_OW_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1337,7 +1352,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'MissingRoadItem':
                             dataToPost.tiles = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/missingGeoService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_MR_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
@@ -1346,7 +1361,7 @@ iD.TelenavLayer = function (context) {
                             break;
                         case 'TurnRestrictionItem':
                             dataToPost.targetIds = currentItem.getIdentifier();
-                            d3.xhr(API_SERVER + '/turnRestrictionService' + API_SERVER_SUFIX + '/comment')
+                            d3.xhr(API_TR_SERVER + '/comment')
                                 .header("Content-Type", "application/json")
                                 .post(
                                     JSON.stringify(dataToPost),
