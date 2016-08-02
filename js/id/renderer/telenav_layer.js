@@ -1508,7 +1508,7 @@ iD.TelenavLayer = function (context) {
                     return item.transformInNoY()
                 })
                 .html(function(item) {
-                    item.transformInNo();
+                    return item.transformInNo();
                 });
             tRs.append('rect').attr('class', 'noOutRect')
                 .attr('width', function(item) {
@@ -1709,7 +1709,7 @@ iD.TelenavLayer = function (context) {
                 return item.transformInNoY()
             })
             .html(function(item) {
-                item.transformInNo();
+                return item.transformInNo();
             });
         var tRinNoInRect = svg.selectAll('.TurnRestrictionItem > rect.noInRect');
         tRinNoInRect
