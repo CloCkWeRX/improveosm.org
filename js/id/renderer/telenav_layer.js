@@ -148,6 +148,70 @@ iD.TelenavLayer = function (context) {
         }
         return newSegments;
     };
+    Utils.getDistance = function(p1, p2) {
+
+        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
+        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
+
+        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
+        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
+
+        var a = x1 - x2;
+        var b = y1 - y2;
+
+        return Math.sqrt(a * a + b * b);
+    };
+    Utils.findMiddle = function(p1, p2, d, dif) {
+        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
+        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
+
+        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
+        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
+
+        var a = x2 - x1;
+        var b = y2 - y1;
+
+        dif = d - dif;
+
+        var newX = (a * dif) / d;
+        var newY = (b * dif) / d;
+
+        newX = newX + x1;
+        newY = newY + y1;
+
+        return '' + newX + ',' + newY;
+    };
+    Utils.splitSegment = function(segment) {
+        var length = 0;
+        var distances = [];
+        for (var i = 0; i < segment.length - 1; i++) {
+            var d = Utils.getDistance(segment[i], segment[i + 1]);
+            length += d;
+            distances.push(d);
+        }
+        var target = length / 2;
+        length = 0;
+        var location = 0;
+        for (var i = 0; i < segment.length - 1; i++) {
+            length += distances[i];
+            if (length > target) {
+                location = i;
+                break;
+            }
+        }
+
+        var newPoint = Utils.findMiddle(
+            segment[location],
+            segment[location + 1],
+            distances[location],
+            length - target
+        );
+
+        return {
+            newPoint: newPoint,
+            index: location
+        };
+    };
 
     // ==============================
     // ==============================
@@ -381,56 +445,55 @@ iD.TelenavLayer = function (context) {
             node.classed('selected', select);
             this.selected = select;
         };
-    };
-    MapItem.transformClass = function(item) {
-        if(item.className != 'MissingRoadItem') {
-            return 'item ' + (item.selected ? 'selected ' : '') + item.className;
-        } else {
-            return 'item ' + (item.selected ? 'selected ' : '') + item.className + ' ' + item.status.toLowerCase() + ' ' + item.type.toLowerCase();
-        }
-    };
-    MapItem.transformId = function(item) {
-        return item.id;
-    };
-    MapItem.handleSelection = function(item) {
-        var node = d3.select('#' + item.id);
-        if (node.classed('selected')) {
-        //if (item.selected) {
-            if (d3.event.ctrlKey) {
-                item.select(false);
-                selectedItems.removeItemById(item.id);
+        this.transformId = function() {
+            return this.id;
+        };
+        this.transformClass = function() {
+            if(this.className != 'MissingRoadItem') {
+                return 'item ' + (this.selected ? 'selected ' : '') + this.className;
             } else {
-                if (svg.selectAll('g.selected')[0].length === 1) {
-                    item.select(false);
-                    selectedItems.empty();
+                return 'item ' + (this.selected ? 'selected ' : '') + this.className + ' ' + this.status.toLowerCase() + ' ' + this.type.toLowerCase();
+            }
+        };
+        this.handleSelection = function() {
+            var node = d3.select('#' + this.id);
+            if (node.classed('selected')) {
+                if (d3.event.ctrlKey) {
+                    this.select(false);
+                    selectedItems.removeItemById(this.id);
+                } else {
+                    if (svg.selectAll('g.selected')[0].length === 1) {
+                        this.select(false);
+                        selectedItems.empty();
+                    } else {
+                        svg.selectAll('g').classed('selected', false);
+                        selectedItems.empty();
+                        this.select(true);
+                        selectedItems.add(this);
+                        _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                    }
+                }
+            } else {
+                if (d3.event.ctrlKey) {
+                    this.select(true);
+                    selectedItems.add(this);
+                    _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                 } else {
                     svg.selectAll('g').classed('selected', false);
                     selectedItems.empty();
-                    item.select(true);
-                    selectedItems.add(item);
-                    _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
+                    this.select(true);
+                    selectedItems.add(this);
+                    _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                 }
             }
-        } else {
-            if (d3.event.ctrlKey) {
-                item.select(true);
-                selectedItems.add(item);
-                _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
+            d3.event.stopPropagation();
+            if (selectedItems.getSize() === 0) {
+                _editPanel.goToMain();
             } else {
-                svg.selectAll('g').classed('selected', false);
-                selectedItems.empty();
-                item.select(true);
-                selectedItems.add(item);
-                _editPanel.showSiblings(selectedItems.getSiblings(item.id, visibleItems.items));
+                _editPanel.goToEdit(this);
+                _editPanel.selectedItemDetails(this);
             }
-        }
-        d3.event.stopPropagation();
-        if (selectedItems.getSize() === 0) {
-            _editPanel.goToMain();
-        } else {
-            _editPanel.goToEdit(item);
-            _editPanel.selectedItemDetails(item);
-        }
+        };
     };
 
     // ==============================
@@ -503,188 +566,100 @@ iD.TelenavLayer = function (context) {
                     This.highlight(false);
                 });
                 gElement.on('click', function() {
-                    MapItem.handleSelection(This);
+                    This.handleSelection();
                 });
             }
         };
         this.transformX = function() {
             return Math.floor(context.projection([this.point.lon, this.point.lat])[0]);
         };
-        this.transformY= function() {
+        this.transformY = function() {
             return Math.floor(context.projection([this.point.lon, this.point.lat])[1]);
+        };
+        this.transformLinePointsOut = function() {
+            var rawSegments = [];
+            for (var i = 1; i < this.segments.length; i++) {
+                var rawPoints = [];
+                for (var j = 0; j < this.segments[i].points.length; j++) {
+                    rawPoints.push(this.segments[i].points[j]);
+                }
+                rawSegments.push(rawPoints);
+            }
+
+            var segments = Utils.orderSegments(rawSegments, this.point);
+
+            var stringPoints = [];
+            for (var i = 0; i < segments.length; i++) {
+                for (var j = 0; j < segments[i].length; j++) {
+                    var point = context.projection([segments[i][j].lon, segments[i][j].lat]);
+                    stringPoints.push(point.toString());
+                }
+            }
+
+            return stringPoints.join(' ');
+        };
+        this.transformLinePointsIn1 = function() {
+            var stringPoints = [];
+            var split = Utils.splitSegment(this.segments[0].points);
+            for (var j = 0; j < this.segments[0].points.length; j++) {
+                var point = context.projection([this.segments[0].points[j].lon, this.segments[0].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
+            stringPoints.splice(split.index + 1, 0, split.newPoint);
+            stringPoints.splice(split.index + 2, stringPoints.length - (split.index + 1));
+            return stringPoints.join(' ');
+        };
+        this.transformLinePointsIn2 = function() {
+            var stringPoints = [];
+            var split = Utils.splitSegment(this.segments[0].points);
+            for (var j = 0; j < this.segments[0].points.length; j++) {
+                var point = context.projection([this.segments[0].points[j].lon, this.segments[0].points[j].lat]);
+                stringPoints.push(point.toString());
+            }
+            stringPoints.splice(split.index + 1, 0, split.newPoint);
+            stringPoints.splice(0, split.index + 1);
+            return stringPoints.join(' ');
+        };
+        this.transformInNoX = function() {
+            return this.getInNo().x - 10;
+        };
+        this.transformInNoY = function() {
+            return this.getInNo().y - 25;
+        };
+        this.transformInNo = function() {
+            return this.getInNo().val;
+        };
+        this.transformOutNoX = function() {
+            return this.getOutNo().x - 10;
+        };
+        this.transformOutNoY = function() {
+            return this.getOutNo().y - 25;
+        };
+        this.transformOutNo = function() {
+            return this.getOutNo().val;
+        };
+        this.transformInNoRectX = function() {
+            return this.getInNo().x - 13;
+        };
+        this.transformInNoRectY = function() {
+            return this.getInNo().y - 36;
+        };
+        this.transformOutNoRectX = function() {
+            return this.getOutNo().x - 13;
+        };
+        this.transformOutNoRectY = function() {
+            return this.getOutNo().y - 36;
+        };
+        this.transformInNoRectWidth = function() {
+            return (this.getInNo().val.toString().length * 6) + 6;
+        };
+        this.transformOutNoRectWidth = function() {
+            return (this.getOutNo().val.toString().length * 6) + 6;
         };
     };
     // static
-    TurnRestrictionItem.getDistance = function(p1, p2) {
-
-        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
-        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
-
-        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
-        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
-
-        var a = x1 - x2;
-        var b = y1 - y2;
-
-        return Math.sqrt(a * a + b * b);
-    };
-    TurnRestrictionItem.findMiddle = function(p1, p2, d, dif) {
-        var x1 = Math.floor(context.projection([p1.lon, p1.lat])[0]);
-        var y1 = Math.floor(context.projection([p1.lon, p1.lat])[1]);
-
-        var x2 = Math.floor(context.projection([p2.lon, p2.lat])[0]);
-        var y2 = Math.floor(context.projection([p2.lon, p2.lat])[1]);
-
-        var a = x2 - x1;
-        var b = y2 - y1;
-
-        dif = d - dif;
-
-        var newX = (a * dif) / d;
-        var newY = (b * dif) / d;
-
-        newX = newX + x1;
-        newY = newY + y1;
-
-        return '' + newX + ',' + newY;
-    };
-    TurnRestrictionItem.splitSegment = function(segment) {
-        var length = 0;
-        var distances = [];
-        for (var i = 0; i < segment.length - 1; i++) {
-            var d = TurnRestrictionItem.getDistance(segment[i], segment[i + 1]);
-            length += d;
-            distances.push(d);
-        }
-        var target = length / 2;
-        length = 0;
-        var location = 0;
-        for (var i = 0; i < segment.length - 1; i++) {
-            length += distances[i];
-            if (length > target) {
-                location = i;
-                break;
-            }
-        }
-
-        var newPoint = TurnRestrictionItem.findMiddle(
-            segment[location],
-            segment[location + 1],
-            distances[location],
-            length - target
-        );
-
-        return {
-            newPoint: newPoint,
-            index: location
-        };
-    };
     TurnRestrictionItem.prototype = new MapItem();
-    TurnRestrictionItem.transformX = function(item) {
-        return Math.floor(context.projection([item.point.lon, item.point.lat])[0]);
-    };
-    TurnRestrictionItem.transformY= function(item) {
-        return Math.floor(context.projection([item.point.lon, item.point.lat])[1]);
-    };
-    TurnRestrictionItem.transformLinePoints = function(item) {
-        var stringPoints = [];
-        for (var i = 0; i < item.segments.length; i++) {
-            for (var j = 0; j < item.segments[i].points.length; j++) {
-                var point = context.projection([item.segments[i].points[j].lon, item.segments[i].points[j].lat]);
-                stringPoints.push(point.toString());
-            }
-        }
 
-        return stringPoints.join(' ');
-    };
-    TurnRestrictionItem.transformLinePointsOut = function(item) {
-        var rawSegments = [];
-        for (var i = 1; i < item.segments.length; i++) {
-            var rawPoints = [];
-            for (var j = 0; j < item.segments[i].points.length; j++) {
-                //var point = context.projection([item.segments[i].points[j].lon, item.segments[i].points[j].lat]);
-                rawPoints.push(item.segments[i].points[j]);
-            }
-            rawSegments.push(rawPoints);
-        }
-
-        var segments = Utils.orderSegments(rawSegments, item.point);
-
-        var stringPoints = [];
-        for (var i = 0; i < segments.length; i++) {
-            for (var j = 0; j < segments[i].length; j++) {
-                var point = context.projection([segments[i][j].lon, segments[i][j].lat]);
-                stringPoints.push(point.toString());
-            }
-        }
-
-        return stringPoints.join(' ');
-    };
-    TurnRestrictionItem.transformLinePointsIn1 = function(item) {
-        var stringPoints = [];
-        var split = TurnRestrictionItem.splitSegment(item.segments[0].points);
-        for (var j = 0; j < item.segments[0].points.length; j++) {
-            var point = context.projection([item.segments[0].points[j].lon, item.segments[0].points[j].lat]);
-            stringPoints.push(point.toString());
-        }
-        stringPoints.splice(split.index + 1, 0, split.newPoint);
-        stringPoints.splice(split.index + 2, stringPoints.length - (split.index + 1));
-        return stringPoints.join(' ');
-    };
-    TurnRestrictionItem.transformLinePointsIn2 = function(item) {
-        var stringPoints = [];
-        var split = TurnRestrictionItem.splitSegment(item.segments[0].points);
-        for (var j = 0; j < item.segments[0].points.length; j++) {
-            var point = context.projection([item.segments[0].points[j].lon, item.segments[0].points[j].lat]);
-            stringPoints.push(point.toString());
-        }
-        stringPoints.splice(split.index + 1, 0, split.newPoint);
-        stringPoints.splice(0, split.index + 1);
-        return stringPoints.join(' ');
-    };
-    TurnRestrictionItem.transformInNoX = function(item) {
-        return Math.floor(context.projection([lon, lat])[0]);
-    };
-    TurnRestrictionItem.transformInNoY = function(item) {
-        return Math.floor(context.projection([lon, lat])[1]);
-    };
-    TurnRestrictionItem.transformInNoX = function(item) {
-        return item.getInNo().x - 10;
-    };
-    TurnRestrictionItem.transformInNoY = function(item) {
-        return item.getInNo().y - 25;
-    };
-    TurnRestrictionItem.transformInNo = function(item) {
-        return item.getInNo().val;
-    };
-    TurnRestrictionItem.transformOutNoX = function(item) {
-        return item.getOutNo().x - 10;
-    };
-    TurnRestrictionItem.transformOutNoY = function(item) {
-        return item.getOutNo().y - 25;
-    };
-    TurnRestrictionItem.transformOutNo = function(item) {
-        return item.getOutNo().val;
-    };
-
-    TurnRestrictionItem.transformInNoRectX = function(item) {
-        return item.getInNo().x - 13;
-    };
-    TurnRestrictionItem.transformInNoRectY = function(item) {
-        return item.getInNo().y - 36;
-    };
-    TurnRestrictionItem.transformOutNoRectX = function(item) {
-        return item.getOutNo().x - 13;
-    };
-    TurnRestrictionItem.transformOutNoRectY = function(item) {
-        return item.getOutNo().y - 36;
-    };
-    TurnRestrictionItem.transformInNoRectWidth = function(item) {
-        return (item.getInNo().val.toString().length * 6) + 6;
-    };
-    TurnRestrictionItem.transformOutNoRectWidth = function(item) {
-        return (item.getOutNo().val.toString().length * 6) + 6;
-    };
     // ==============================
     // ==============================
     // MissingRoadIcon
@@ -728,7 +703,7 @@ iD.TelenavLayer = function (context) {
                     This.highlight(false);
                 });
                 gElement.on('click', function() {
-                    MapItem.handleSelection(This);
+                    This.handleSelection();
                 });
             }
         };
@@ -764,79 +739,14 @@ iD.TelenavLayer = function (context) {
             var endY = Math.floor(context.projection([endLon, endLat])[1]);
             return Math.abs(endY - startY);
         };
+        this.computeX = function(i) {
+            return Math.floor(context.projection([this._points[i].lon, this._points[i].lat])[0]);
+        };
+        this.computeY = function(i) {
+            return Math.floor(context.projection([this._points[i].lon, this._points[i].lat])[1]);
+        };
     };
     MissingRoadItem.prototype = new MapItem();
-    MissingRoadItem.computeX = function(lat, lon) {
-        return Math.floor(context.projection([lon, lat])[0]);
-    };
-    MissingRoadItem.computeY = function(lat, lon) {
-        return Math.floor(context.projection([lon, lat])[1]);
-    };
-    MissingRoadItem.transformTileX = function(item) {
-        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        return Math.floor(context.projection([startLon, startLat])[0]);
-    };
-    MissingRoadItem.transformTileY = function(item) {
-        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        return Math.floor(context.projection([startLon, startLat])[1]);
-    };
-    MissingRoadItem.transformTileWidth = function(item) {
-        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        var startX = Math.floor(context.projection([startLon, startLat])[0]);
-        var endLat = squareCoords.latMin;
-        var endLon = squareCoords.lonMax;
-        var endX = Math.floor(context.projection([endLon, endLat])[0]);
-        return Math.abs(endX - startX);
-    };
-    MissingRoadItem.transformTileHeight = function(item) {
-        var squareCoords = Utils.getTileSquare(item.getX(), item.getY());
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        var startY = Math.floor(context.projection([startLon, startLat])[1]);
-        var endLat = squareCoords.latMin;
-        var endLon = squareCoords.lonMax;
-        var endY = Math.floor(context.projection([endLon, endLat])[1]);
-        return Math.abs(endY - startY);
-    };
-
-    MissingRoadItem.computeTileX = function(x, y) {
-        var squareCoords = Utils.getTileSquare(x, y);
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        return Math.floor(context.projection([startLon, startLat])[0]);
-    };
-    MissingRoadItem.computeTileY = function(x, y) {
-        var squareCoords = Utils.getTileSquare(x, y);
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        return Math.floor(context.projection([startLon, startLat])[1]);
-    };
-    MissingRoadItem.computeTileWidth = function(x, y) {
-        var squareCoords = Utils.getTileSquare(x, y);
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        var startX = Math.floor(context.projection([startLon, startLat])[0]);
-        var endLat = squareCoords.latMin;
-        var endLon = squareCoords.lonMax;
-        var endX = Math.floor(context.projection([endLon, endLat])[0]);
-        return Math.abs(endX - startX);
-    };
-    MissingRoadItem.computeTileHeight = function(x, y) {
-        var squareCoords = Utils.getTileSquare(x, y);
-        var startLat = squareCoords.latMax;
-        var startLon = squareCoords.lonMin;
-        var startY = Math.floor(context.projection([startLon, startLat])[1]);
-        var endLat = squareCoords.latMin;
-        var endLon = squareCoords.lonMax;
-        var endY = Math.floor(context.projection([endLon, endLat])[1]);
-        return Math.abs(endY - startY);
-    };
 
     // ==============================
     // ==============================
@@ -874,7 +784,7 @@ iD.TelenavLayer = function (context) {
                     This.highlight(false);
                 });
                 gElement.on('click', function() {
-                    MapItem.handleSelection(This);
+                    This.handleSelection();
                 });
             }
         };
@@ -902,26 +812,27 @@ iD.TelenavLayer = function (context) {
         this.size = rawItemData.size;
         this.type = type;
         this.pixelRadius = null;
-    };
-    ClusterCircle.transformClass = function(cluster) {
-        return cluster.className;
-    };
-    ClusterCircle.transformType = function(cluster) {
-        return cluster.type;
-    };
-    ClusterCircle.transformX = function(cluster) {
-        return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[0]);
-    };
-    ClusterCircle.transformY = function(cluster) {
-        return Math.floor(context.projection([cluster.point.lon, cluster.point.lat])[1]);
-    };
-    ClusterCircle.transformR = function(cluster) {
-        return cluster.pixelRadius;
+
+        this.transformClass = function() {
+            return this.className;
+        };
+        this.transformType = function() {
+            return this.type;
+        };
+        this.transformX = function() {
+            return Math.floor(context.projection([this.point.lon, this.point.lat])[0]);
+        };
+        this.transformY = function() {
+            return Math.floor(context.projection([this.point.lon, this.point.lat])[1]);
+        };
+        this.transformR = function() {
+            return this.pixelRadius;
+        };
     };
 
     // ==============================
     // ==============================
-    // ClusterCircle
+    // HeatMap
     // ==============================
     // ==============================
     var HeatMap = function(zoom) {
@@ -1124,7 +1035,7 @@ iD.TelenavLayer = function (context) {
                                 item = visibleItems.items[i];
                             }
                         }
-                        MapItem.handleSelection(item);
+                        item.handleSelection();
                     });
                 }
             } else {
@@ -1462,19 +1373,30 @@ iD.TelenavLayer = function (context) {
             var g = svg.selectAll('g.cluster')
                 .data(heatMap.clusters, function(cluster) {
                     return cluster.id;
-                    //return item;
                 });
 
             var enter = g.enter().append('g')
-                .attr('class', ClusterCircle.transformClass)
+                .attr('class', function(item) {
+                    return item.transformClass();
+                })
                 .classed('cluster', true)
-                .attr('id', ClusterCircle.transformId);
+                .attr('id', function(item) {
+                    return item.transformId();
+                });
 
             var circle = enter.append('circle')
-                .attr('class', ClusterCircle.transformType)
-                .attr('cx', ClusterCircle.transformX)
-                .attr('cy', ClusterCircle.transformY)
-                .attr('r', ClusterCircle.transformR);
+                .attr('class', function(item) {
+                    return item.transformType();
+                })
+                .attr('cx', function(item) {
+                    return item.transformX();
+                })
+                .attr('cy', function(item) {
+                    return item.transformY();
+                })
+                .attr('r', function(item) {
+                    return item.transformR();
+                });
 
             g.exit()
                 .remove();
@@ -1508,8 +1430,12 @@ iD.TelenavLayer = function (context) {
 
 
             var enter = g.enter().append('g')
-                .attr('class', MapItem.transformClass)
-                .attr('id', MapItem.transformId);
+                .attr('class', function(item) {
+                    return item.transformClass();
+                })
+                .attr('id', function(item) {
+                    return item.transformId();
+                });
 
             var dOFs = enter.filter(function(item) {
                 return item.isA('DirectionOfFlowItem');
@@ -1538,8 +1464,8 @@ iD.TelenavLayer = function (context) {
                     + ' height=' + d.computeTileHeight()
                     + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
-                    var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
-                    var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                    var cx = d.computeX(i);
+                    var cy = d.computeY(i);
                     html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
                 }
                 html += '<rect x=' + d.computeTileX()
@@ -1552,39 +1478,77 @@ iD.TelenavLayer = function (context) {
             });
 
             var trPolyIn1 = tRs.append('polyline');
-            trPolyIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
+            trPolyIn1.attr('points', function(item) {
+                return item.transformLinePointsIn1();
+            });
             trPolyIn1.attr('class', 'wayIn1');
             var trPolyIn2 = tRs.append('polyline');
-            trPolyIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
+            trPolyIn2.attr('points', function(item) {
+                return item.transformLinePointsIn2();
+            });
             trPolyIn2.attr('class', 'wayIn2');
             tRs.append('rect').attr('class', 'noInRect')
-                .attr('width', TurnRestrictionItem.transformInNoRectWidth)
-                .attr('x', TurnRestrictionItem.transformInNoRectX)
-                .attr('y', TurnRestrictionItem.transformInNoRectY);
+                .attr('width', function(item) {
+                    return item.transformInNoRectWidth();
+                })
+                .attr('x', function(item) {
+                    return item.transformInNoRectX();
+                })
+                .attr('y', function(item) {
+                    return item.transformInNoRectY();
+                });
             tRs.append('text').attr('class', 'inNo')
-                .attr('x', TurnRestrictionItem.transformInNoX)
-                .attr('y', TurnRestrictionItem.transformInNoY)
-                .html(TurnRestrictionItem.transformInNo);
+                .attr('x', function(item) {
+                    return item.transformInNoX();
+                })
+                .attr('y', function(item) {
+                    return item.transformInNoY()
+                })
+                .html(function(item) {
+                    item.transformInNo();
+                });
             tRs.append('rect').attr('class', 'noOutRect')
-                .attr('width', TurnRestrictionItem.transformOutNoRectWidth)
-                .attr('x', TurnRestrictionItem.transformOutNoRectX)
-                .attr('y', TurnRestrictionItem.transformOutNoRectY);
+                .attr('width', function(item) {
+                    return item.transformOutNoRectWidth();
+                })
+                .attr('x', function(item) {
+                    return item.transformOutNoRectX();
+                })
+                .attr('y', function(item) {
+                    return item.transformOutNoRectY();
+                });
             tRs.append('text').attr('class', 'outNo')
-                .attr('x', TurnRestrictionItem.transformOutNoX)
-                .attr('y', TurnRestrictionItem.transformOutNoY)
-                .html(TurnRestrictionItem.transformOutNo);
+                .attr('x', function(item) {
+                    return item.transformOutNoX();
+                })
+                .attr('y', function(item) {
+                    return item.transformOutNoY();
+                })
+                .html(function(item) {
+                    return item.transformOutNo();
+                });
             var trPolyOut = tRs.append('polyline');
-            trPolyOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+            trPolyOut.attr('points', function(item) {
+                return item.transformLinePointsOut();
+            });
             //trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
             trPolyOut.attr('class', 'wayOut');
             var trCircle = tRs.append('circle')
                 .attr('class', 'telenav-tr-marker')
-                .attr('cx', TurnRestrictionItem.transformX)
-                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('cx', function(item) {
+                    return item.transformX();
+                })
+                .attr('cy', function(item) {
+                    return item.transformY();
+                })
                 .attr('r', '20');
             var trSelCircle = tRs.append('circle').attr('class', 'selectable')
-                .attr('cx', TurnRestrictionItem.transformX)
-                .attr('cy', TurnRestrictionItem.transformY)
+                .attr('cx', function(item) {
+                    return item.transformX();
+                })
+                .attr('cy', function(item) {
+                    return item.transformY();
+                })
                 .attr('r', '20');
 
             dOFs.on('mouseover', function(item) {
@@ -1668,8 +1632,12 @@ iD.TelenavLayer = function (context) {
         }
 
         var clusterCircles = svg.selectAll('.ClusterCircle > circle');
-        clusterCircles.attr('cx', ClusterCircle.transformX);
-        clusterCircles.attr('cy', ClusterCircle.transformY);
+        clusterCircles.attr('cx', function(item) {
+            return item.transformX();
+        });
+        clusterCircles.attr('cy', function(item) {
+            return item.transformY();
+        });
 
         var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline.main');
         directionOfFlowPolylines.attr('points', function(item) {
@@ -1689,8 +1657,8 @@ iD.TelenavLayer = function (context) {
                 + ' height=' + d.computeTileHeight()
                 + '></rect>';
             for (var i = 0; i < d._points.length; i++) {
-                var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
-                var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
+                var cx = d.computeX(i);
+                var cy = d.computeY(i);
                 html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
             }
             html += '<rect x=' + d.computeTileX()
@@ -1703,36 +1671,70 @@ iD.TelenavLayer = function (context) {
         });
 
         var trCircle = svg.selectAll('.TurnRestrictionItem > circle');
-        trCircle.attr('cx', TurnRestrictionItem.transformX);
-        trCircle.attr('cy', TurnRestrictionItem.transformY);
+        trCircle.attr('cx', function(item) {
+            return item.transformX();
+        });
+        trCircle.attr('cy', function(item) {
+            return item.transformY();
+        });
         var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.selectable');
-        trSelCircle.attr('cx', TurnRestrictionItem.transformX);
-        trSelCircle.attr('cy', TurnRestrictionItem.transformY);
+        trSelCircle.attr('cx', function(item) {
+            return item.transformX();
+        });
+        trSelCircle.attr('cy', function(item) {
+            return item.transformY();
+        });
         var turnRestrictionPolylinesIn1 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn1');
-        turnRestrictionPolylinesIn1.attr('points', TurnRestrictionItem.transformLinePointsIn1);
+        turnRestrictionPolylinesIn1.attr('points', function(item) {
+            return item.transformLinePointsIn1();
+        });
         var turnRestrictionPolylinesIn2 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn2');
-        turnRestrictionPolylinesIn2.attr('points', TurnRestrictionItem.transformLinePointsIn2);
+        turnRestrictionPolylinesIn2.attr('points', function(item) {
+            return item.transformLinePointsIn2();
+        });
         var turnRestrictionPolylinesOut = svg.selectAll('.TurnRestrictionItem > polyline.wayOut');
-        turnRestrictionPolylinesOut.attr('points', TurnRestrictionItem.transformLinePointsOut);
+        turnRestrictionPolylinesOut.attr('points', function(item) {
+            return item.transformLinePointsOut();
+        });
 
         var tRinNo = svg.selectAll('.TurnRestrictionItem > text.inNo');
         tRinNo
-            .attr('x', TurnRestrictionItem.transformInNoX)
-            .attr('y', TurnRestrictionItem.transformInNoY)
-            .html(TurnRestrictionItem.transformInNo);
+            .attr('x', function(item) {
+                return item.transformInNoX();
+            })
+            .attr('y', function(item) {
+                return item.transformInNoY()
+            })
+            .html(function(item) {
+                item.transformInNo();
+            });
         var tRinNoInRect = svg.selectAll('.TurnRestrictionItem > rect.noInRect');
         tRinNoInRect
-            .attr('x', TurnRestrictionItem.transformInNoRectX)
-            .attr('y', TurnRestrictionItem.transformInNoRectY);
+            .attr('x', function(item) {
+                return item.transformInNoRectX();
+            })
+            .attr('y', function(item) {
+                return item.transformInNoRectY();
+            });
         var tRinNo = svg.selectAll('.TurnRestrictionItem > text.outNo');
         tRinNo
-            .attr('x', TurnRestrictionItem.transformOutNoX)
-            .attr('y', TurnRestrictionItem.transformOutNoY)
-            .html(TurnRestrictionItem.transformOutNo);
+            .attr('x', function(item) {
+                return item.transformOutNoX();
+            })
+            .attr('y', function(item) {
+                return item.transformOutNoY();
+            })
+            .html(function(item) {
+                return item.transformOutNo();
+            });
         var tRinNoOutRect = svg.selectAll('.TurnRestrictionItem > rect.noOutRect');
         tRinNoOutRect
-            .attr('x', TurnRestrictionItem.transformOutNoRectX)
-            .attr('y', TurnRestrictionItem.transformOutNoRectY);
+            .attr('x', function(item) {
+                return item.transformOutNoRectX();
+            })
+            .attr('y', function(item) {
+                return item.transformOutNoRectY();
+            });
 
         var extent = context.map().extent();
 
