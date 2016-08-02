@@ -45,6 +45,9 @@ iD.TelenavLayer = function (context) {
         requestQueue = [],
 
         visibleItems = null,
+        _highlightedItemLayer = null,
+        _unselectedNonClusteredLayer = null,
+        _deselectionLayer = null,
 
         status = 'OPEN',
         heatMap = null,
@@ -268,10 +271,6 @@ iD.TelenavLayer = function (context) {
                 var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
                 var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
                 var gElem = svg.append('g').attr('class', 'tr-node');
-                //var circleElem = gElem.append('circle')
-                //    .attr('cx', cx)
-                //    .attr('cy', cy)
-                //    .attr('r', 10);
                 var textElem = gElem.append('text')
                     .attr('x', cx - 5)
                     .attr('y', cy + 7)
@@ -433,12 +432,7 @@ iD.TelenavLayer = function (context) {
             _editPanel.selectedItemDetails(item);
         }
     };
-    MapItem.handleMouseOver = function(item) {
-        item.highlight(item, true);
-    };
-    MapItem.handleMouseOut = function(item) {
-        item.highlight(item, false);
-    };
+
     // ==============================
     // ==============================
     // ClusteredItemView
@@ -450,10 +444,6 @@ iD.TelenavLayer = function (context) {
         this.id = 'tr_' + rawItemData.id.replace(/\:/g,'_').replace(/\+/g,'_').replace(/\#/g,'_');
         this.point = rawItemData.point;
         this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
-
-        this.highlight = function(item, highlight) {
-
-        };
     };
 
     // ==============================
@@ -500,10 +490,28 @@ iD.TelenavLayer = function (context) {
                 y: Math.floor(context.projection([x, y])[1])
             }
         };
-        this.highlight = function(item, highlight) {
-            d3.selectAll('#' + item.id)
-                .classed('highlightOn', highlight)
-                .classed('highlightOff', !highlight);
+        this.highlight = function(highlight) {
+            _highlightedItemLayer.selectAll('*').remove();
+            if (highlight) {
+                var This = this;
+                var gElement = _highlightedItemLayer.append('g').attr('class', 'trItem');
+                var circle = gElement.append('circle');
+                circle.attr('cx', this.transformX());
+                circle.attr('cy', this.transformY());
+                circle.attr('r', '20');
+                gElement.on('mouseout', function() {
+                    This.highlight(false);
+                });
+                gElement.on('click', function() {
+                    MapItem.handleSelection(This);
+                });
+            }
+        };
+        this.transformX = function() {
+            return Math.floor(context.projection([this.point.lon, this.point.lat])[0]);
+        };
+        this.transformY= function() {
+            return Math.floor(context.projection([this.point.lon, this.point.lat])[1]);
         };
     };
     // static
@@ -691,7 +699,8 @@ iD.TelenavLayer = function (context) {
         this.status = rawItemData.status;
         this.timestamp = rawItemData.timestamp * 1000; // JS needs miliseconds
         this.spotId = [rawItemData.x, rawItemData.y].join(',');
-
+        this.x = rawItemData.x;
+        this.y = rawItemData.y;
 
         this.getX = function() {
             return rawItemData.x;
@@ -705,10 +714,55 @@ iD.TelenavLayer = function (context) {
                 y: rawItemData.y
             }];
         };
-        this.highlight = function(item, highlight) {
-            d3.selectAll('#' + item.id)
-                .classed('highlightOn', highlight)
-                .classed('highlightOff', !highlight);
+        this.highlight = function(highlight) {
+            _highlightedItemLayer.selectAll('*').remove();
+            if (highlight) {
+                var This = this;
+                var gElement = _highlightedItemLayer.append('g').attr('class', 'mrItem');
+                var rect = gElement.append('rect');
+                rect.attr('x', this.computeTileX());
+                rect.attr('y', this.computeTileY());
+                rect.attr('width', this.computeTileWidth());
+                rect.attr('height', this.computeTileHeight());
+                gElement.on('mouseout', function() {
+                    This.highlight(false);
+                });
+                gElement.on('click', function() {
+                    MapItem.handleSelection(This);
+                });
+            }
+        };
+        this.computeTileX = function() {
+            var squareCoords = Utils.getTileSquare(this.x, this.y);
+            var startLat = squareCoords.latMax;
+            var startLon = squareCoords.lonMin;
+            return Math.floor(context.projection([startLon, startLat])[0]);
+        };
+        this.computeTileY = function() {
+            var squareCoords = Utils.getTileSquare(this.x, this.y);
+            var startLat = squareCoords.latMax;
+            var startLon = squareCoords.lonMin;
+            return Math.floor(context.projection([startLon, startLat])[1]);
+        };
+        this.computeTileWidth = function() {
+            var squareCoords = Utils.getTileSquare(this.x, this.y);
+            var startLat = squareCoords.latMax;
+            var startLon = squareCoords.lonMin;
+            var startX = Math.floor(context.projection([startLon, startLat])[0]);
+            var endLat = squareCoords.latMin;
+            var endLon = squareCoords.lonMax;
+            var endX = Math.floor(context.projection([endLon, endLat])[0]);
+            return Math.abs(endX - startX);
+        };
+        this.computeTileHeight = function() {
+            var squareCoords = Utils.getTileSquare(this.x, this.y);
+            var startLat = squareCoords.latMax;
+            var startLon = squareCoords.lonMin;
+            var startY = Math.floor(context.projection([startLon, startLat])[1]);
+            var endLat = squareCoords.latMin;
+            var endLon = squareCoords.lonMax;
+            var endY = Math.floor(context.projection([endLon, endLat])[1]);
+            return Math.abs(endY - startY);
         };
     };
     MissingRoadItem.prototype = new MapItem();
@@ -809,20 +863,32 @@ iD.TelenavLayer = function (context) {
                 toNodeId: rawItemData.toNodeId
             }];
         };
-        this.highlight = function(item, highlight) {
-            // TODO: highlight
+        this.highlight = function(highlight) {
+            _highlightedItemLayer.selectAll('*').remove();
+            if (highlight) {
+                var This = this;
+                var gElement = _highlightedItemLayer.append('g').attr('class', 'owItem');
+                var line = gElement.append('polyline');
+                line.attr('points', this.transformLinePoints());
+                gElement.on('mouseout', function() {
+                    This.highlight(false);
+                });
+                gElement.on('click', function() {
+                    MapItem.handleSelection(This);
+                });
+            }
+        };
+        this.transformLinePoints = function() {
+            var stringPoints = [];
+            for (var i = 0; i < this.getPoints().length; i++) {
+                var point = context.projection([this.getPoints()[i].lon, this.getPoints()[i].lat]);
+                stringPoints.push(point.toString());
+            }
+            return stringPoints.join(' ');
         };
 
     };
     DirectionOfFlowItem.prototype = new MapItem();
-    DirectionOfFlowItem.transformLinePoints = function(item) {
-        var stringPoints = [];
-        for (var i = 0; i < item.getPoints().length; i++) {
-            var point = context.projection([item.getPoints()[i].lon, item.getPoints()[i].lat]);
-            stringPoints.push(point.toString());
-        }
-        return stringPoints.join(' ');
-    };
 
     // ==============================
     // ==============================
@@ -1429,16 +1495,15 @@ iD.TelenavLayer = function (context) {
 
         if (!--requestCount) {
             if (error) {
-                svg.selectAll('g.item')
+                _unselectedNonClusteredLayer.selectAll('g.item')
                     .remove();
                 return;
             }
             selectedItems.update(visibleItems.items);
 
-            var g = svg.selectAll('g.item')
+            var g = _unselectedNonClusteredLayer.selectAll('g.item')
                 .data(visibleItems.items, function(item) {
                     return item.id;
-                    //return item;
                 });
 
 
@@ -1457,26 +1522,30 @@ iD.TelenavLayer = function (context) {
             });
 
             var dofPoly = dOFs.append('polyline').attr('class', 'main');
-            dofPoly.attr('points', DirectionOfFlowItem.transformLinePoints);
+            dofPoly.attr('points', function(item) {
+                return item.transformLinePoints();
+            });
             var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
-            owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
+            owHighlight.attr('points', function(item) {
+                return item.transformLinePoints();
+            });
 
             mRs.html(function(d) {
                 var html = '';
-                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                html += '<rect x=' + d.computeTileX()
+                    + ' y=' + d.computeTileY()
+                    + ' width=' + d.computeTileWidth()
+                    + ' height=' + d.computeTileHeight()
                     + '></rect>';
                 for (var i = 0; i < d._points.length; i++) {
                     var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                     var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
                     html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
                 }
-                html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                    + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                    + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                    + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+                html += '<rect x=' + d.computeTileX()
+                    + ' y=' + d.computeTileY()
+                    + ' width=' + d.computeTileWidth()
+                    + ' height=' + d.computeTileHeight()
                     + ' class="selectable"'
                     + '></rect>';
                 return html;
@@ -1518,17 +1587,15 @@ iD.TelenavLayer = function (context) {
                 .attr('cy', TurnRestrictionItem.transformY)
                 .attr('r', '20');
 
-            dOFs.on('click', MapItem.handleSelection);
-            mRs.on('click', MapItem.handleSelection);
-            tRs.on('click', MapItem.handleSelection);
-
-            //dOFs.on('mouseover', MapItem.handleMouseOver);
-            //mRs.on('mouseover', MapItem.handleMouseOver);
-            //tRs.on('mouseover', MapItem.handleMouseOver);
-
-            //dOFs.on('mouseout', MapItem.handleMouseOut);
-            //mRs.on('mouseout', MapItem.handleMouseOut);
-            //tRs.on('mouseout', MapItem.handleMouseOut);
+            dOFs.on('mouseover', function(item) {
+                item.highlight(true);
+            });
+            mRs.on('mouseover', function(item) {
+                item.highlight(true);
+            });
+            tRs.on('mouseover', function(item) {
+                item.highlight(true);
+            });
 
             trNodes.render(visibleItems.items);
 
@@ -1542,48 +1609,57 @@ iD.TelenavLayer = function (context) {
 
         var zoom = Math.floor(context.map().zoom());
 
-        //if (zoom >= 15) {
-            d3.select("#sidebar").classed('telenavPaneActive', enable);
-            d3.select(".pane-telenav").classed('hidden', !enable);
-        //} else {
-            //d3.select("#sidebar").classed('telenavPaneActive', false);
-            //d3.select(".pane-telenav").classed('hidden', true);
-        //}
+        d3.select("#sidebar").classed('telenavPaneActive', enable);
+        d3.select(".pane-telenav").classed('hidden', !enable);
 
         svg = selection.selectAll('svg')
             .data([0]);
 
         svg.enter().append('svg');
 
-        // *****************************
-        // HANDLING OF CLICK DESELECTION
-        // *****************************
+
         svg.selectAll('g.deselectSurface')
             .remove();
-        var deselectionRectangle = svg
-            .insert('g', ':first-child')
-                .attr('class', 'deselectSurface')
-                .append('rect')
-                    .attr('width', svg.attr('width'))
-                    .attr('height', svg.attr('height'));
-        deselectionRectangle.on('click', function() {
-            if (selectedItems.getSize() > 0) {
-                svg.selectAll('g').classed('selected', false);
-                selectedItems.empty();
-                _editPanel.goToMain();
-            }
-        });
 
         // *****************************
         // HANDLING OF CLICK DESELECTION
         // *****************************
+        if (svg.selectAll('g.deselectSurface').empty()) {
+            _deselectionLayer = svg
+                .insert('g', ':first-child')
+                .attr('class', 'deselectSurface')
+                .append('rect')
+                .attr('width', svg.attr('width'))
+                .attr('height', svg.attr('height'));
+            _deselectionLayer.on('click', function () {
+                if (selectedItems.getSize() > 0) {
+                    svg.selectAll('g').classed('selected', false);
+                    selectedItems.empty();
+                    _editPanel.goToMain();
+                }
+            });
+        }
+
+        // *********************************
+        // ADDING LAYERS THE FIRST TIME ONLY
+        // *********************************
+        if (svg.selectAll('g.unselectedNonClusteredLayer').empty()) {
+            _unselectedNonClusteredLayer = svg
+                .append('g')
+                .attr('class', 'unselectedNonClusteredLayer');
+        }
+        if (svg.selectAll('g.highlightedItemLayer').empty()) {
+            _highlightedItemLayer = svg
+                .append('g')
+                .attr('class', 'highlightedItemLayer');
+        }
 
         svg.style('display', enable ? 'block' : 'none');
 
 
         if (!enable) {
 
-            svg.selectAll('g.item')
+            svg.selectAll('g.unselectedNonClusteredLayer g.item')
                 .remove();
             svg.selectAll('g.cluster')
                 .remove();
@@ -1596,27 +1672,31 @@ iD.TelenavLayer = function (context) {
         clusterCircles.attr('cy', ClusterCircle.transformY);
 
         var directionOfFlowPolylines = svg.selectAll('.DirectionOfFlowItem > polyline.main');
-        directionOfFlowPolylines.attr('points', DirectionOfFlowItem.transformLinePoints);
+        directionOfFlowPolylines.attr('points', function(item) {
+            return item.transformLinePoints();
+        });
         var owHighlight = svg.selectAll('.DirectionOfFlowItem > polyline.selectable');
-        owHighlight.attr('points', DirectionOfFlowItem.transformLinePoints);
+        owHighlight.attr('points', function(item) {
+            return item.transformLinePoints();
+        });
 
         var missingRoadsCircles = svg.selectAll('.MissingRoadItem');
         missingRoadsCircles.html(function(d) {
             var html = '';
-            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+            html += '<rect x=' + d.computeTileX()
+                + ' y=' + d.computeTileY()
+                + ' width=' + d.computeTileWidth()
+                + ' height=' + d.computeTileHeight()
                 + '></rect>';
             for (var i = 0; i < d._points.length; i++) {
                 var cx = MissingRoadItem.computeX(d._points[i].lat, d._points[i].lon);
                 var cy = MissingRoadItem.computeY(d._points[i].lat, d._points[i].lon);
                 html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
             }
-            html += '<rect x=' + MissingRoadItem.computeTileX(d.getX(), d.getY())
-                + ' y=' + MissingRoadItem.computeTileY(d.getX(), d.getY())
-                + ' width=' + MissingRoadItem.computeTileWidth(d.getX(), d.getY())
-                + ' height=' + MissingRoadItem.computeTileHeight(d.getX(), d.getY())
+            html += '<rect x=' + d.computeTileX()
+                + ' y=' + d.computeTileY()
+                + ' width=' + d.computeTileWidth()
+                + ' height=' + d.computeTileHeight()
                 + ' class="selectable"'
                 + '></rect>';
             return html;
@@ -1703,7 +1783,7 @@ iD.TelenavLayer = function (context) {
             }
             _editPanel.enableActivationSwitch(true);
         } else if (requestUrlQueue.length !== 0) {
-            svg.selectAll('g.item')
+            svg.selectAll('g.unselectedNonClusteredLayer g.item')
                 .remove();
             heatMap = new HeatMap(zoom);
             _editPanel.enableActivationSwitch(false);
@@ -1716,7 +1796,7 @@ iD.TelenavLayer = function (context) {
                 }(type);
             }
         } else {
-            svg.selectAll('g.item')
+            svg.selectAll('g.unselectedNonClusteredLayer g.item')
                 .remove();
             svg.selectAll('g.cluster')
                 .remove();
