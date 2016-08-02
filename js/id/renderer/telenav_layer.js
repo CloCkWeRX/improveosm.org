@@ -813,6 +813,9 @@ iD.TelenavLayer = function (context) {
         this.type = type;
         this.pixelRadius = null;
 
+        this.transformId = function() {
+            return this.id;
+        };
         this.transformClass = function() {
             return this.className;
         };
