@@ -3443,6 +3443,9 @@ div.full-screen > button:hover {
 .ui-dialog {
     padding: 0;
 }
+.ui-dialog .ui-dialog-content {
+    overflow: hidden;
+}
 .btn-primary {
     height: 30px;
     color: white;
@@ -3451,7 +3454,7 @@ div.full-screen > button:hover {
     padding: 0 15px;
 }
 .input-group .form-control {
-    width: calc(100% - 88px);
+    width: calc(100% - 89px);
 }
 .btn-primary:focus,
 .btn-primary:hover,
