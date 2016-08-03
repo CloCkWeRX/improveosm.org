@@ -49,9 +49,9 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-red')
-            .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('fill', '#f00');
+                .attr('class', 'telenav-arrow-red')
+                .attr('d', 'M0,0 L0,2 L3,1 z')
+                .attr('fill', '#f00');
 
         // green arrow
         defs.append('marker')
@@ -65,9 +65,9 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-green')
-            .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('fill', '#00CD00');
+                .attr('class', 'telenav-arrow-green')
+                .attr('d', 'M0,0 L0,2 L3,1 z')
+                .attr('fill', '#00CD00');
 
         defs.append('marker')
             .attr({
@@ -80,9 +80,9 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-orange')
-            .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('fill', '#EE7600');
+                .attr('class', 'telenav-arrow-orange')
+                .attr('d', 'M0,0 L0,2 L3,1 z')
+                .attr('fill', '#EE7600');
 
         defs.append('marker')
             .attr({
@@ -95,9 +95,9 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-purple')
-            .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('fill', '#DC143C');
+                .attr('class', 'telenav-arrow-purple')
+                .attr('d', 'M0,0 L0,2 L3,1 z')
+                .attr('fill', '#DC143C');
 
         defs.append('marker')
             .attr({
@@ -110,9 +110,9 @@ iD.svg.Defs = function(context) {
                 orient: 'auto'
             })
             .append('path')
-            .attr('class', 'telenav-arrow-black')
-            .attr('d', 'M0,0 L0,2 L3,1 z')
-            .attr('fill', '#000');
+                .attr('class', 'telenav-arrow-black')
+                .attr('d', 'M0,0 L0,2 L3,1 z')
+                .attr('fill', '#000');
 
         // patterns
         var patterns = defs.selectAll('pattern')

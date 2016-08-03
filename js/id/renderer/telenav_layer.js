@@ -227,6 +227,9 @@ iD.TelenavLayer = function (context) {
         };
 
         this.empty = function() {
+            for (var i = 0; i < this.items.length; i++) {
+                this.items[i].select(false);
+            }
             this.items.length = 0;
         };
         this.getSize = function() {
@@ -392,6 +395,10 @@ iD.TelenavLayer = function (context) {
         this.rawItems = [];
         this.items = [];
 
+        this.normalItems = [];
+        this.clusteredItems = [];
+        this.selectedItems = [];
+
         this.loadOneWays = function(rawData) {
             for (var i = 0; i < rawData.length; i++) {
                 var item = rawData[i];
@@ -443,6 +450,13 @@ iD.TelenavLayer = function (context) {
         this.select = function(select) {
             var node = d3.select('#' + this.id);
             node.classed('selected', select);
+            if (this.className === 'DirectionOfFlowItem') {
+                if (select) {
+                    node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-purple)');
+                } else {
+                    node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-orange)');
+                }
+            }
             this.selected = select;
         };
         this.transformId = function() {
@@ -779,6 +793,7 @@ iD.TelenavLayer = function (context) {
                 var This = this;
                 var gElement = _highlightedItemLayer.append('g').attr('class', 'owItem');
                 var line = gElement.append('polyline');
+                line.style('marker-end', 'url(#telenav-arrow-black)');
                 line.attr('points', this.transformLinePoints());
                 gElement.on('mouseout', function() {
                     This.highlight(false);
@@ -1450,7 +1465,10 @@ iD.TelenavLayer = function (context) {
                 return item.isA('TurnRestrictionItem');
             });
 
-            var dofPoly = dOFs.append('polyline').attr('class', 'main');
+            var dofPoly = dOFs.append('polyline')
+            dofPoly.attr('class', 'main')
+            dofPoly.style('marker-end', 'url(#telenav-arrow-orange)');
+
             dofPoly.attr('points', function(item) {
                 return item.transformLinePoints();
             });
@@ -1485,6 +1503,7 @@ iD.TelenavLayer = function (context) {
                 return item.transformLinePointsIn1();
             });
             trPolyIn1.attr('class', 'wayIn1');
+            trPolyIn1.style('marker-end', 'url(#telenav-arrow-green)');
             var trPolyIn2 = tRs.append('polyline');
             trPolyIn2.attr('points', function(item) {
                 return item.transformLinePointsIn2();
@@ -1494,6 +1513,7 @@ iD.TelenavLayer = function (context) {
                 .attr('width', function(item) {
                     return item.transformInNoRectWidth();
                 })
+                .attr('height', '16')
                 .attr('x', function(item) {
                     return item.transformInNoRectX();
                 })
@@ -1514,6 +1534,7 @@ iD.TelenavLayer = function (context) {
                 .attr('width', function(item) {
                     return item.transformOutNoRectWidth();
                 })
+                .attr('height', '16')
                 .attr('x', function(item) {
                     return item.transformOutNoRectX();
                 })
@@ -1534,8 +1555,8 @@ iD.TelenavLayer = function (context) {
             trPolyOut.attr('points', function(item) {
                 return item.transformLinePointsOut();
             });
-            //trPolyOut.attr('marker-start', 'url(#telenav-tr-marker)');
             trPolyOut.attr('class', 'wayOut');
+            trPolyOut.style('marker-end', 'url(#telenav-arrow-red)');
             var trCircle = tRs.append('circle')
                 .attr('class', 'telenav-tr-marker')
                 .attr('cx', function(item) {
@@ -1600,7 +1621,6 @@ iD.TelenavLayer = function (context) {
                 .attr('height', svg.attr('height'));
             _deselectionLayer.on('click', function () {
                 if (selectedItems.getSize() > 0) {
-                    svg.selectAll('g').classed('selected', false);
                     selectedItems.empty();
                     _editPanel.goToMain();
                 }

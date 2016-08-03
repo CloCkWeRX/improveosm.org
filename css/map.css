@@ -1662,10 +1662,6 @@ text.gpx {
     display: block;
 }
 
-.layer-telenav svg g.TurnRestrictionItem polyline.wayIn1 {
-    marker-end: url(#telenav-arrow-green);
-}
-
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
 .layer-telenav svg g.TurnRestrictionItem polyline.wayIn2 {
     stroke-width: 3;
@@ -1687,8 +1683,6 @@ text.gpx {
     stroke-width: 3;
     stroke: #FF0000;
     fill: none;
-
-    marker-end: url(#telenav-arrow-red);
 
     animation-name: pulsingThickness-3-12;
     animation-duration: 1s;
@@ -1795,10 +1789,6 @@ text.gpx {
     fill: none;
 }
 
-.layer-telenav svg g.DirectionOfFlowItem polyline.main {
-    marker-end: url(#telenav-arrow-orange);
-}
-
 /* --- EXTENDED SELECTABLE ZONE -----------------*/
 .layer-telenav.editMode svg g.DirectionOfFlowItem polyline.selectable {
     stroke-width: 20;
@@ -1810,14 +1800,11 @@ text.gpx {
     stroke: black;
     stroke-width: 20;
     opacity: .5;
-    marker-end: url(#telenav-arrow-black);
 }
 
 /* --- PULSATING SELECTION ----------------------*/
 .layer-telenav svg g.DirectionOfFlowItem.selected polyline.main {
     stroke: #DC143C;
-
-    marker-end: url(#telenav-arrow-purple);
 
     animation-name: pulsingThickness-3-12;
     animation-duration: 1s;
