@@ -45,9 +45,6 @@ iD.TelenavLayer = function (context) {
         requestQueue = [],
 
         visibleItems = null,
-        _highlightedItemLayer = null,
-        _unselectedNonClusteredLayer = null,
-        _deselectionLayer = null,
 
         status = 'OPEN',
         heatMap = null,
@@ -222,9 +219,9 @@ iD.TelenavLayer = function (context) {
         // ---
         this.items = items;
 
-        this.add = function(item) {
-            this.items.push(item);
-        };
+        //this.add = function(item) {
+        //    this.items.push(item);
+        //};
 
         this.empty = function() {
             for (var i = 0; i < this.items.length; i++) {
@@ -232,15 +229,15 @@ iD.TelenavLayer = function (context) {
             }
             this.items.length = 0;
         };
-        this.getSize = function() {
-            return this.items.length;
-        };
-        this.getItem = function(index) {
-            if (index >= this.items.length) {
-                throw new Error('SelectedItems : getItem - problem');
-            }
-            return this.items[index];
-        };
+        //this.getSize = function() {
+        //    return this.items.length;
+        //};
+        //this.getItem = function(index) {
+        //    if (index >= this.items.length) {
+        //        throw new Error('SelectedItems : getItem - problem');
+        //    }
+        //    return this.items[index];
+        //};
         this.getItemById = function(id) {
             var neededItem = null;
             for (var i = 0; i < this.items.length; i++) {
@@ -254,18 +251,18 @@ iD.TelenavLayer = function (context) {
             return neededItem;
         };
 
-        this.removeItemById = function(id) {
-            var neededItem = null;
-            for (var i = 0; i < this.items.length; i++) {
-                if (this.items[i].id === id) {
-                    this.items.splice(i, 1);
-                }
-            }
-            if (neededItem == null) {
-                throw new Error('SelectedItems : removeItemById - problem');
-            }
-            return neededItem;
-        };
+        //this.removeItemById = function(id) {
+        //    var neededItem = null;
+        //    for (var i = 0; i < this.items.length; i++) {
+        //        if (this.items[i].id === id) {
+        //            this.items.splice(i, 1);
+        //        }
+        //    }
+        //    if (neededItem == null) {
+        //        throw new Error('SelectedItems : removeItemById - problem');
+        //    }
+        //    return neededItem;
+        //};
 
         this.getSiblings = function(id, combinedItems) {
             var neededItem = null;
@@ -306,18 +303,6 @@ iD.TelenavLayer = function (context) {
             };
         };
 
-        this.update = function(combinedItems) {
-            for (var i = 0; i < combinedItems.length; i++) {
-                for (var j = 0; j < this.items.length; j++) {
-                    if (combinedItems[i].id === this.items[j].id) {
-                        if (!combinedItems[i].selected) {
-                            combinedItems[i].selected = true;
-                        }
-                    }
-                }
-            }
-        };
-
     };
 
     // ==============================
@@ -326,62 +311,22 @@ iD.TelenavLayer = function (context) {
     // ==============================
     // ==============================
     var TRNodes = function(nodes) {
-        // ---
-        this.nodes = nodes;
 
-        this.render = function(combinedItems) {
-            this.update(combinedItems);
-            svg.selectAll('g.tr-node')
-                .remove();
-            for (var i = 0; i < this.nodes.length; i++) {
-                var node = this.nodes[i];
-                var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
-                var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
-                var gElem = svg.append('g').attr('class', 'tr-node');
-                var textElem = gElem.append('text')
-                    .attr('x', cx - 5)
-                    .attr('y', cy + 7)
-                    .html(node.amount);
-            }
-        };
-
-        this.update = function(combinedItems) {
-            this.nodes.length = 0;
-            var nodeMap = {};
-            for (var i = 0; i < combinedItems.length; i++) {
-                var item = combinedItems[i];
-                if (item.className === 'TurnRestrictionItem') {
-                    var key = item.point.lat + ',' + item.point.lon;
-                    if (!nodeMap.hasOwnProperty(key)) {
-                        var siblingsFound = 0;
-                        for (var j = i + 1; j < combinedItems.length; j++) {
-                            var checkedItem = combinedItems[j];
-                            if (checkedItem.className === 'TurnRestrictionItem') {
-                                if (
-                                    (checkedItem.point.lat === item.point.lat) &&
-                                    (checkedItem.point.lon === item.point.lon)
-                                ) {
-                                    siblingsFound++;
-                                }
-                            }
-                        }
-                        if (siblingsFound > 0) {
-                            nodeMap[key] = siblingsFound + 1;
-                        }
-                    }
-                }
-            }
-            for (var key in nodeMap) {
-                if (nodeMap.hasOwnProperty(key)) {
-                    var coordinates = key.split(',');
-                    this.nodes.push({
-                        lat: parseFloat(coordinates[0]),
-                        lon: parseFloat(coordinates[1]),
-                        amount: nodeMap[key]
-                    });
-                }
-            }
-        };
+        //this.render = function(combinedItems) {
+        //    this.update(combinedItems);
+        //    svg.selectAll('g.tr-node')
+        //        .remove();
+        //    for (var i = 0; i < this.nodes.length; i++) {
+        //        var node = this.nodes[i];
+        //        var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
+        //        var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
+        //        var gElem = svg.append('g').attr('class', 'tr-node');
+        //        var textElem = gElem.append('text')
+        //            .attr('x', cx - 5)
+        //            .attr('y', cy + 7)
+        //            .html(node.amount);
+        //    }
+        //};
 
     };
 
@@ -398,6 +343,8 @@ iD.TelenavLayer = function (context) {
         this.normalItems = [];
         this.clusteredItems = [];
         this.selectedItems = [];
+
+        this.totalSelectedItems = [];
 
         this.loadOneWays = function(rawData) {
             for (var i = 0; i < rawData.length; i++) {
@@ -423,13 +370,223 @@ iD.TelenavLayer = function (context) {
             }
         };
 
-        this.getClusteredItems = function() {
-
+        this.deselectAll = function() {
+            // totalSelectedItems is emptied
+            // current selection items are moved to the normal items OR to the cluster items
+            this.totalSelectedItems.length = 0;
+            for (var i = 0; i < this.selectedItems.length; i++) {
+                this.normalItems.push(this.selectedItems[i]);
+            }
+            this.selectedItems.length = 0;
+            render(d3.select('.layer-telenav'));
         };
-    };
+        this.unselectItem = function(itemId) {
+            // item must be removed from both total and current selection arrays
+            // item must be added to the normal items, OR to the cluster items, if inside a cluster
+            var neededItem = null;
+            var item = null;
+            for (var i = 0; i < this.totalSelectedItems.length; i++) {
+                if (this.totalSelectedItems[i].id === itemId) {
+                    item = this.totalSelectedItems[i];
+                    this.totalSelectedItems.splice(i, 1);
+                }
+            }
+            for (var i = 0; i < this.selectedItems.length; i++) {
+                if (this.selectedItems[i].id === itemId) {
+                    item = this.selectedItems[i];
+                    this.selectedItems.splice(i, 1);
+                }
+            }
+            // insert item in normal or cluster arrays
+            if (this.isItemPartOfClusters(item)) {
+                this.addItemToClusters(item);
+            }
+            render(d3.select('.layer-telenav'));
+        };
+        this.selectItem = function(item) {
+            // item must be added to both total and current selection arrays
+            // item must be removed from the normal items, OR from the cluster items, if inside a cluster
+            this.totalSelectedItems.push(item);
+            this.selectedItems.push(item);
+            // remove item from normal or cluster arrays
+            for (var i = 0; i < this.normalItems.length; i++) {
+                if (this.normalItems[i].id === item.id) {
+                    this.normalItems.splice(i , 1);
+                }
+            }
+            for (var i = 0; i < this.clusteredItems.length; i++) {
+                var checkedItem = this.clusteredItems[i];
+                // compare for equality
+                if (
+                    (checkedItem.lat === item.point.lat) &&
+                    (checkedItem.lon === item.point.lon)
+                ) {
+                    for (var j = 0; j < checkedItem.items.length; j++) {
+                        if (checkedItem.items[j].id === item.id) {
+                            checkedItem.items.splice(j , 1);
+                        }
+                    }
+                }
+            }
+            render(d3.select('.layer-telenav'));
+        };
 
-    var selectedItems = new SelectedItems([]);
-    var trNodes = new TRNodes([]);
+        this.isItemPartOfClusters = function(item) {
+            if (item.className === 'TurnRestrictionItem') {
+                var key = item.point.lat + ',' + item.point.lon;
+                for (var i = 0; i < this.clusteredItems.length; i++) {
+                    var checkedItem = this.clusteredItems[i];
+                    // compare for equality
+                    if (
+                        (checkedItem.point.lat === item.point.lat) &&
+                        (checkedItem.point.lon === item.point.lon)
+                    ) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return false;
+            }
+        };
+
+        this.addItemToClusters = function(item) {
+            if (item.className === 'TurnRestrictionItem') {
+                for (var i = 0; i < this.clusteredItems.length; i++) {
+                    var checkedItem = this.clusteredItems[i];
+                    // compare for equality
+                    if (
+                        (checkedItem.lat === item.point.lat) &&
+                        (checkedItem.lon === item.point.lon)
+                    ) {
+                        checkedItem.items.push(item);
+                    }
+                }
+                throw new Error('VisibleItems::addItemToClusters - not a clustered item');
+            } else {
+                throw new Error('VisibleItems::addItemToClusters - not a clustered item');
+            }
+        };
+
+
+        this.getClusterSiblings = function(item) {
+            for (var i = 0; i < this.clusteredItems.length; i++) {
+                var checkedItem = this.clusteredItems[i];
+                // compare for equality
+                if (
+                    (checkedItem.lat === item.point.lat) &&
+                    (checkedItem.lon === item.point.lon)
+                ) {
+                    return {
+                        siblings: checkedItem.items,
+                        selected: item.id
+                    };
+                }
+            }
+            return {
+                siblings: [],
+                selected: null
+            };
+        };
+
+        this.getTotalSelectionItem = function(i) {
+            if (i >= this.totalSelectedItems.length) {
+                throw new Error('SelectedItems : getItem - problem');
+            }
+            return this.totalSelectedItems[i];
+        };
+
+        this.update = function() {
+
+            this.normalItems.length = 0;
+            this.selectedItems.length = 0;
+            // for each new item, find out if it's already in the TOTAL selected item list
+            for (var i = 0; i < this.items.length; i++) {
+                var found = false;
+                for (var j = 0; j < this.totalSelectedItems.length; j++) {
+                    // if we find a new item that should be selected, we add it to the CURRENT selected items
+                    if (this.items[i].id === this.totalSelectedItems[j].id) {
+                        this.selectedItems.push(this.items[i]);
+                        found = true;
+                        break;
+                    }
+                }
+                // else we add it to the normalItems
+                if (!found) {
+                    this.normalItems.push(this.items[i]);
+                }
+            }
+
+            var nodeMap = {};
+            // for all items
+            for (var i = 0; i < this.normalItems.length; i++) {
+                var item = this.normalItems[i];
+                if (item.className === 'TurnRestrictionItem') {
+                    // build a comparation key
+                    var key = item.point.lat + ',' + item.point.lon;
+                    // if the key is a fresh one, not searched before
+                    if (!nodeMap.hasOwnProperty(key)) {
+                        var siblingsFound = [];
+                        // search other instances of the fresh key
+                        for (var j = i + 1; j < this.normalItems.length; j++) {
+                            var checkedItem = this.normalItems[j];
+                            if (checkedItem.className === 'TurnRestrictionItem') {
+                                // compare for equality
+                                if (
+                                    (checkedItem.point.lat === item.point.lat) &&
+                                    (checkedItem.point.lon === item.point.lon)
+                                ) {
+                                    siblingsFound.push(checkedItem);
+                                }
+                            }
+                        }
+                        // mark new found siblings
+                        if (siblingsFound.length > 0) {
+                            if (typeof nodeMap[key] === 'undefined') {
+                                nodeMap[key] = siblingsFound;
+                            }
+                            nodeMap[key].push(item);
+                        }
+                    }
+                }
+            }
+
+            this.clusteredItems.length = 0;
+            // iterating the map and building the cluster elements
+            for (var key in nodeMap) {
+                if (nodeMap.hasOwnProperty(key)) {
+                    var coordinates = key.split(',');
+                    this.clusteredItems.push({
+                        lat: parseFloat(coordinates[0]),
+                        lon: parseFloat(coordinates[1]),
+                        items: nodeMap[key]
+                    });
+                }
+            }
+
+            // we finally need to remove the cluster items from the normal items
+            var normalItems = [];
+            for (var i = 0; i < this.normalItems.length; i++) {
+                var item = this.normalItems[i];
+                if (item.className === 'TurnRestrictionItem') {
+                    // build a comparation key
+                    var key = item.point.lat + ',' + item.point.lon;
+                    // if the key does not exists (the item is not part of a cluster), we keep it
+                    if (!nodeMap.hasOwnProperty(key)) {
+                        normalItems.push(item);
+                    }
+                } else {
+                    normalItems.push(item);
+                }
+            }
+            this.normalItems = normalItems;
+        };
+
+    };
+    var visibleItems = new VisibleItems();
+
+    //var selectedItems = new SelectedItems([]);
+    //var trNodes = new TRNodes([]);
 
     // ==============================
     // ==============================
@@ -474,34 +631,45 @@ iD.TelenavLayer = function (context) {
             if (node.classed('selected')) {
                 if (d3.event.ctrlKey) {
                     this.select(false);
-                    selectedItems.removeItemById(this.id);
+                    //selectedItems.removeItemById(this.id);
+                    visibleItems.unselectItem(this.id);
                 } else {
                     if (svg.selectAll('g.selected')[0].length === 1) {
                         this.select(false);
-                        selectedItems.empty();
+                        //selectedItems.empty();
+                        visibleItems.deselectAll();
                     } else {
                         svg.selectAll('g').classed('selected', false);
-                        selectedItems.empty();
+                        //selectedItems.empty();
+                        visibleItems.deselectAll();
                         this.select(true);
-                        selectedItems.add(this);
-                        _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                        //selectedItems.add(this);
+                        visibleItems.selectItem(this);
+                        //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                        _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                     }
                 }
             } else {
                 if (d3.event.ctrlKey) {
                     this.select(true);
-                    selectedItems.add(this);
-                    _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                    //selectedItems.add(this);
+                    visibleItems.selectItem(this);
+                    //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                    _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 } else {
                     svg.selectAll('g').classed('selected', false);
-                    selectedItems.empty();
+                    //selectedItems.empty();
+                    visibleItems.deselectAll();
                     this.select(true);
-                    selectedItems.add(this);
-                    _editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                    //selectedItems.add(this);
+                    visibleItems.selectItem(this);
+                    //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
+                    _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 }
             }
             d3.event.stopPropagation();
-            if (selectedItems.getSize() === 0) {
+            //if (selectedItems.getSize() === 0) {
+            if (visibleItems.totalSelectedItems.length === 0) {
                 _editPanel.goToMain();
             } else {
                 _editPanel.goToEdit(this);
@@ -568,17 +736,14 @@ iD.TelenavLayer = function (context) {
             }
         };
         this.highlight = function(highlight) {
-            _highlightedItemLayer.selectAll('*').remove();
+            svg.selectAll('g.highlightedItemLayer *').remove();
             if (highlight) {
                 var This = this;
-                var gElement = _highlightedItemLayer.append('g').attr('class', 'trItem');
+                var gElement = svg.selectAll('g.highlightedItemLayer').append('g').attr('class', 'trItem');
                 var circle = gElement.append('circle');
                 circle.attr('cx', this.transformX());
                 circle.attr('cy', this.transformY());
                 circle.attr('r', '20');
-                gElement.on('mouseout', function() {
-                    This.highlight(false);
-                });
                 gElement.on('click', function() {
                     This.handleSelection();
                 });
@@ -704,18 +869,15 @@ iD.TelenavLayer = function (context) {
             }];
         };
         this.highlight = function(highlight) {
-            _highlightedItemLayer.selectAll('*').remove();
+            svg.selectAll('g.highlightedItemLayer *').remove();
             if (highlight) {
                 var This = this;
-                var gElement = _highlightedItemLayer.append('g').attr('class', 'mrItem');
+                var gElement = svg.selectAll('g.highlightedItemLayer').append('g').attr('class', 'mrItem');
                 var rect = gElement.append('rect');
                 rect.attr('x', this.computeTileX());
                 rect.attr('y', this.computeTileY());
                 rect.attr('width', this.computeTileWidth());
                 rect.attr('height', this.computeTileHeight());
-                gElement.on('mouseout', function() {
-                    This.highlight(false);
-                });
                 gElement.on('click', function() {
                     This.handleSelection();
                 });
@@ -788,16 +950,13 @@ iD.TelenavLayer = function (context) {
             }];
         };
         this.highlight = function(highlight) {
-            _highlightedItemLayer.selectAll('*').remove();
+            svg.selectAll('g.highlightedItemLayer *').remove();
             if (highlight) {
                 var This = this;
-                var gElement = _highlightedItemLayer.append('g').attr('class', 'owItem');
+                var gElement = svg.selectAll('g.highlightedItemLayer').append('g').attr('class', 'owItem');
                 var line = gElement.append('polyline');
                 line.style('marker-end', 'url(#telenav-arrow-black)');
                 line.attr('points', this.transformLinePoints());
-                gElement.on('mouseout', function() {
-                    This.highlight(false);
-                });
                 gElement.on('click', function() {
                     This.handleSelection();
                 });
@@ -944,7 +1103,8 @@ iD.TelenavLayer = function (context) {
 
         this.deselectAll = function() {
             svg.selectAll('g').classed('selected', false);
-            selectedItems.empty();
+            //selectedItems.empty();
+            visibleItems.deselectAll();
             this.goToMain();
         };
 
@@ -1256,8 +1416,10 @@ iD.TelenavLayer = function (context) {
                 }
 
                 status = status.toUpperCase();
-                for (var i = 0; i < selectedItems.getSize(); i++) {
-                    var currentItem = selectedItems.getItem(i);
+                //for (var i = 0; i < selectedItems.getSize(); i++) {
+                //    var currentItem = selectedItems.getItem(i);
+                for (var i = 0; i < visibleItems.totalSelectedItems.length; i++) {
+                    var currentItem = visibleItems.getTotalSelectionItem(i);
 
                     var dataToPost = {
                         username: user.display_name,
@@ -1322,8 +1484,10 @@ iD.TelenavLayer = function (context) {
                 }
                 var comment = d3.select('#commentText').property('value');
 
-                for (var i = 0; i < selectedItems.getSize(); i++) {
-                    var currentItem = selectedItems.getItem(i);
+                //for (var i = 0; i < selectedItems.getSize(); i++) {
+                //    var currentItem = selectedItems.getItem(i);
+                for (var i = 0; i < visibleItems.totalSelectedItems.length; i++) {
+                    var currentItem = visibleItems.getTotalSelectionItem(i);
 
                     var dataToPost = {
                         username: 'Tudor009',
@@ -1423,6 +1587,12 @@ iD.TelenavLayer = function (context) {
 
     var _synchCallbacks = function(error, data) {
 
+        if (error) {
+            svg.select('g.normalItemsLayer').selectAll('g.item')
+                .remove();
+            return;
+        }
+
         if (data.hasOwnProperty('roadSegments')) {
             visibleItems.loadOneWays(data.roadSegments);
         }
@@ -1434,163 +1604,177 @@ iD.TelenavLayer = function (context) {
         }
 
         if (!--requestCount) {
-            if (error) {
-                _unselectedNonClusteredLayer.selectAll('g.item')
-                    .remove();
-                return;
-            }
-            selectedItems.update(visibleItems.items);
 
-            var g = _unselectedNonClusteredLayer.selectAll('g.item')
-                .data(visibleItems.items, function(item) {
-                    return item.id;
-                });
+            //selectedItems.update(visibleItems.items);
+            visibleItems.update();
 
+            drawItems('normal');
+            drawItems('selected');
 
-            var enter = g.enter().append('g')
-                .attr('class', function(item) {
-                    return item.transformClass();
-                })
-                .attr('id', function(item) {
-                    return item.transformId();
-                });
+            //trNodes.render(visibleItems.items);
 
-            var dOFs = enter.filter(function(item) {
-                return item.isA('DirectionOfFlowItem');
-            });
-            var mRs = enter.filter(function(item) {
-                return item.isA('MissingRoadItem');
-            });
-            var tRs = enter.filter(function(item) {
-                return item.isA('TurnRestrictionItem');
-            });
-
-            var dofPoly = dOFs.append('polyline')
-            dofPoly.attr('class', 'main')
-            dofPoly.style('marker-end', 'url(#telenav-arrow-orange)');
-
-            dofPoly.attr('points', function(item) {
-                return item.transformLinePoints();
-            });
-            var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
-            owHighlight.attr('points', function(item) {
-                return item.transformLinePoints();
-            });
-
-            mRs.html(function(d) {
-                var html = '';
-                html += '<rect x=' + d.computeTileX()
-                    + ' y=' + d.computeTileY()
-                    + ' width=' + d.computeTileWidth()
-                    + ' height=' + d.computeTileHeight()
-                    + '></rect>';
-                for (var i = 0; i < d._points.length; i++) {
-                    var cx = d.computeX(i);
-                    var cy = d.computeY(i);
-                    html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
-                }
-                html += '<rect x=' + d.computeTileX()
-                    + ' y=' + d.computeTileY()
-                    + ' width=' + d.computeTileWidth()
-                    + ' height=' + d.computeTileHeight()
-                    + ' class="selectable"'
-                    + '></rect>';
-                return html;
-            });
-
-            var trPolyIn1 = tRs.append('polyline');
-            trPolyIn1.attr('points', function(item) {
-                return item.transformLinePointsIn1();
-            });
-            trPolyIn1.attr('class', 'wayIn1');
-            trPolyIn1.style('marker-end', 'url(#telenav-arrow-green)');
-            var trPolyIn2 = tRs.append('polyline');
-            trPolyIn2.attr('points', function(item) {
-                return item.transformLinePointsIn2();
-            });
-            trPolyIn2.attr('class', 'wayIn2');
-            tRs.append('rect').attr('class', 'noInRect')
-                .attr('width', function(item) {
-                    return item.transformInNoRectWidth();
-                })
-                .attr('height', '16')
-                .attr('x', function(item) {
-                    return item.transformInNoRectX();
-                })
-                .attr('y', function(item) {
-                    return item.transformInNoRectY();
-                });
-            tRs.append('text').attr('class', 'inNo')
-                .attr('x', function(item) {
-                    return item.transformInNoX();
-                })
-                .attr('y', function(item) {
-                    return item.transformInNoY()
-                })
-                .html(function(item) {
-                    return item.transformInNo();
-                });
-            tRs.append('rect').attr('class', 'noOutRect')
-                .attr('width', function(item) {
-                    return item.transformOutNoRectWidth();
-                })
-                .attr('height', '16')
-                .attr('x', function(item) {
-                    return item.transformOutNoRectX();
-                })
-                .attr('y', function(item) {
-                    return item.transformOutNoRectY();
-                });
-            tRs.append('text').attr('class', 'outNo')
-                .attr('x', function(item) {
-                    return item.transformOutNoX();
-                })
-                .attr('y', function(item) {
-                    return item.transformOutNoY();
-                })
-                .html(function(item) {
-                    return item.transformOutNo();
-                });
-            var trPolyOut = tRs.append('polyline');
-            trPolyOut.attr('points', function(item) {
-                return item.transformLinePointsOut();
-            });
-            trPolyOut.attr('class', 'wayOut');
-            trPolyOut.style('marker-end', 'url(#telenav-arrow-red)');
-            var trCircle = tRs.append('circle')
-                .attr('class', 'telenav-tr-marker')
-                .attr('cx', function(item) {
-                    return item.transformX();
-                })
-                .attr('cy', function(item) {
-                    return item.transformY();
-                })
-                .attr('r', '20');
-            var trSelCircle = tRs.append('circle').attr('class', 'selectable')
-                .attr('cx', function(item) {
-                    return item.transformX();
-                })
-                .attr('cy', function(item) {
-                    return item.transformY();
-                })
-                .attr('r', '20');
-
-            dOFs.on('mouseover', function(item) {
-                item.highlight(true);
-            });
-            mRs.on('mouseover', function(item) {
-                item.highlight(true);
-            });
-            tRs.on('mouseover', function(item) {
-                item.highlight(true);
-            });
-
-            trNodes.render(visibleItems.items);
-
-            g.exit()
-                .remove();
         }
 
+    };
+
+    function drawItems(type) {
+        var data = null;
+        switch (type) {
+            case 'normal':
+                data = svg.select('g.normalItemsLayer').selectAll('g.item')
+                    .data(visibleItems.normalItems, function(item) {
+                        return item.id;
+                    });
+                break;
+            case 'selected':
+                data = svg.select('g.selectedItemsLayer').selectAll('g.item')
+                    .data(visibleItems.selectedItems, function(item) {
+                        return item.id;
+                    });
+                break;
+        }
+
+
+        var enter = data.enter().append('g')
+            .attr('class', function(item) {
+                return item.transformClass();
+            })
+            .attr('id', function(item) {
+                return item.transformId();
+            });
+
+        var dOFs = enter.filter(function(item) {
+            return item.isA('DirectionOfFlowItem');
+        });
+        var mRs = enter.filter(function(item) {
+            return item.isA('MissingRoadItem');
+        });
+        var tRs = enter.filter(function(item) {
+            return item.isA('TurnRestrictionItem');
+        });
+
+        var dofPoly = dOFs.append('polyline');
+        dofPoly.attr('class', 'main');
+        dofPoly.style('marker-end', 'url(#telenav-arrow-orange)');
+
+        dofPoly.attr('points', function(item) {
+            return item.transformLinePoints();
+        });
+        var owHighlight = dOFs.append('polyline').attr('class', 'selectable');
+        owHighlight.attr('points', function(item) {
+            return item.transformLinePoints();
+        });
+
+        mRs.html(function(d) {
+            var html = '';
+            html += '<rect x=' + d.computeTileX()
+                + ' y=' + d.computeTileY()
+                + ' width=' + d.computeTileWidth()
+                + ' height=' + d.computeTileHeight()
+                + '></rect>';
+            for (var i = 0; i < d._points.length; i++) {
+                var cx = d.computeX(i);
+                var cy = d.computeY(i);
+                html += '<circle cx=' + cx + ' cy=' + cy + ' r=3></circle>';
+            }
+            html += '<rect x=' + d.computeTileX()
+                + ' y=' + d.computeTileY()
+                + ' width=' + d.computeTileWidth()
+                + ' height=' + d.computeTileHeight()
+                + ' class="selectable"'
+                + '></rect>';
+            return html;
+        });
+
+        var trPolyIn1 = tRs.append('polyline');
+        trPolyIn1.attr('points', function(item) {
+            return item.transformLinePointsIn1();
+        });
+        trPolyIn1.attr('class', 'wayIn1');
+        trPolyIn1.style('marker-end', 'url(#telenav-arrow-green)');
+        var trPolyIn2 = tRs.append('polyline');
+        trPolyIn2.attr('points', function(item) {
+            return item.transformLinePointsIn2();
+        });
+        trPolyIn2.attr('class', 'wayIn2');
+        tRs.append('rect').attr('class', 'noInRect')
+            .attr('width', function(item) {
+                return item.transformInNoRectWidth();
+            })
+            .attr('height', '16')
+            .attr('x', function(item) {
+                return item.transformInNoRectX();
+            })
+            .attr('y', function(item) {
+                return item.transformInNoRectY();
+            });
+        tRs.append('text').attr('class', 'inNo')
+            .attr('x', function(item) {
+                return item.transformInNoX();
+            })
+            .attr('y', function(item) {
+                return item.transformInNoY()
+            })
+            .html(function(item) {
+                return item.transformInNo();
+            });
+        tRs.append('rect').attr('class', 'noOutRect')
+            .attr('width', function(item) {
+                return item.transformOutNoRectWidth();
+            })
+            .attr('height', '16')
+            .attr('x', function(item) {
+                return item.transformOutNoRectX();
+            })
+            .attr('y', function(item) {
+                return item.transformOutNoRectY();
+            });
+        tRs.append('text').attr('class', 'outNo')
+            .attr('x', function(item) {
+                return item.transformOutNoX();
+            })
+            .attr('y', function(item) {
+                return item.transformOutNoY();
+            })
+            .html(function(item) {
+                return item.transformOutNo();
+            });
+        var trPolyOut = tRs.append('polyline');
+        trPolyOut.attr('points', function(item) {
+            return item.transformLinePointsOut();
+        });
+        trPolyOut.attr('class', 'wayOut');
+        trPolyOut.style('marker-end', 'url(#telenav-arrow-red)');
+        var trCircle = tRs.append('circle')
+            .attr('class', 'telenav-tr-marker')
+            .attr('cx', function(item) {
+                return item.transformX();
+            })
+            .attr('cy', function(item) {
+                return item.transformY();
+            })
+            .attr('r', '20');
+        var trSelCircle = tRs.append('circle').attr('class', 'selectable')
+            .attr('cx', function(item) {
+                return item.transformX();
+            })
+            .attr('cy', function(item) {
+                return item.transformY();
+            })
+            .attr('r', '20');
+
+        dOFs.on('mouseover', function(item) {
+            item.highlight(true);
+        });
+        mRs.on('mouseover', function(item) {
+            item.highlight(true);
+        });
+        tRs.on('mouseover', function(item) {
+            item.highlight(true);
+        });
+
+        data.exit()
+            .remove();
     };
 
     function render(selection) {
@@ -1613,30 +1797,45 @@ iD.TelenavLayer = function (context) {
         // HANDLING OF CLICK DESELECTION
         // *****************************
         if (svg.selectAll('g.deselectSurface').empty()) {
-            _deselectionLayer = svg
+            svg
                 .insert('g', ':first-child')
                 .attr('class', 'deselectSurface')
                 .append('rect')
                 .attr('width', svg.attr('width'))
                 .attr('height', svg.attr('height'));
-            _deselectionLayer.on('click', function () {
-                if (selectedItems.getSize() > 0) {
-                    selectedItems.empty();
+            svg.selectAll('g.deselectSurface').on('click', function () {
+                //if (selectedItems.getSize() > 0) {
+                if (visibleItems.totalSelectedItems.length > 0) {
+                    //selectedItems.empty();
+                    visibleItems.deselectAll();
                     _editPanel.goToMain();
                 }
+            });
+            svg.selectAll('g.deselectSurface').on('mouseover', function () {
+                svg.selectAll('g.highlightedItemLayer *').remove();
             });
         }
 
         // *********************************
         // ADDING LAYERS THE FIRST TIME ONLY
         // *********************************
-        if (svg.selectAll('g.unselectedNonClusteredLayer').empty()) {
-            _unselectedNonClusteredLayer = svg
+        if (svg.selectAll('g.normalItemsLayer').empty()) {
+            svg
                 .append('g')
-                .attr('class', 'unselectedNonClusteredLayer');
+                .attr('class', 'normalItemsLayer');
+        }
+        if (svg.selectAll('g.clusteredItemsLayer').empty()) {
+            svg
+                .append('g')
+                .attr('class', 'clusteredItemsLayer');
+        }
+        if (svg.selectAll('g.selectedItemsLayer').empty()) {
+            svg
+                .append('g')
+                .attr('class', 'selectedItemsLayer');
         }
         if (svg.selectAll('g.highlightedItemLayer').empty()) {
-            _highlightedItemLayer = svg
+            svg
                 .append('g')
                 .attr('class', 'highlightedItemLayer');
         }
@@ -1646,8 +1845,7 @@ iD.TelenavLayer = function (context) {
 
         if (!enable) {
 
-            svg.selectAll('g.unselectedNonClusteredLayer g.item')
-                .remove();
+            clearAllLayers();
             svg.selectAll('g.cluster')
                 .remove();
 
@@ -1797,8 +1995,8 @@ iD.TelenavLayer = function (context) {
         }
 
         requestCount = requestUrlQueue.length;
-        //combinedItems.length = 0;
-        visibleItems = new VisibleItems();
+        //visibleItems = new VisibleItems();
+        visibleItems.items.length = 0;
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
@@ -1808,8 +2006,7 @@ iD.TelenavLayer = function (context) {
             }
             _editPanel.enableActivationSwitch(true);
         } else if (requestUrlQueue.length !== 0) {
-            svg.selectAll('g.unselectedNonClusteredLayer g.item')
-                .remove();
+            clearAllLayers();
             heatMap = new HeatMap(zoom);
             _editPanel.enableActivationSwitch(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
@@ -1821,12 +2018,20 @@ iD.TelenavLayer = function (context) {
                 }(type);
             }
         } else {
-            svg.selectAll('g.unselectedNonClusteredLayer g.item')
-                .remove();
+            clearAllLayers();
             svg.selectAll('g.cluster')
                 .remove();
         }
-    }
+    };
+
+    function clearAllLayers() {
+        svg.select('g.normalItemsLayer').selectAll('g.item')
+            .remove();
+        svg.select('g.normalItemsLayer').selectAll('g.item')
+            .remove();
+        svg.select('g.normalItemsLayer').selectAll('g.item')
+            .remove();
+    };
 
     render.enable = function(_) {
         if (!arguments.length) return enable;

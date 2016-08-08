@@ -1620,7 +1620,7 @@ text.gpx {
     stroke-width: 6;
     fill: white;
 }
-.layer-telenav svg g.TurnRestrictionItem.selected circle:not(.selectable) {
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable) {
     stroke: red;
     stroke-width: 3px;
     fill: white;
@@ -1654,16 +1654,16 @@ text.gpx {
 .layer-telenav svg g.TurnRestrictionItem polyline.wayOut {
     display: none;
 }
-.layer-telenav svg g.TurnRestrictionItem.selected text,
-.layer-telenav svg g.TurnRestrictionItem.selected rect,
-.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayIn1,
-.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayIn2,
-.layer-telenav svg g.TurnRestrictionItem.selected polyline.wayOut {
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem text,
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem rect,
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
     display: block;
 }
 
-.layer-telenav svg g.TurnRestrictionItem polyline.wayIn1,
-.layer-telenav svg g.TurnRestrictionItem polyline.wayIn2 {
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2 {
     stroke-width: 3;
     stroke: #00CD00;
     fill: none;
@@ -1679,7 +1679,7 @@ text.gpx {
 }
 
 
-.layer-telenav svg g.TurnRestrictionItem polyline.wayOut {
+.layer-telenav svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
     stroke-width: 3;
     stroke: #FF0000;
     fill: none;
@@ -1706,7 +1706,7 @@ text.gpx {
 
 .layer-telenav svg g.MissingRoadItem :not(circle),
 .layer-telenav.editMode svg g.MissingRoadItem :not(circle),
-.layer-telenav.editMode svg g.MissingRoadItem.selected :not(circle) {
+.layer-telenav.editMode g.selectedItemsLayer svg g.MissingRoadItem :not(circle) {
     stroke-width: 2px;
 }
 
@@ -1716,7 +1716,7 @@ text.gpx {
 .layer-telenav.editMode g.MissingRoadItem :not(circle) {
     opacity: .4;
 }
-.layer-telenav.editMode svg g.MissingRoadItem.selected :not(circle):not(.selectable) {
+.layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem :not(circle):not(.selectable) {
     opacity: .75;
 
     animation-name: pulsingThickness-2-8;
@@ -1727,7 +1727,7 @@ text.gpx {
 /* --- EXTENDED SELECTABLE ZONE -----------------*/
 .layer-telenav svg g.MissingRoadItem rect.selectable,
 .layer-telenav.editMode svg g.MissingRoadItem rect.selectable,
-.layer-telenav.editMode svg g.MissingRoadItem.selected rect.selectable {
+.layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem rect.selectable {
     stroke-width: 20;
     opacity: .0;
 }
@@ -1741,7 +1741,7 @@ text.gpx {
 
 .layer-telenav svg g.MissingRoadItem circle,
 .layer-telenav.editMode svg g.MissingRoadItem circle,
-.layer-telenav.editMode svg g.MissingRoadItem.selected circle {
+.layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem circle {
     opacity: 1;
     stroke-width: 0px;
 }
@@ -1803,7 +1803,7 @@ text.gpx {
 }
 
 /* --- PULSATING SELECTION ----------------------*/
-.layer-telenav svg g.DirectionOfFlowItem.selected polyline.main {
+.layer-telenav svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main {
     stroke: #DC143C;
 
     animation-name: pulsingThickness-3-12;
