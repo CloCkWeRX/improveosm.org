@@ -215,120 +215,120 @@ iD.TelenavLayer = function (context) {
     // SelectedItems
     // ==============================
     // ==============================
-    var SelectedItems = function(items) {
-        // ---
-        this.items = items;
-
-        //this.add = function(item) {
-        //    this.items.push(item);
-        //};
-
-        this.empty = function() {
-            for (var i = 0; i < this.items.length; i++) {
-                this.items[i].select(false);
-            }
-            this.items.length = 0;
-        };
-        //this.getSize = function() {
-        //    return this.items.length;
-        //};
-        //this.getItem = function(index) {
-        //    if (index >= this.items.length) {
-        //        throw new Error('SelectedItems : getItem - problem');
-        //    }
-        //    return this.items[index];
-        //};
-        this.getItemById = function(id) {
-            var neededItem = null;
-            for (var i = 0; i < this.items.length; i++) {
-                if (this.items[i].id === id) {
-                    neededItem = this.items[i];
-                }
-            }
-            if (neededItem == null) {
-                throw new Error('SelectedItems : getItemById - problem');
-            }
-            return neededItem;
-        };
-
-        //this.removeItemById = function(id) {
-        //    var neededItem = null;
-        //    for (var i = 0; i < this.items.length; i++) {
-        //        if (this.items[i].id === id) {
-        //            this.items.splice(i, 1);
-        //        }
-        //    }
-        //    if (neededItem == null) {
-        //        throw new Error('SelectedItems : removeItemById - problem');
-        //    }
-        //    return neededItem;
-        //};
-
-        this.getSiblings = function(id, combinedItems) {
-            var neededItem = null;
-            for (var i = 0; i < this.items.length; i++) {
-                if (this.items[i].id === id) {
-                    neededItem = this.items[i];
-                }
-            }
-            if (neededItem == null) {
-                throw new Error('SelectedItems : getItemById - problem');
-            }
-            if (neededItem.className !== 'TurnRestrictionItem') {
-                return {
-                    siblings: [],
-                    selected: null
-                };
-            }
-            var siblings = [];
-            var selected = null;
-            for (var i = 0; i < combinedItems.length; i++) {
-                if (combinedItems[i].className !== 'TurnRestrictionItem') {
-                    continue;
-                }
-                if (
-                    (combinedItems[i].point.lat === neededItem.point.lat) &&
-                    (combinedItems[i].point.lon === neededItem.point.lon)
-                ) {
-                    if (combinedItems[i].id == neededItem.id) {
-                        selected = neededItem.id;
-                    }
-                    siblings.push(combinedItems[i]);
-                }
-            }
-
-            return {
-                siblings: siblings,
-                selected: selected
-            };
-        };
-
-    };
+    //var SelectedItems = function(items) {
+    //    // ---
+    //    this.items = items;
+    //
+    //    this.add = function(item) {
+    //        this.items.push(item);
+    //    };
+    //
+    //    this.empty = function() {
+    //        for (var i = 0; i < this.items.length; i++) {
+    //            this.items[i].select(false);
+    //        }
+    //        this.items.length = 0;
+    //    };
+    //    this.getSize = function() {
+    //        return this.items.length;
+    //    };
+    //    this.getItem = function(index) {
+    //        if (index >= this.items.length) {
+    //            throw new Error('SelectedItems : getItem - problem');
+    //        }
+    //        return this.items[index];
+    //    };
+    //    this.getItemById = function(id) {
+    //        var neededItem = null;
+    //        for (var i = 0; i < this.items.length; i++) {
+    //            if (this.items[i].id === id) {
+    //                neededItem = this.items[i];
+    //            }
+    //        }
+    //        if (neededItem == null) {
+    //            throw new Error('SelectedItems : getItemById - problem');
+    //        }
+    //        return neededItem;
+    //    };
+    //
+    //    this.removeItemById = function(id) {
+    //        var neededItem = null;
+    //        for (var i = 0; i < this.items.length; i++) {
+    //            if (this.items[i].id === id) {
+    //                this.items.splice(i, 1);
+    //            }
+    //        }
+    //        if (neededItem == null) {
+    //            throw new Error('SelectedItems : removeItemById - problem');
+    //        }
+    //        return neededItem;
+    //    };
+    //
+    //    this.getSiblings = function(id, combinedItems) {
+    //        var neededItem = null;
+    //        for (var i = 0; i < this.items.length; i++) {
+    //            if (this.items[i].id === id) {
+    //                neededItem = this.items[i];
+    //            }
+    //        }
+    //        if (neededItem == null) {
+    //            throw new Error('SelectedItems : getItemById - problem');
+    //        }
+    //        if (neededItem.className !== 'TurnRestrictionItem') {
+    //            return {
+    //                siblings: [],
+    //                selected: null
+    //            };
+    //        }
+    //        var siblings = [];
+    //        var selected = null;
+    //        for (var i = 0; i < combinedItems.length; i++) {
+    //            if (combinedItems[i].className !== 'TurnRestrictionItem') {
+    //                continue;
+    //            }
+    //            if (
+    //                (combinedItems[i].point.lat === neededItem.point.lat) &&
+    //                (combinedItems[i].point.lon === neededItem.point.lon)
+    //            ) {
+    //                if (combinedItems[i].id == neededItem.id) {
+    //                    selected = neededItem.id;
+    //                }
+    //                siblings.push(combinedItems[i]);
+    //            }
+    //        }
+    //
+    //        return {
+    //            siblings: siblings,
+    //            selected: selected
+    //        };
+    //    };
+    //
+    //};
 
     // ==============================
     // ==============================
     // TRNodes
     // ==============================
     // ==============================
-    var TRNodes = function(nodes) {
-
-        //this.render = function(combinedItems) {
-        //    this.update(combinedItems);
-        //    svg.selectAll('g.tr-node')
-        //        .remove();
-        //    for (var i = 0; i < this.nodes.length; i++) {
-        //        var node = this.nodes[i];
-        //        var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
-        //        var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
-        //        var gElem = svg.append('g').attr('class', 'tr-node');
-        //        var textElem = gElem.append('text')
-        //            .attr('x', cx - 5)
-        //            .attr('y', cy + 7)
-        //            .html(node.amount);
-        //    }
-        //};
-
-    };
+    //var TRNodes = function(nodes) {
+    //
+    //    this.render = function(combinedItems) {
+    //        this.update(combinedItems);
+    //        svg.selectAll('g.tr-node')
+    //            .remove();
+    //        for (var i = 0; i < this.nodes.length; i++) {
+    //            var node = this.nodes[i];
+    //            var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
+    //            var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
+    //            var gElem = svg.append('g').attr('class', 'tr-node');
+    //            var textElem = gElem.append('text')
+    //                .attr('x', cx - 5)
+    //                .attr('y', cy + 7)
+    //                .html(node.amount);
+    //        }
+    //    };
+    //
+    //};
 
     // ==============================
     // ==============================
@@ -566,11 +566,11 @@ iD.TelenavLayer = function (context) {
             for (var key in nodeMap) {
                 if (nodeMap.hasOwnProperty(key)) {
                     var coordinates = key.split(',');
-                    this.clusteredItems.push({
+                    this.clusteredItems.push(new ClusteredItem({
                         lat: parseFloat(coordinates[0]),
                         lon: parseFloat(coordinates[1]),
                         items: nodeMap[key]
-                    });
+                    }));
                 }
             }
 
@@ -985,6 +985,34 @@ iD.TelenavLayer = function (context) {
 
     };
     DirectionOfFlowItem.prototype = new MapItem();
+
+    // ==============================
+    // ==============================
+    // ClusteredItem
+    // ==============================
+    // ==============================
+    var ClusteredItem = function(rawData) {
+        this.id = rawData.lat + ',' + rawData.lon;
+        this.class = 'ClusteredItem';
+        this.items = rawData.items;
+
+        this.transformClass = function() {
+            return 'item ' + this.class;
+        };
+        this.transformId = function() {
+            return this.id;
+        };
+
+        this.transformX = function() {
+            return Math.floor(context.projection([rawData.lon, rawData.lat])[0]);
+        };
+        this.transformY = function() {
+            return Math.floor(context.projection([rawData.lon, rawData.lat])[1]);
+        };
+        this.transformAmount = function() {
+            return this.items.length;
+        };
+    };
 
     // ==============================
     // ==============================
@@ -1600,8 +1628,7 @@ iD.TelenavLayer = function (context) {
     var _synchCallbacks = function(error, data) {
 
         if (error) {
-            svg.select('g.normalItemsLayer').selectAll('g.item')
-                .remove();
+            clearAllLayers();
             return;
         }
 
@@ -1621,6 +1648,7 @@ iD.TelenavLayer = function (context) {
             visibleItems.update();
 
             drawItems('normal');
+            drawClusteredItems();
             drawItems('selected');
 
             //trNodes.render(visibleItems.items);
@@ -1628,6 +1656,45 @@ iD.TelenavLayer = function (context) {
         }
 
     };
+
+    function drawClusteredItems() {
+        var data = svg.select('g.clusteredItemsLayer').selectAll('g.item')
+            .data(visibleItems.clusteredItems, function(item) {
+                return item.id;
+            });
+
+
+        var clusterElement = data.enter().append('g')
+            .attr('class', function(item) {
+                return item.transformClass();
+            })
+            .attr('id', function(item) {
+                return item.transformId();
+            });
+
+        var circle = clusterElement.append('circle')
+            .attr('class', 'telenav-cluster-marker')
+            .attr('cx', function(item) {
+                return item.transformX();
+            })
+            .attr('cy', function(item) {
+                return item.transformY();
+            })
+            .attr('r', '40');
+        var textElem = clusterElement.append('text')
+            .attr('x', function(item) {
+                return item.transformX();
+            })
+            .attr('y', function(item) {
+                return item.transformY();
+            })
+            .html(function(item) {
+                return item.transformAmount();
+            });
+
+        data.exit()
+            .remove();
+    }
 
     function drawItems(type) {
         var data = null;
@@ -1871,6 +1938,8 @@ iD.TelenavLayer = function (context) {
             return;
         }
 
+        moveClusteredItems();
+
         var clusterCircles = svg.selectAll('.ClusterCircle > circle');
         clusterCircles.attr('cx', function(item) {
             return item.transformX();
@@ -2043,10 +2112,20 @@ iD.TelenavLayer = function (context) {
         }
     };
 
+    function moveClusteredItems() {
+        var clusteredItems = svg.selectAll('.ClusteredItem > circle');
+        clusteredItems.attr('cx', function(item) {
+            return item.transformX();
+        });
+        clusteredItems.attr('cy', function(item) {
+            return item.transformY();
+        });
+    }
+
     function clearAllLayers() {
         svg.select('g.normalItemsLayer').selectAll('g.item')
             .remove();
-        svg.select('g.normalItemsLayer').selectAll('g.item')
+        svg.select('g.clusteredItemsLayer').selectAll('g.ClusteredItem')
             .remove();
         svg.select('g.normalItemsLayer').selectAll('g.item')
             .remove();
