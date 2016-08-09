@@ -431,6 +431,16 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         };
 
+        this.isItemSelected = function(item) {
+            for (var i = 0; i < this.totalSelectedItems.length; i++) {
+                var checkedItem = this.totalSelectedItems[i];
+                if (checkedItem.id === item.id) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         this.isItemPartOfClusters = function(item) {
             if (item.className === 'TurnRestrictionItem') {
                 var key = item.point.lat + ',' + item.point.lon;
@@ -604,45 +614,47 @@ iD.TelenavLayer = function (context) {
             return proposedClassName === this.className;
         };
 
-        this.select = function(select) {
-            var node = d3.select('#' + this.id);
-            node.classed('selected', select);
-            if (this.className === 'DirectionOfFlowItem') {
-                if (select) {
-                    node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-purple)');
-                } else {
-                    node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-orange)');
-                }
-            }
-            this.selected = select;
-        };
+        //this.select = function(select) {
+        //    var node = d3.select('#' + this.id);
+        //    node.classed('selected', select);
+        //    if (this.className === 'DirectionOfFlowItem') {
+        //        if (select) {
+        //            node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-purple)');
+        //        } else {
+        //            node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-orange)');
+        //        }
+        //    }
+        //    this.selected = select;
+        //};
         this.transformId = function() {
             return this.id;
         };
         this.transformClass = function() {
             if(this.className != 'MissingRoadItem') {
-                return 'item ' + (this.selected ? 'selected ' : '') + this.className;
+                return 'item ' /*+ (this.selected ? 'selected ' : '')*/ + this.className;
             } else {
-                return 'item ' + (this.selected ? 'selected ' : '') + this.className + ' ' + this.status.toLowerCase() + ' ' + this.type.toLowerCase();
+                return 'item ' /*+ (this.selected ? 'selected ' : '')*/ + this.className + ' ' + this.status.toLowerCase() + ' ' + this.type.toLowerCase();
             }
         };
         this.handleSelection = function() {
-            var node = d3.select('#' + this.id);
-            if (node.classed('selected')) {
+            //var node = d3.select('#' + this.id);
+            if (visibleItems.isItemSelected(this)) {
+            //if (node.classed('selected')) {
                 if (d3.event.ctrlKey) {
-                    this.select(false);
+                    //this.select(false);
                     //selectedItems.removeItemById(this.id);
                     visibleItems.unselectItem(this.id);
                 } else {
-                    if (svg.selectAll('g.selected')[0].length === 1) {
-                        this.select(false);
+                    if (visibleItems.totalSelectedItems.length === 1) {
+                    //if (svg.selectAll('g.selected')[0].length === 1) {
+                        //this.select(false);
                         //selectedItems.empty();
                         visibleItems.deselectAll();
                     } else {
-                        svg.selectAll('g').classed('selected', false);
+                        //svg.selectAll('g').classed('selected', false);
                         //selectedItems.empty();
                         visibleItems.deselectAll();
-                        this.select(true);
+                        //this.select(true);
                         //selectedItems.add(this);
                         visibleItems.selectItem(this);
                         //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
@@ -651,16 +663,16 @@ iD.TelenavLayer = function (context) {
                 }
             } else {
                 if (d3.event.ctrlKey) {
-                    this.select(true);
+                    //this.select(true);
                     //selectedItems.add(this);
                     visibleItems.selectItem(this);
                     //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 } else {
-                    svg.selectAll('g').classed('selected', false);
+                    //svg.selectAll('g').classed('selected', false);
                     //selectedItems.empty();
                     visibleItems.deselectAll();
-                    this.select(true);
+                    //this.select(true);
                     //selectedItems.add(this);
                     visibleItems.selectItem(this);
                     //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
@@ -1102,7 +1114,7 @@ iD.TelenavLayer = function (context) {
         };
 
         this.deselectAll = function() {
-            svg.selectAll('g').classed('selected', false);
+            //svg.selectAll('g').classed('selected', false);
             //selectedItems.empty();
             visibleItems.deselectAll();
             this.goToMain();
@@ -1655,7 +1667,14 @@ iD.TelenavLayer = function (context) {
 
         var dofPoly = dOFs.append('polyline');
         dofPoly.attr('class', 'main');
-        dofPoly.style('marker-end', 'url(#telenav-arrow-orange)');
+        switch (type) {
+            case 'normal':
+                dofPoly.style('marker-end', 'url(#telenav-arrow-orange)');
+                break;
+            case 'selected':
+                dofPoly.style('marker-end', 'url(#telenav-arrow-purple)');
+                break;
+        }
 
         dofPoly.attr('points', function(item) {
             return item.transformLinePoints();
