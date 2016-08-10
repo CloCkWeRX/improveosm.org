@@ -344,6 +344,7 @@ iD.TelenavLayer = function (context) {
         this.clusteredItems = [];
         this.selectedItems = [];
 
+        this.selectedClusteredItems = [];
         this.totalSelectedItems = [];
 
         this.loadOneWays = function(rawData) {
@@ -482,21 +483,25 @@ iD.TelenavLayer = function (context) {
         this.getClusterSiblings = function(item) {
             for (var i = 0; i < this.clusteredItems.length; i++) {
                 var checkedItem = this.clusteredItems[i];
-                // compare for equality
-                if (
-                    (checkedItem.lat === item.point.lat) &&
-                    (checkedItem.lon === item.point.lon)
-                ) {
+                var id = item.point.lat + ',' + item.point.lon;
+                if (checkedItem.id === id) {
                     return {
                         siblings: checkedItem.items,
                         selected: item.id
                     };
                 }
             }
-            return {
-                siblings: [],
-                selected: null
-            };
+            for (var i = 0; i < this.selectedClusteredItems.length; i++) {
+                var checkedItem = this.selectedClusteredItems[i];
+                var id = item.point.lat + ',' + item.point.lon;
+                if (checkedItem.id === id) {
+                    return {
+                        siblings: checkedItem.items,
+                        selected: item.id
+                    };
+                }
+            }
+            throw new Error('VisibleItems :: getClusterSiblings  -  cluster not found');
         };
 
         this.getTotalSelectionItem = function(i) {
@@ -508,6 +513,9 @@ iD.TelenavLayer = function (context) {
 
         this.update = function() {
 
+            // ===
+            // we need to check what items were selected before and add them to the selected group
+            // ===
             this.normalItems.length = 0;
             this.selectedItems.length = 0;
             // for each new item, find out if it's already in the TOTAL selected item list
@@ -532,7 +540,7 @@ iD.TelenavLayer = function (context) {
             for (var i = 0; i < this.normalItems.length; i++) {
                 var item = this.normalItems[i];
                 if (item.className === 'TurnRestrictionItem') {
-                    // build a comparation key
+                    // build a comparison key
                     var key = item.point.lat + ',' + item.point.lon;
                     // if the key is a fresh one, not searched before
                     if (!nodeMap.hasOwnProperty(key)) {
@@ -558,6 +566,24 @@ iD.TelenavLayer = function (context) {
                             nodeMap[key].push(item);
                         }
                     }
+                }
+            }
+
+            // ===
+            // for every selected items, if there is a corresponding cluster, move it to selectedClusters and remove it
+            // ===
+            this.selectedClusteredItems.length = 0;
+            for (var i = 0; i < this.selectedItems.length; i++) {
+                var item = this.selectedItems[i];
+                var key = item.point.lat + ',' + item.point.lon;
+                if (nodeMap.hasOwnProperty(key)) {
+                    nodeMap[key].unshift(item);
+                    this.selectedClusteredItems.push(new ClusteredItem({
+                        lat: item.point.lat,
+                        lon: item.point.lon,
+                        items: nodeMap[key]
+                    }));
+                    delete nodeMap[key];
                 }
             }
 
@@ -1245,6 +1271,12 @@ iD.TelenavLayer = function (context) {
                 d3.select('#siblingsPanel').classed('hide', false);
                 var listElement = d3.select('#siblingsList');
                 listElement.html('');
+                // a sort is needed so that the item list keeps the same
+                siblings.sort(function(a, b) {
+                    if (a.id > b.id) return -1;
+                    if (a.id < b.id) return 1;
+                    return 0;
+                });
                 for (var i = 0; i < siblings.length; i++) {
                     var element = listElement.append('li').attr('data-id', siblings[i].id);
                     if (selected == siblings[i].id) {
