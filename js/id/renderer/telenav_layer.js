@@ -1003,15 +1003,38 @@ iD.TelenavLayer = function (context) {
             return this.id;
         };
 
-        this.transformX = function() {
-            return Math.floor(context.projection([rawData.lon, rawData.lat])[0]);
+        this.transformX = function(offset) {
+            if (typeof offset === 'undefined') {
+                offset = 0;
+            }
+            return Math.floor(context.projection([rawData.lon, rawData.lat])[0]) + offset;
         };
-        this.transformY = function() {
-            return Math.floor(context.projection([rawData.lon, rawData.lat])[1]);
+        this.transformY = function(offset) {
+            if (typeof offset === 'undefined') {
+                offset = 0;
+            }
+            return Math.floor(context.projection([rawData.lon, rawData.lat])[1]) + offset;
         };
         this.transformAmount = function() {
             return this.items.length;
         };
+        this.highlight = function(highlight) {
+            svg.selectAll('g.highlightedItemLayer *').remove();
+            if (highlight) {
+                var This = this;
+                var gElement = svg.selectAll('g.highlightedItemLayer').append('g').attr('class', 'clItem');
+                var circle = gElement.append('circle');
+                circle.attr('cx', this.transformX());
+                circle.attr('cy', this.transformY());
+                circle.attr('r', '25');
+                gElement.on('click', function() {
+                    This.handleSelection();
+                });
+            }
+        };
+        this.handleSelection = function() {
+            this.items[0].handleSelection();
+        }
     };
 
     // ==============================
@@ -1673,24 +1696,37 @@ iD.TelenavLayer = function (context) {
             });
 
         var circle = clusterElement.append('circle')
-            .attr('class', 'telenav-cluster-marker')
+            .attr('class', 'main')
             .attr('cx', function(item) {
                 return item.transformX();
             })
             .attr('cy', function(item) {
                 return item.transformY();
             })
-            .attr('r', '40');
-        var textElem = clusterElement.append('text')
-            .attr('x', function(item) {
+            .attr('r', '25');
+        var selCircle = clusterElement.append('circle')
+            .attr('class', 'selectable')
+            .attr('cx', function(item) {
                 return item.transformX();
             })
-            .attr('y', function(item) {
+            .attr('cy', function(item) {
                 return item.transformY();
+            })
+            .attr('r', '25');
+        var textElem = clusterElement.append('text')
+            .attr('x', function(item) {
+                return item.transformX(-5);
+            })
+            .attr('y', function(item) {
+                return item.transformY(7);
             })
             .html(function(item) {
                 return item.transformAmount();
             });
+
+        clusterElement.on('mouseover', function(item) {
+            item.highlight(true);
+        });
 
         data.exit()
             .remove();
@@ -2119,6 +2155,13 @@ iD.TelenavLayer = function (context) {
         });
         clusteredItems.attr('cy', function(item) {
             return item.transformY();
+        });
+        var clusteredItems = svg.selectAll('.ClusteredItem > text');
+        clusteredItems.attr('x', function(item) {
+            return item.transformX(-5);
+        });
+        clusteredItems.attr('y', function(item) {
+            return item.transformY(7);
         });
     }
 

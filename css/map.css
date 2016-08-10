@@ -1612,10 +1612,38 @@ text.gpx {
 /* --- CLUSTER TURN RESTRICTIONS --------------- */
 /* --------------------------------------------- */
 
+.layer-telenav svg g.clusteredItemsLayer g.ClusteredItem {
+    opacity: .4;
+}
+
+.layer-telenav.editMode svg g.clusteredItemsLayer g.ClusteredItem {
+    opacity: 1;
+}
+
+.layer-telenav svg g.clusteredItemsLayer g.ClusteredItem circle.main {
+    fill: #F00;
+    stroke: #FFF;
+    stroke-width: 2;
+}
+
 .layer-telenav svg g.clusteredItemsLayer g.ClusteredItem text {
-    color: white;
-    height: 20px;
-    width: 20px;
+    fill: #FFF;
+    display: block;
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+/* --- EXTENDED SELECTABLE ZONE -----------------*/
+.layer-telenav svg g.clusteredItemsLayer g.ClusteredItem circle.selectable {
+    stroke-width: 20;
+    opacity: .0;
+}
+
+/* --- GRAY HIGHLIGHTING ------------------------*/
+.layer-telenav svg g.highlightedItemLayer g.clItem circle {
+    stroke: black;
+    stroke-width: 20;
+    opacity: .5;
 }
 
 /* --------------------------------------------- */
