@@ -481,6 +481,9 @@ iD.TelenavLayer = function (context) {
 
 
         this.getClusterSiblings = function(item) {
+            if (item.className !== 'TurnRestrictionItem') {
+                return null;
+            }
             for (var i = 0; i < this.clusteredItems.length; i++) {
                 var checkedItem = this.clusteredItems[i];
                 var id = item.point.lat + ',' + item.point.lon;
@@ -501,7 +504,7 @@ iD.TelenavLayer = function (context) {
                     };
                 }
             }
-            throw new Error('VisibleItems :: getClusterSiblings  -  cluster not found');
+            return null;
         };
 
         this.getTotalSelectionItem = function(i) {
@@ -509,6 +512,14 @@ iD.TelenavLayer = function (context) {
                 throw new Error('SelectedItems : getItem - problem');
             }
             return this.totalSelectedItems[i];
+        };
+
+        this.selectionHasCluster = function() {
+            if (this.selectedClusteredItems.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
         };
 
         this.update = function() {
@@ -575,15 +586,17 @@ iD.TelenavLayer = function (context) {
             this.selectedClusteredItems.length = 0;
             for (var i = 0; i < this.selectedItems.length; i++) {
                 var item = this.selectedItems[i];
-                var key = item.point.lat + ',' + item.point.lon;
-                if (nodeMap.hasOwnProperty(key)) {
-                    nodeMap[key].unshift(item);
-                    this.selectedClusteredItems.push(new ClusteredItem({
-                        lat: item.point.lat,
-                        lon: item.point.lon,
-                        items: nodeMap[key]
-                    }));
-                    delete nodeMap[key];
+                if (item.className === 'TurnRestrictionItem') {
+                    var key = item.point.lat + ',' + item.point.lon;
+                    if (nodeMap.hasOwnProperty(key)) {
+                        nodeMap[key].unshift(item);
+                        this.selectedClusteredItems.push(new ClusteredItem({
+                            lat: item.point.lat,
+                            lon: item.point.lon,
+                            items: nodeMap[key]
+                        }));
+                        delete nodeMap[key];
+                    }
                 }
             }
 
@@ -1059,6 +1072,9 @@ iD.TelenavLayer = function (context) {
             }
         };
         this.handleSelection = function() {
+            if (visibleItems.selectionHasCluster()) {
+                visibleItems.deselectAll();
+            }
             this.items[0].handleSelection();
         }
     };
@@ -1264,6 +1280,9 @@ iD.TelenavLayer = function (context) {
         }
 
         this.showSiblings = function(siblings) {
+            if (siblings === null) {
+                return;
+            }
             var selected = siblings.selected,
                 selectedConfidenceLvl;
             siblings = siblings.siblings;
