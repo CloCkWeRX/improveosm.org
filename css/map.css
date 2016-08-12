@@ -1598,14 +1598,14 @@ text.gpx {
 /* --------------------------------------------- */
 
 @keyframes pulsingThickness-2-8 {
-    0%   {stroke-width: 2;}
+    0%   {stroke-width: 6;}
     50%  {stroke-width: 8;}
-    100% {stroke-width: 2;}
+    100% {stroke-width: 6;}
 }
 @keyframes pulsingThickness-3-12 {
-    0%   {stroke-width: 3;}
+    0%   {stroke-width: 9;}
     50%  {stroke-width: 12;}
-    100% {stroke-width: 3;}
+    100% {stroke-width: 9;}
 }
 
 /* --------------------------------------------- */

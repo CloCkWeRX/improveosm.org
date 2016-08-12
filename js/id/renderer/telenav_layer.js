@@ -46,7 +46,6 @@ iD.TelenavLayer = function (context) {
 
         visibleItems = null,
 
-        status = 'OPEN',
         heatMap = null,
         requestCount;
 
@@ -1162,6 +1161,8 @@ iD.TelenavLayer = function (context) {
         this._location = 'MAIN';
         this.editMode = true;
 
+        this.status = 'OPEN';
+
         //get the width of the panel for animation effect
         this._panelWidth = function(){
             return parseInt(d3.select('.telenav-wrap').style('width'));
@@ -1281,6 +1282,7 @@ iD.TelenavLayer = function (context) {
 
         this.showSiblings = function(siblings) {
             if (siblings === null) {
+                d3.select('#siblingsPanel').classed('hide', true);
                 return;
             }
             var selected = siblings.selected,
@@ -1380,23 +1382,8 @@ iD.TelenavLayer = function (context) {
 
         this.selectedItemDetails = function selectedItemDetails(item){
             var confidenceLvl;
-            switch (item.status) {
-                case 'OPEN':
-                    d3.select('#ch_open').attr('checked', 'checked');
-                    d3.select('#ch_solved').attr('checked', null);
-                    d3.select('#ch_invalid').attr('checked', null);
-                    break;
-                case 'SOLVED':
-                    d3.select('#ch_open').attr('checked', null);
-                    d3.select('#ch_solved').attr('checked', 'checked');
-                    d3.select('#ch_invalid').attr('checked', null);
-                    break;
-                case 'INVALID':
-                    d3.select('#ch_open').attr('checked', null);
-                    d3.select('#ch_solved').attr('checked', null);
-                    d3.select('#ch_invalid').attr('checked', 'checked');
-                    break;
-            }
+            d3.selectAll('#statusSetter div').classed('selected', false);
+            d3.select('#statusSetter div[data-filter-type=' + this.status + ']').classed('selected', true);
             switch (item.className){
                 case 'TurnRestrictionItem':
                     switch (item.confidenceLevel) {
@@ -1514,6 +1501,9 @@ iD.TelenavLayer = function (context) {
         };
 
         this.setStatus = function(status) {
+
+            d3.selectAll('#statusSetter div').classed('selected', false);
+            d3.select('#statusSetter div[data-filter-type=' + status + ']').classed('selected', true);
 
             var This = this;
 
@@ -2164,7 +2154,7 @@ iD.TelenavLayer = function (context) {
                     break;
             }
             requestUrlQueue.push(
-                types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + status + '&client=WEBAPP&version=1.2'
+                types[selectedTypes[i]] + boundingBoxUrlFragments + typesFragments + '&status=' + _editPanel.status + '&client=WEBAPP&version=1.2'
             );
             pushedTypes.push(selectedTypes[i]);
         }
@@ -2310,40 +2300,26 @@ iD.TelenavLayer = function (context) {
             .append('div')
             .attr('class', 'form-label-button-wrap');
         var statusUpdate_formWrap = statusUpdate_form.append('form')
-            .attr('class', 'filterForm optionsContainer');
-        var statusUpdate_openContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline')
-            .attr('id', 'setOpen');
-        statusUpdate_openContainer.append('input')
-            .attr('id', 'ch_open')
-            .attr('name', 'changeStatus')
-            .attr('value', 'OPEN')
-            .attr('type', 'radio');
-        statusUpdate_openContainer.append('label')
-            .attr('for', 'ch_open')
-            .text('Open');
-        var statusUpdate_solvedContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline')
-            .attr('id', 'setSolved');
-        statusUpdate_solvedContainer.append('input')
-            .attr('id', 'ch_solved')
-            .attr('name', 'changeStatus')
-            .attr('value', 'SOLVED')
-            .attr('type', 'radio');
-        statusUpdate_solvedContainer.append('label')
-            .attr('for', 'ch_solved')
-            .text('Solved');
-        var statusUpdate_invalidContainer = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline')
-            .attr('id', 'setInvalid');
-        statusUpdate_invalidContainer.append('input')
-            .attr('id', 'ch_invalid')
-            .attr('name', 'changeStatus')
-            .attr('value', 'INVALID')
-            .attr('type', 'radio');
-        statusUpdate_invalidContainer.append('label')
-            .attr('for', 'ch_invalid')
-            .text('Invalid');
+            .attr('class', 'filterForm optionsContainer')
+            .attr('id', 'statusSetter');
+
+        var statusSetterOpen = statusUpdate_formWrap.append('div')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
+            .attr('data-filter-type', 'OPEN');
+        statusSetterOpen.append('span')
+            .text('open');
+
+        var statusSetterSolved = statusUpdate_formWrap.append('div')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
+            .attr('data-filter-type', 'SOLVED');
+        statusSetterSolved.append('span')
+            .text('solved');
+
+        var statusSetterInvalid = statusUpdate_formWrap.append('div')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
+            .attr('data-filter-type', 'INVALID');
+        statusSetterInvalid.append('span')
+            .text('invalid');
 
         var comments_form = userContainer.append('div')
             .attr('class', 'form-field');
@@ -2403,38 +2379,22 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'filterForm optionsContainer')
             .attr('id', 'statusFilter');
         var statusDivOpen = statusForm.append('div')
-            .attr('class', 'tel_displayInline');
-        statusDivOpen.append('label')
-            .attr('for', 'OPEN')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
+            .attr('data-filter-type', 'OPEN');
+        statusDivOpen.append('span')
             .text('open');
-        statusDivOpen.append('input')
-            .attr('type', 'radio')
-            .attr('id', 'OPEN')
-            .attr('class', 'filterItem')
-            .attr('name', 'filter')
-            .attr('checked', 'checked');
 
         var statusDivSolved = statusForm.append('div')
-            .attr('class', 'tel_displayInline');
-        statusDivSolved.append('label')
-            .attr('for', 'SOLVED')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
+            .attr('data-filter-type', 'SOLVED');
+        statusDivSolved.append('span')
             .text('solved');
-        statusDivSolved.append('input')
-            .attr('type', 'radio')
-            .attr('id', 'SOLVED')
-            .attr('class', 'filterItem')
-            .attr('name', 'filter');
 
         var statusDivInvalid = statusForm.append('div')
-            .attr('class', 'tel_displayInline');
-        statusDivInvalid.append('label')
-            .attr('for', 'INVALID')
+            .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
+            .attr('data-filter-type', 'INVALID');
+        statusDivInvalid.append('span')
             .text('invalid');
-        statusDivInvalid.append('input')
-            .attr('type', 'radio')
-            .attr('id', 'INVALID')
-            .attr('class', 'filterItem')
-            .attr('name', 'filter');
         //  END 1st container div
 
         //  START 2st container div
@@ -2717,21 +2677,20 @@ iD.TelenavLayer = function (context) {
             render(d3.select('.layer-telenav'));
         });
 
-        d3.selectAll('#statusFilter input').on('click', function() {
-            status = d3.event.currentTarget.id;
+        d3.selectAll('#statusFilter div').on('click', function() {
+            _editPanel.status = d3.event.currentTarget.getAttribute('data-filter-type');
+            d3.selectAll('#statusFilter div').classed('selected', false);
+            d3.select('#statusFilter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
             render(d3.select('.layer-telenav'));
         });
 
         d3.select('#saveComment').on('click', _editPanel.saveComment);
 
-        d3.select('#setSolved').on('click', function() {
-            _editPanel.setStatus.call(_editPanel, 'SOLVED');
-        });
-        d3.select('#setOpen').on('click', function() {
-            _editPanel.setStatus.call(_editPanel, 'OPEN');
-        });
-        d3.select('#setInvalid').on('click', function() {
-            _editPanel.setStatus.call(_editPanel, 'INVALID');
+        d3.selectAll('#statusSetter div').on('click', function() {
+            var newStatus = d3.event.currentTarget.getAttribute('data-filter-type');
+            d3.selectAll('#statusSetter div').classed('selected', false);
+            d3.select('#statusSetter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
+            _editPanel.setStatus.call(_editPanel, newStatus);
         });
 
     }();

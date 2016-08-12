@@ -785,13 +785,19 @@ label .form-label-button-wrap .input {
 .filterForm div {
     padding: 5px 6px;
     margin-right: 0;
+    font-weight: bolder;
+    cursor: pointer;
 }
-.filterForm div:first-child{
-    padding-left: 0;
+.filterForm div.selected {
+    background-color: limegreen;
+    color: white;
 }
-.filterForm div:last-child{
-    padding-right: 0;
-}
+/*.filterForm div:first-child{*/
+    /*padding-left: 0;*/
+/*}*/
+/*.filterForm div:last-child{*/
+    /*padding-right: 0;*/
+/*}*/
 .filterForm div:not(:last-child) {
     border-right: 1px solid #ddd;
 }
