@@ -211,126 +211,6 @@ iD.TelenavLayer = function (context) {
 
     // ==============================
     // ==============================
-    // SelectedItems
-    // ==============================
-    // ==============================
-    //var SelectedItems = function(items) {
-    //    // ---
-    //    this.items = items;
-    //
-    //    this.add = function(item) {
-    //        this.items.push(item);
-    //    };
-    //
-    //    this.empty = function() {
-    //        for (var i = 0; i < this.items.length; i++) {
-    //            this.items[i].select(false);
-    //        }
-    //        this.items.length = 0;
-    //    };
-    //    this.getSize = function() {
-    //        return this.items.length;
-    //    };
-    //    this.getItem = function(index) {
-    //        if (index >= this.items.length) {
-    //            throw new Error('SelectedItems : getItem - problem');
-    //        }
-    //        return this.items[index];
-    //    };
-    //    this.getItemById = function(id) {
-    //        var neededItem = null;
-    //        for (var i = 0; i < this.items.length; i++) {
-    //            if (this.items[i].id === id) {
-    //                neededItem = this.items[i];
-    //            }
-    //        }
-    //        if (neededItem == null) {
-    //            throw new Error('SelectedItems : getItemById - problem');
-    //        }
-    //        return neededItem;
-    //    };
-    //
-    //    this.removeItemById = function(id) {
-    //        var neededItem = null;
-    //        for (var i = 0; i < this.items.length; i++) {
-    //            if (this.items[i].id === id) {
-    //                this.items.splice(i, 1);
-    //            }
-    //        }
-    //        if (neededItem == null) {
-    //            throw new Error('SelectedItems : removeItemById - problem');
-    //        }
-    //        return neededItem;
-    //    };
-    //
-    //    this.getSiblings = function(id, combinedItems) {
-    //        var neededItem = null;
-    //        for (var i = 0; i < this.items.length; i++) {
-    //            if (this.items[i].id === id) {
-    //                neededItem = this.items[i];
-    //            }
-    //        }
-    //        if (neededItem == null) {
-    //            throw new Error('SelectedItems : getItemById - problem');
-    //        }
-    //        if (neededItem.className !== 'TurnRestrictionItem') {
-    //            return {
-    //                siblings: [],
-    //                selected: null
-    //            };
-    //        }
-    //        var siblings = [];
-    //        var selected = null;
-    //        for (var i = 0; i < combinedItems.length; i++) {
-    //            if (combinedItems[i].className !== 'TurnRestrictionItem') {
-    //                continue;
-    //            }
-    //            if (
-    //                (combinedItems[i].point.lat === neededItem.point.lat) &&
-    //                (combinedItems[i].point.lon === neededItem.point.lon)
-    //            ) {
-    //                if (combinedItems[i].id == neededItem.id) {
-    //                    selected = neededItem.id;
-    //                }
-    //                siblings.push(combinedItems[i]);
-    //            }
-    //        }
-    //
-    //        return {
-    //            siblings: siblings,
-    //            selected: selected
-    //        };
-    //    };
-    //
-    //};
-
-    // ==============================
-    // ==============================
-    // TRNodes
-    // ==============================
-    // ==============================
-    //var TRNodes = function(nodes) {
-    //
-    //    this.render = function(combinedItems) {
-    //        this.update(combinedItems);
-    //        svg.selectAll('g.tr-node')
-    //            .remove();
-    //        for (var i = 0; i < this.nodes.length; i++) {
-    //            var node = this.nodes[i];
-    //            var cx = Math.floor(context.projection([node.lon, node.lat])[0]);
-    //            var cy = Math.floor(context.projection([node.lon, node.lat])[1]);
-    //            var gElem = svg.append('g').attr('class', 'tr-node');
-    //            var textElem = gElem.append('text')
-    //                .attr('x', cx - 5)
-    //                .attr('y', cy + 7)
-    //                .html(node.amount);
-    //        }
-    //    };
-    //
-    //};
-
-    // ==============================
-    // ==============================
     // VisibleItems
     // ==============================
     // ==============================
@@ -633,9 +513,6 @@ iD.TelenavLayer = function (context) {
     };
     var visibleItems = new VisibleItems();
 
-    //var selectedItems = new SelectedItems([]);
-    //var trNodes = new TRNodes([]);
-
     // ==============================
     // ==============================
     // MapItem
@@ -652,18 +529,6 @@ iD.TelenavLayer = function (context) {
             return proposedClassName === this.className;
         };
 
-        //this.select = function(select) {
-        //    var node = d3.select('#' + this.id);
-        //    node.classed('selected', select);
-        //    if (this.className === 'DirectionOfFlowItem') {
-        //        if (select) {
-        //            node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-purple)');
-        //        } else {
-        //            node.select('polyline.main').style('marker-end', 'url(#telenav-arrow-orange)');
-        //        }
-        //    }
-        //    this.selected = select;
-        //};
         this.transformId = function() {
             return this.id;
         };
@@ -674,51 +539,33 @@ iD.TelenavLayer = function (context) {
                 return 'item ' /*+ (this.selected ? 'selected ' : '')*/ + this.className + ' ' + this.status.toLowerCase() + ' ' + this.type.toLowerCase();
             }
         };
+            //// ================
+            //// HANDLE SELECTION
+            //// ================
         this.handleSelection = function() {
-            //var node = d3.select('#' + this.id);
             if (visibleItems.isItemSelected(this)) {
-            //if (node.classed('selected')) {
                 if (d3.event.ctrlKey) {
-                    //this.select(false);
-                    //selectedItems.removeItemById(this.id);
                     visibleItems.unselectItem(this.id);
                 } else {
                     if (visibleItems.totalSelectedItems.length === 1) {
-                    //if (svg.selectAll('g.selected')[0].length === 1) {
-                        //this.select(false);
-                        //selectedItems.empty();
                         visibleItems.deselectAll();
                     } else {
-                        //svg.selectAll('g').classed('selected', false);
-                        //selectedItems.empty();
                         visibleItems.deselectAll();
-                        //this.select(true);
-                        //selectedItems.add(this);
                         visibleItems.selectItem(this);
-                        //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                         _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                     }
                 }
             } else {
                 if (d3.event.ctrlKey) {
-                    //this.select(true);
-                    //selectedItems.add(this);
                     visibleItems.selectItem(this);
-                    //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 } else {
-                    //svg.selectAll('g').classed('selected', false);
-                    //selectedItems.empty();
                     visibleItems.deselectAll();
-                    //this.select(true);
-                    //selectedItems.add(this);
                     visibleItems.selectItem(this);
-                    //_editPanel.showSiblings(selectedItems.getSiblings(this.id, visibleItems.items));
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 }
             }
             d3.event.stopPropagation();
-            //if (selectedItems.getSize() === 0) {
             if (visibleItems.totalSelectedItems.length === 0) {
                 _editPanel.goToMain();
             } else {
@@ -1208,8 +1055,6 @@ iD.TelenavLayer = function (context) {
         };
 
         this.deselectAll = function() {
-            //svg.selectAll('g').classed('selected', false);
-            //selectedItems.empty();
             visibleItems.deselectAll();
             this.goToMain();
         };
@@ -1520,8 +1365,6 @@ iD.TelenavLayer = function (context) {
                 }
 
                 status = status.toUpperCase();
-                //for (var i = 0; i < selectedItems.getSize(); i++) {
-                //    var currentItem = selectedItems.getItem(i);
                 for (var i = 0; i < visibleItems.totalSelectedItems.length; i++) {
                     var currentItem = visibleItems.getTotalSelectionItem(i);
 
@@ -1588,8 +1431,6 @@ iD.TelenavLayer = function (context) {
                 }
                 var comment = d3.select('#commentText').property('value');
 
-                //for (var i = 0; i < selectedItems.getSize(); i++) {
-                //    var currentItem = selectedItems.getItem(i);
                 for (var i = 0; i < visibleItems.totalSelectedItems.length; i++) {
                     var currentItem = visibleItems.getTotalSelectionItem(i);
 
@@ -1708,15 +1549,11 @@ iD.TelenavLayer = function (context) {
 
         if (!--requestCount) {
 
-            //selectedItems.update(visibleItems.items);
             visibleItems.update();
 
             drawItems('normal');
             drawClusteredItems();
             drawItems('selected');
-
-            //trNodes.render(visibleItems.items);
-
         }
 
     };
@@ -2160,7 +1997,6 @@ iD.TelenavLayer = function (context) {
         }
 
         requestCount = requestUrlQueue.length;
-        //visibleItems = new VisibleItems();
         visibleItems.items.length = 0;
 
         if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
