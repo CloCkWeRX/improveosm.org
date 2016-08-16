@@ -177,6 +177,9 @@ iD.TelenavLayer = function (context) {
 
         return '' + newX + ',' + newY;
     };
+    Utils.getSegmentAngle = function(p1, p2) {
+        return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+    };
     Utils.splitSegment = function(segment) {
         var length = 0;
         var distances = [];
@@ -616,20 +619,49 @@ iD.TelenavLayer = function (context) {
         this.getInNo = function() {
             var x = rawItemData.segments[0].points[0].lon;
             var y = rawItemData.segments[0].points[0].lat;
+            var toX = rawItemData.segments[0].points[1].lon;
+            var toY = rawItemData.segments[0].points[1].lat;
             return {
                 val: rawItemData.segments[0].numberOfTrips,
-                x: Math.floor(context.projection([x, y])[0]),
-                y: Math.floor(context.projection([x, y])[1])
+                p: {
+                    x: Math.floor(context.projection([x, y])[0]),
+                    y: Math.floor(context.projection([x, y])[1])
+                },
+                toP: {
+                    x: Math.floor(context.projection([toX, toY])[0]),
+                    y: Math.floor(context.projection([toX, toY])[1])
+                }
             }
         };
         this.getOutNo = function() {
-            var last = rawItemData.segments[1].points.length - 1;
-            var x = rawItemData.segments[1].points[last].lon;
-            var y = rawItemData.segments[1].points[last].lat;
+            // preparing segments for them to be ordered
+            var rawSegments = [];
+            for (var i = 1; i < rawItemData.segments.length; i++) {
+                var rawPoints = [];
+                for (var j = 0; j < rawItemData.segments[i].points.length; j++) {
+                    rawPoints.push(rawItemData.segments[i].points[j]);
+                }
+                rawSegments.push(rawPoints);
+            }
+            // order them
+            var segments = Utils.orderSegments(rawSegments, this.point);
+            // pick our last two points
+            var lastSegment = segments.length - 1;
+            var lastPoint = segments[lastSegment].length - 1;
+            var x = segments[lastSegment][lastPoint].lon;
+            var y = segments[lastSegment][lastPoint].lat;
+            var toX = segments[lastSegment][lastPoint - 1].lon;
+            var toY = segments[lastSegment][lastPoint - 1].lat;
             return {
                 val: rawItemData.numberOfPasses,
-                x: Math.floor(context.projection([x, y])[0]),
-                y: Math.floor(context.projection([x, y])[1])
+                p: {
+                    x: Math.floor(context.projection([x, y])[0]),
+                    y: Math.floor(context.projection([x, y])[1])
+                },
+                toP: {
+                    x: Math.floor(context.projection([toX, toY])[0]),
+                    y: Math.floor(context.projection([toX, toY])[1])
+                }
             }
         };
         this.highlight = function(highlight) {
@@ -697,40 +729,91 @@ iD.TelenavLayer = function (context) {
             return stringPoints.join(' ');
         };
         this.transformInNoX = function() {
-            return this.getInNo().x - 10;
+            var inNo = this.getInNo();
+            var angle = Utils.getSegmentAngle(inNo.p, inNo.toP);
+            return inNo.p.x + this.getLabelOffset(angle, false, true).x;
         };
         this.transformInNoY = function() {
-            return this.getInNo().y - 25;
+            var inNo = this.getInNo();
+            var angle = Utils.getSegmentAngle(inNo.p, inNo.toP);
+            return inNo.p.y + this.getLabelOffset(angle, false, true).y;
         };
         this.transformInNo = function() {
             return this.getInNo().val;
         };
         this.transformOutNoX = function() {
-            return this.getOutNo().x - 10;
+            var outNo = this.getOutNo();
+            var angle = Utils.getSegmentAngle(outNo.p, outNo.toP);
+            return outNo.p.x + this.getLabelOffset(angle, true, true).x;
         };
         this.transformOutNoY = function() {
-            return this.getOutNo().y - 25;
+            var outNo = this.getOutNo();
+            var angle = Utils.getSegmentAngle(outNo.p, outNo.toP);
+            return outNo.p.y + this.getLabelOffset(angle, true, true).y;
         };
         this.transformOutNo = function() {
             return this.getOutNo().val;
         };
         this.transformInNoRectX = function() {
-            return this.getInNo().x - 13;
+            var inNo = this.getInNo();
+            var angle = Utils.getSegmentAngle(inNo.p, inNo.toP);
+            return inNo.p.x + this.getLabelOffset(angle, false, false).x;
         };
         this.transformInNoRectY = function() {
-            return this.getInNo().y - 36;
+            var inNo = this.getInNo();
+            var angle = Utils.getSegmentAngle(inNo.p, inNo.toP);
+            return inNo.p.y + this.getLabelOffset(angle, false, false).y;
         };
         this.transformOutNoRectX = function() {
-            return this.getOutNo().x - 13;
+            var outNo = this.getOutNo();
+            var angle = Utils.getSegmentAngle(outNo.p, outNo.toP);
+            return outNo.p.x + this.getLabelOffset(angle, true, false).x;
         };
         this.transformOutNoRectY = function() {
-            return this.getOutNo().y - 36;
+            var outNo = this.getOutNo();
+            var angle = Utils.getSegmentAngle(outNo.p, outNo.toP);
+            return outNo.p.y + this.getLabelOffset(angle, true, false).y;
         };
         this.transformInNoRectWidth = function() {
             return (this.getInNo().val.toString().length * 6) + 6;
         };
         this.transformOutNoRectWidth = function() {
             return (this.getOutNo().val.toString().length * 6) + 6;
+        };
+        this.getLabelOffset = function(angle, arrowPresent, isText) {
+            var defaultXoffset = -13;
+            var defaultYoffset = -8;
+            if (isText) {
+                defaultXoffset = -10;
+                defaultYoffset = 3;
+            }
+            var mainOffset = 20;
+            if (arrowPresent) {
+                mainOffset = 35;
+            }
+            if (angle < 0) {
+                angle = 360 + angle;
+            }
+            if (angle == 0) {
+                angle = 360;
+            }
+            if (angle < 0 || angle > 360) {
+                throw new Error('TurnRestrictionItem : getLabelOffset - problem');
+            } else if (angle > 0 && angle <= 180) {
+                // segment direction DOWN
+                // label direction UP
+                return {
+                    x: defaultXoffset,
+                    y: defaultYoffset - mainOffset
+                };
+            } else if (angle > 180 && angle <= 360) {
+                // segment direction UP
+                // label direction DOWN
+                return {
+                    x: defaultXoffset,
+                    y: defaultYoffset + mainOffset
+                };
+            }
         };
     };
     // static
