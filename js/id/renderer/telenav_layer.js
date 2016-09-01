@@ -678,10 +678,47 @@ iD.TelenavLayer = function (context) {
                 var circle = gElement.append('circle');
                 circle.attr('cx', this.transformX());
                 circle.attr('cy', this.transformY());
-                circle.attr('r', '20');
+                circle.attr('r', this.getCircleRadius());
                 gElement.on('click', function() {
                     This.handleSelection();
                 });
+            }
+        };
+        this.getCircleRadius = function() {
+            var zoom = d3.select('.layer-telenav')[0][0].dataset.zoom;
+            switch (zoom) {
+                case 'z15p':
+                    return '8';
+                    break;
+                case 'z16m':
+                    return '11';
+                    break;
+                case 'z16p':
+                    return '14';
+                    break;
+                case 'z17m':
+                    return '17';
+                    break;
+                case 'z17p':
+                    return '20';
+                    break;
+                case 'z18m':
+                    return '23';
+                    break;
+                case 'z18p':
+                    return '26';
+                    break;
+                case 'z19m':
+                    return '29';
+                    break;
+                case 'z19p':
+                    return '32';
+                    break;
+                case 'z20m':
+                    return '35';
+                    break;
+                default:
+                    return '70';
             }
         };
         this.transformX = function() {
@@ -1000,7 +1037,7 @@ iD.TelenavLayer = function (context) {
                 var circle = gElement.append('circle');
                 circle.attr('cx', this.transformX());
                 circle.attr('cy', this.transformY());
-                circle.attr('r', '25');
+                circle.attr('r', this.getCircleRadius());
                 gElement.on('click', function() {
                     This.handleSelection();
                 });
@@ -1012,6 +1049,43 @@ iD.TelenavLayer = function (context) {
             }
             this.items[0].handleSelection();
         }
+        this.getCircleRadius = function() {
+            var zoom = d3.select('.layer-telenav')[0][0].dataset.zoom;
+            switch (zoom) {
+                case 'z15p':
+                    return '13';
+                    break;
+                case 'z16m':
+                    return '16';
+                    break;
+                case 'z16p':
+                    return '19';
+                    break;
+                case 'z17m':
+                    return '22';
+                    break;
+                case 'z17p':
+                    return '25';
+                    break;
+                case 'z18m':
+                    return '28';
+                    break;
+                case 'z18p':
+                    return '31';
+                    break;
+                case 'z19m':
+                    return '34';
+                    break;
+                case 'z19p':
+                    return '37';
+                    break;
+                case 'z20m':
+                    return '40';
+                    break;
+                default:
+                    return '80';
+            }
+        };
     };
 
     // ==============================
@@ -1674,7 +1748,9 @@ iD.TelenavLayer = function (context) {
             .attr('cy', function(item) {
                 return item.transformY();
             })
-            .attr('r', '25');
+            .attr('r', function(item) {
+                return item.getCircleRadius();
+            });
         var selCircle = clusterElement.append('circle')
             .attr('class', 'selectable')
             .attr('cx', function(item) {
@@ -1683,7 +1759,9 @@ iD.TelenavLayer = function (context) {
             .attr('cy', function(item) {
                 return item.transformY();
             })
-            .attr('r', '25');
+            .attr('r', function(item) {
+                return item.getCircleRadius();
+            });
         var textElem = clusterElement.append('text')
             .attr('x', function(item) {
                 return item.transformX(-5);
@@ -1846,7 +1924,9 @@ iD.TelenavLayer = function (context) {
             .attr('cy', function(item) {
                 return item.transformY();
             })
-            .attr('r', '20');
+            .attr('r', function(item) {
+                return item.getCircleRadius();
+            });
         var trSelCircle = tRs.append('circle').attr('class', 'selectable')
             .attr('cx', function(item) {
                 return item.transformX();
@@ -1854,7 +1934,9 @@ iD.TelenavLayer = function (context) {
             .attr('cy', function(item) {
                 return item.transformY();
             })
-            .attr('r', '20');
+            .attr('r', function(item) {
+                return item.getCircleRadius();
+            });
 
         dOFs.on('mouseover', function(item) {
             item.highlight(true);
@@ -1872,10 +1954,33 @@ iD.TelenavLayer = function (context) {
 
     function render(selection) {
 
-        var zoom = Math.floor(context.map().zoom());
+        var realZoom = context.map().zoom();
+        var zoom = Math.floor(realZoom);
 
         d3.select("#sidebar").classed('telenavPaneActive', enable);
         d3.select(".pane-telenav").classed('hidden', !enable);
+        var telenavLayer = d3.select('.layer-telenav');
+        if (15 <= realZoom && realZoom < 15.5) {
+            telenavLayer.attr('data-zoom', 'z15p');
+        } else if (15.5 <= realZoom && realZoom < 16) {
+            telenavLayer.attr('data-zoom', 'z16m');
+        } else if (16 <= realZoom && realZoom < 16.5) {
+            telenavLayer.attr('data-zoom', 'z16p');
+        } else if (16.5 <= realZoom && realZoom < 17) {
+            telenavLayer.attr('data-zoom', 'z17m');
+        } else if (17 <= realZoom && realZoom < 17.5) {
+            telenavLayer.attr('data-zoom', 'z17p');
+        } else if (17.5 <= realZoom && realZoom < 18) {
+            telenavLayer.attr('data-zoom', 'z18m');
+        } else if (18 <= realZoom && realZoom < 18.5) {
+            telenavLayer.attr('data-zoom', 'z18p');
+        } else if (18.5 <= realZoom && realZoom < 19) {
+            telenavLayer.attr('data-zoom', 'z19m');
+        } else if (19 <= realZoom && realZoom < 19.5) {
+            telenavLayer.attr('data-zoom', 'z19p');
+        } else if (19.5 <= realZoom) {
+            telenavLayer.attr('data-zoom', 'z20m');
+        }
 
         svg = selection.selectAll('svg')
             .data([0]);
@@ -1993,12 +2098,18 @@ iD.TelenavLayer = function (context) {
         trCircle.attr('cy', function(item) {
             return item.transformY();
         });
+        trCircle.attr('r', function(item) {
+            return item.getCircleRadius();
+        });
         var trSelCircle = svg.selectAll('.TurnRestrictionItem > circle.selectable');
         trSelCircle.attr('cx', function(item) {
             return item.transformX();
         });
         trSelCircle.attr('cy', function(item) {
             return item.transformY();
+        });
+        trSelCircle.attr('r', function(item) {
+            return item.getCircleRadius();
         });
         var turnRestrictionPolylinesIn1 = svg.selectAll('.TurnRestrictionItem > polyline.wayIn1');
         turnRestrictionPolylinesIn1.attr('points', function(item) {
@@ -2125,6 +2236,9 @@ iD.TelenavLayer = function (context) {
         });
         clusteredItems.attr('cy', function(item) {
             return item.transformY();
+        });
+        clusteredItems.attr('r', function(item) {
+            return item.getCircleRadius();
         });
         var clusteredItems = svg.selectAll('.ClusteredItem > text');
         clusteredItems.attr('x', function(item) {

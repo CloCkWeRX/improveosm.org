@@ -1597,15 +1597,60 @@ text.gpx {
 /* --- KEYFRAMES ------------------------------- */
 /* --------------------------------------------- */
 
-@keyframes pulsingThickness-2-8 {
+@keyframes pulsingThickness-6-8 {
     0%   {stroke-width: 6;}
     50%  {stroke-width: 8;}
     100% {stroke-width: 6;}
 }
-@keyframes pulsingThickness-3-12 {
+@keyframes pulsingThickness-4 {
+    0%   {stroke-width: 3;}
+    50%  {stroke-width: 4;}
+    100% {stroke-width: 3;}
+}
+@keyframes pulsingThickness-6 {
+    0%   {stroke-width: 4.5;}
+    50%  {stroke-width: 6;}
+    100% {stroke-width: 4.5;}
+}
+@keyframes pulsingThickness-8 {
+    0%   {stroke-width: 6;}
+    50%  {stroke-width: 8;}
+    100% {stroke-width: 6;}
+}
+@keyframes pulsingThickness-10 {
+    0%   {stroke-width: 7.5;}
+    50%  {stroke-width: 10;}
+    100% {stroke-width: 7.5;}
+}
+@keyframes pulsingThickness-12 { /* default */
     0%   {stroke-width: 9;}
     50%  {stroke-width: 12;}
     100% {stroke-width: 9;}
+}
+@keyframes pulsingThickness-14 {
+    0%   {stroke-width: 10.5;}
+    50%  {stroke-width: 13;}
+    100% {stroke-width: 10.5;}
+}
+@keyframes pulsingThickness-16 {
+    0%   {stroke-width: 12;}
+    50%  {stroke-width: 16;}
+    100% {stroke-width: 12;}
+}
+@keyframes pulsingThickness-18 {
+    0%   {stroke-width: 13.5;}
+    50%  {stroke-width: 18;}
+    100% {stroke-width: 13.5;}
+}
+@keyframes pulsingThickness-20 {
+    0%   {stroke-width: 15;}
+    50%  {stroke-width: 20;}
+    100% {stroke-width: 15;}
+}
+@keyframes pulsingThickness-22 {
+    0%   {stroke-width: 16.5;}
+    50%  {stroke-width: 22;}
+    100% {stroke-width: 16.5;}
 }
 
 /* --------------------------------------------- */
@@ -1663,7 +1708,7 @@ text.gpx {
     stroke-width: 3px;
     fill: white;
 
-    animation-name: pulsingThickness-3-12;
+    /*animation-name: pulsingThickness-12;*/
     animation-duration: 1s;
     animation-iteration-count: infinite;
 }
@@ -1706,7 +1751,7 @@ text.gpx {
     stroke: #00CD00;
     fill: none;
 
-    animation-name: pulsingThickness-3-12;
+    /*animation-name: pulsingThickness-12;*/
     animation-duration: 1s;
     animation-iteration-count: infinite;
 }
@@ -1722,7 +1767,7 @@ text.gpx {
     stroke: #FF0000;
     fill: none;
 
-    animation-name: pulsingThickness-3-12;
+    /*animation-name: pulsingThickness-12;*/
     animation-duration: 1s;
     animation-iteration-count: infinite;
 }
@@ -1757,7 +1802,7 @@ text.gpx {
 .layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem :not(circle):not(.selectable) {
     opacity: .75;
 
-    animation-name: pulsingThickness-2-8;
+    animation-name: pulsingThickness-6-8;
     animation-duration: 1s;
     animation-iteration-count: infinite;
  }
@@ -1844,7 +1889,7 @@ text.gpx {
 .layer-telenav svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main {
     stroke: #DC143C;
 
-    animation-name: pulsingThickness-3-12;
+    /*animation-name: pulsingThickness-12;*/
     animation-duration: 1s;
     animation-iteration-count: infinite;
 }
@@ -1873,6 +1918,160 @@ text.gpx {
     fill-opacity: 0.8;
 }
 
+/* --------------------------------------------- */
+/* --- ZOOM HANDLING --------------------------- */
+/* --------------------------------------------- */
+
+.layer-telenav[data-zoom="z15p"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z15p"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z15p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z15p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z15p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-4;
+}
+.layer-telenav[data-zoom="z16m"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z16m"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z16m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z16m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z16m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-6;
+}
+.layer-telenav[data-zoom="z16p"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z16p"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z16p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z16p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z16p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-8;
+}
+.layer-telenav[data-zoom="z17m"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z17m"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z17m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z17m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z17m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-10;
+}
+.layer-telenav[data-zoom="z17p"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z17p"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z17p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z17p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z17p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-12;
+}
+.layer-telenav[data-zoom="z18m"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z18m"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z18m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z18m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z18m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-14;
+}
+.layer-telenav[data-zoom="z18p"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z18p"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z18p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z18p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z18p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-16;
+}
+.layer-telenav[data-zoom="z19m"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z19m"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z19m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z19m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z19m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-18;
+}
+.layer-telenav[data-zoom="z19p"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z19p"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z19p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z19p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z19p"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-20;
+}
+.layer-telenav[data-zoom="z20m"] svg g.selectedItemsLayer g.DirectionOfFlowItem polyline.main,
+.layer-telenav[data-zoom="z20m"] svg g.selectedItemsLayer g.TurnRestrictionItem circle:not(.selectable),
+.layer-telenav[data-zoom="z20m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn1,
+.layer-telenav[data-zoom="z20m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayIn2,
+.layer-telenav[data-zoom="z20m"] svg g.selectedItemsLayer g.TurnRestrictionItem polyline.wayOut {
+    animation-name: pulsingThickness-22;
+}
+
+.layer-telenav[data-zoom="z15p"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 4;
+}
+
+.layer-telenav[data-zoom="z16m"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 6;
+}
+
+.layer-telenav[data-zoom="z16p"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 8;
+}
+
+.layer-telenav[data-zoom="z17m"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 10;
+}
+
+.layer-telenav[data-zoom="z17p"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 12;
+}
+
+.layer-telenav[data-zoom="z18m"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 14;
+}
+
+.layer-telenav[data-zoom="z18p"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 16;
+}
+
+.layer-telenav[data-zoom="z19m"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 18;
+}
+
+.layer-telenav[data-zoom="z19p"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 20;
+}
+
+.layer-telenav[data-zoom="z20m"] svg g.normalItemsLayer g.DirectionOfFlowItem polyline.main {
+    stroke-width: 22;
+}
+
+.layer-telenav[data-zoom="z15p"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 8;
+}
+
+.layer-telenav[data-zoom="z16m"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 12;
+}
+
+.layer-telenav[data-zoom="z16p"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 16;
+}
+
+.layer-telenav[data-zoom="z17m"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 20;
+}
+
+.layer-telenav[data-zoom="z17p"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 24;
+}
+
+.layer-telenav[data-zoom="z18m"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 28;
+}
+
+.layer-telenav[data-zoom="z18p"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 32;
+}
+
+.layer-telenav[data-zoom="z19m"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 36;
+}
+
+.layer-telenav[data-zoom="z19p"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 40;
+}
+
+.layer-telenav[data-zoom="z20m"] g.highlightedItemLayer g.owItem polyline {
+    stroke-width: 44;
+}
 
 /* --------------------------------------------- */
 /* --- PANEL ----------------------------------- */
