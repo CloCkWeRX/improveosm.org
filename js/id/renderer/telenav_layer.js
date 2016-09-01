@@ -67,13 +67,19 @@ iD.TelenavLayer = function (context) {
 
 
     // === IMPROVE OSM HEADER logging in part === begin
-    context.connection().userDetails(function(err, user) {
-        if (!err) {
-            d3.select('#telenavHeaderLogin').classed('hidden', true);
-            d3.select('#telenavHeaderLogout').classed('hidden', false);
-            d3.select('#telenavHeaderLogout span').text('Hello ' + user.display_name + '!')
-        }
-    });
+    (function checkAuthentication() {
+        context.connection().userDetails(function(err, user) {
+            if (!err) {
+                d3.select('#telenavHeaderLogin').classed('hidden', true);
+                d3.select('#telenavHeaderLogout').classed('hidden', false);
+                d3.select('#telenavHeaderLogout span').text('Hello ' + user.display_name + '!')
+            } else {
+                d3.select('#telenavHeaderLogin').classed('hidden', false);
+                d3.select('#telenavHeaderLogout').classed('hidden', true);
+            }
+        });
+        setTimeout(checkAuthentication, 2000);
+    })();
     d3.select('#telenavHeaderLogin').on('click', function() {
         context.connection().authenticate(function(err) {
             if (err) {
@@ -1441,6 +1447,8 @@ iD.TelenavLayer = function (context) {
                         if (err) {
                             alert('Authentication Error');
                         } else {
+                            d3.select('#telenavHeaderLogin').classed('hidden', true);
+                            d3.select('#telenavHeaderLogout').classed('hidden', false);
                             This.setStatus(status);
                         }
                     });
@@ -1507,6 +1515,8 @@ iD.TelenavLayer = function (context) {
                         if (err) {
                             alert('Authentication Error');
                         } else {
+                            d3.select('#telenavHeaderLogin').classed('hidden', true);
+                            d3.select('#telenavHeaderLogout').classed('hidden', false);
                             This.saveComment();
                         }
                     });
