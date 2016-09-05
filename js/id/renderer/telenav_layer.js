@@ -1957,6 +1957,27 @@ iD.TelenavLayer = function (context) {
         var realZoom = context.map().zoom();
         var zoom = Math.floor(realZoom);
 
+        var extent = context.map().extent();
+
+        var south = extent[0][1];
+        var north = extent[1][1];
+        var west = extent[0][0];
+        var east = extent[1][0];
+
+        if (south > 90) south = 90;
+        if (south < -90) south = -90;
+        if (north > 90) north = 90;
+        if (north < -90) north = -90;
+        if (west > 180) west = 180;
+        if (west < -180) west = -180;
+        if (east > 180) east = 180;
+        if (east < -180) east = -180;
+
+        var boundingBoxUrlFragments = '?south=' +
+            south + '&north=' + north + '&west=' +
+            west + '&east=' + east + '&zoom=' + zoom;
+
+
         d3.select("#sidebar").classed('telenavPaneActive', enable);
         d3.select(".pane-telenav").classed('hidden', !enable);
         var telenavLayer = d3.select('.layer-telenav');
@@ -2163,18 +2184,12 @@ iD.TelenavLayer = function (context) {
                 return item.transformOutNoRectY();
             });
 
-        var extent = context.map().extent();
-
         if (requestQueue.length > 0) {
             for (var i = 0; i < requestQueue.length; i++) {
                 requestQueue[i].abort();
             }
             requestQueue.length = 0;
         }
-
-        var boundingBoxUrlFragments = '?south=' +
-            extent[0][1] + '&north=' + extent[1][1] + '&west=' +
-            extent[0][0] + '&east=' + extent[1][0] + '&zoom=' + zoom;
 
         var requestUrlQueue = [];
         var pushedTypes = [];
@@ -2218,7 +2233,9 @@ iD.TelenavLayer = function (context) {
                 var type = pushedTypes[i];
                 !function (type) {
                     requestQueue[i] = d3.json(requestUrlQueue[i], function (error, data) {
-                        _synchClusterCallbacks(error, data, type);
+                        if (typeof data != 'undefined') {
+                            _synchClusterCallbacks(error, data, type);
+                        }
                     });
                 }(type);
             }
