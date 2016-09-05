@@ -259,7 +259,8 @@ iD.TelenavLayer = function (context) {
             }
         };
 
-        this.deselectAll = function() {
+        this.deselectAll = function(redraw) {
+            redraw = (redraw === true);
             // totalSelectedItems is emptied
             // current selection items are moved to the normal items OR to the cluster items
             this.totalSelectedItems.length = 0;
@@ -267,7 +268,9 @@ iD.TelenavLayer = function (context) {
                 this.normalItems.push(this.selectedItems[i]);
             }
             this.selectedItems.length = 0;
-            render(d3.select('.layer-telenav'));
+            if (redraw) {
+                render(d3.select('.layer-telenav'));
+            }
         };
         this.unselectItem = function(itemId) {
             // item must be removed from both total and current selection arrays
@@ -1217,8 +1220,8 @@ iD.TelenavLayer = function (context) {
             }
         };
 
-        this.deselectAll = function() {
-            visibleItems.deselectAll();
+        this.deselectAll = function(redraw) {
+            visibleItems.deselectAll(redraw);
             this.goToMain();
         };
 
@@ -2229,6 +2232,7 @@ iD.TelenavLayer = function (context) {
             clearAllLayers();
             heatMap = new HeatMap(zoom);
             _editPanel.enableActivationSwitch(false);
+            _editPanel.deselectAll(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
                 !function (type) {
@@ -2267,9 +2271,11 @@ iD.TelenavLayer = function (context) {
     }
 
     function clearAllLayers() {
-        svg.select('g.normalItemsLayer').selectAll('g.item')
+        svg.select('g.normalItemsLayer').selectAll('g')
             .remove();
-        svg.select('g.clusteredItemsLayer').selectAll('g.ClusteredItem')
+        svg.select('g.selectedItemsLayer').selectAll('g')
+            .remove();
+        svg.select('g.clusteredItemsLayer').selectAll('g')
             .remove();
         svg.select('g.normalItemsLayer').selectAll('g.item')
             .remove();
