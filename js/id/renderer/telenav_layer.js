@@ -560,9 +560,9 @@ iD.TelenavLayer = function (context) {
                     visibleItems.unselectItem(this.id);
                 } else {
                     if (visibleItems.totalSelectedItems.length === 1) {
-                        visibleItems.deselectAll();
+                        visibleItems.deselectAll(true);
                     } else {
-                        visibleItems.deselectAll();
+                        visibleItems.deselectAll(true);
                         visibleItems.selectItem(this);
                         _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                     }
@@ -572,7 +572,7 @@ iD.TelenavLayer = function (context) {
                     visibleItems.selectItem(this);
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 } else {
-                    visibleItems.deselectAll();
+                    visibleItems.deselectAll(true);
                     visibleItems.selectItem(this);
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
                 }
@@ -1048,7 +1048,7 @@ iD.TelenavLayer = function (context) {
         };
         this.handleSelection = function() {
             if (visibleItems.selectionHasCluster()) {
-                visibleItems.deselectAll();
+                visibleItems.deselectAll(true);
             }
             this.items[0].handleSelection();
         }
@@ -2029,7 +2029,7 @@ iD.TelenavLayer = function (context) {
                 //if (selectedItems.getSize() > 0) {
                 if (visibleItems.totalSelectedItems.length > 0) {
                     //selectedItems.empty();
-                    visibleItems.deselectAll();
+                    visibleItems.deselectAll(true);
                     _editPanel.goToMain();
                 }
             });
@@ -2321,7 +2321,7 @@ iD.TelenavLayer = function (context) {
             .attr('class', 'telenav-back telenav-header-button')
             .attr('id', 'telenav-back')
             .on('click', function(){
-                _editPanel.deselectAll();
+                _editPanel.deselectAll(true);
                 render(d3.select('.layer-telenav'));
             })
             .append('span')
