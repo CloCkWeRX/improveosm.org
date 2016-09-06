@@ -10,6 +10,7 @@ iD.behavior.Hash = function(context) {
         } else if (s !== formatter(map).slice(1)) {
             //map.centerZoom([args[1],
             //    Math.min(lat, Math.max(-lat, args[2]))], args[0]);
+            // WEBEU-1073
             map.centerZoom([Math.min(lat, Math.max(-lat, args[2])),
                 args[1]], args[0]);
         }
@@ -37,6 +38,7 @@ iD.behavior.Hash = function(context) {
         //newParams.map = zoom.toFixed(2) +
         //        '/' + center[0].toFixed(precision) +
         //        '/' + center[1].toFixed(precision);
+        // WEBEU-1073
         newParams.map = zoom.toFixed(2) +
             '/' + center[1].toFixed(precision) +
             '/' + center[0].toFixed(precision);
