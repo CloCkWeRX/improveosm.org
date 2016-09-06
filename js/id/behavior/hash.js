@@ -8,8 +8,10 @@ iD.behavior.Hash = function(context) {
         if (args.length < 3 || args.some(isNaN)) {
             return true; // replace bogus hash
         } else if (s !== formatter(map).slice(1)) {
-            map.centerZoom([args[1],
-                Math.min(lat, Math.max(-lat, args[2]))], args[0]);
+            //map.centerZoom([args[1],
+            //    Math.min(lat, Math.max(-lat, args[2]))], args[0]);
+            map.centerZoom([Math.min(lat, Math.max(-lat, args[2])),
+                args[1]], args[0]);
         }
     };
 
@@ -32,9 +34,12 @@ iD.behavior.Hash = function(context) {
             }
         }
 
+        //newParams.map = zoom.toFixed(2) +
+        //        '/' + center[0].toFixed(precision) +
+        //        '/' + center[1].toFixed(precision);
         newParams.map = zoom.toFixed(2) +
-                '/' + center[0].toFixed(precision) +
-                '/' + center[1].toFixed(precision);
+            '/' + center[1].toFixed(precision) +
+            '/' + center[0].toFixed(precision);
 
         return '#' + iD.util.qsString(_.assign(q, newParams), true);
     };
