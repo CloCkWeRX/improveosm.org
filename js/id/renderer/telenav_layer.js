@@ -439,8 +439,8 @@ iD.TelenavLayer = function (context) {
 
             var nodeMap = {};
             // for all items
-            for (var i = 0; i < this.normalItems.length; i++) {
-                var item = this.normalItems[i];
+            for (var i = 0; i < this.items.length; i++) {
+                var item = this.items[i];
                 if (item.className === 'TurnRestrictionItem') {
                     // build a comparison key
                     var key = item.point.lat + ',' + item.point.lon;
@@ -448,8 +448,8 @@ iD.TelenavLayer = function (context) {
                     if (!nodeMap.hasOwnProperty(key)) {
                         var siblingsFound = [];
                         // search other instances of the fresh key
-                        for (var j = i + 1; j < this.normalItems.length; j++) {
-                            var checkedItem = this.normalItems[j];
+                        for (var j = i + 1; j < this.items.length; j++) {
+                            var checkedItem = this.items[j];
                             if (checkedItem.className === 'TurnRestrictionItem') {
                                 // compare for equality
                                 if (
@@ -465,7 +465,7 @@ iD.TelenavLayer = function (context) {
                             if (typeof nodeMap[key] === 'undefined') {
                                 nodeMap[key] = siblingsFound;
                             }
-                            nodeMap[key].push(item);
+                            nodeMap[key].unshift(item);// check WEBEU-1122
                         }
                     }
                 }
@@ -480,7 +480,7 @@ iD.TelenavLayer = function (context) {
                 if (item.className === 'TurnRestrictionItem') {
                     var key = item.point.lat + ',' + item.point.lon;
                     if (nodeMap.hasOwnProperty(key)) {
-                        nodeMap[key].unshift(item);
+                        //nodeMap[key].unshift(item); // check WEBEU-1122
                         this.selectedClusteredItems.push(new ClusteredItem({
                             lat: item.point.lat,
                             lon: item.point.lon,
