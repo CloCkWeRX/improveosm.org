@@ -220,6 +220,53 @@ iD.TelenavLayer = function (context) {
 
     // ==============================
     // ==============================
+    // KeyPressHandler
+    // ==============================
+    // ==============================
+    var KeyPressHandler = function() {
+
+        var enabled = false;
+
+        var onKeyPressed = function() {
+            switch (d3.event.keyCode) {
+                case 88:
+                    if (_editPanel.showsSiblings()) {
+                        var siblingID = _editPanel.getNextSiblingID();
+                        var item = visibleItems.getItemByID(siblingID);
+                        item.handleSelection();
+                    }
+                    break;
+                case 32:
+                    if (_editPanel.isSwitchActive()) {
+                        _editPanel.toggleEditMode();
+                    }
+                    break;
+            }
+        };
+
+        this.enable = function() {
+            this.disable();
+            d3.select('body').on('keydown', onKeyPressed);
+            enabled = true;
+        };
+
+        this.disable = function() {
+            d3.select('body').on('keydown', null);
+            d3.select('body').on('keydown', null);
+            enabled = false;
+        };
+
+        this.isEnabled = function() {
+            return enabled;
+        };
+
+    };
+    var keyPressHandler = new KeyPressHandler();
+    keyPressHandler.enable();
+
+
+    // ==============================
+    // ==============================
     // VisibleItems
     // ==============================
     // ==============================
@@ -234,6 +281,15 @@ iD.TelenavLayer = function (context) {
 
         this.selectedClusteredItems = [];
         this.totalSelectedItems = [];
+
+        this.getItemByID = function(id) {
+            for (var i = 0; i < this.items.length; i++) {
+                var item = this.items[i];
+                if (id === item.id) {
+                    return item;
+                }
+            }
+        };
 
         this.loadOneWays = function(rawData) {
             for (var i = 0; i < rawData.length; i++) {
@@ -1171,10 +1227,18 @@ iD.TelenavLayer = function (context) {
     // ==============================
     var EditPanel = function() {
 
+        var switchActive = null;
+
         this._location = 'MAIN';
         this.editMode = true;
 
         this.status = 'OPEN';
+
+        this.siblingsShown = false;
+
+        var getSelectedID = function() {
+            return d3.select('#siblingsPanel li.selected').attr('data-id');
+        };
 
         //get the width of the panel for animation effect
         this._panelWidth = function(){
@@ -1183,6 +1247,32 @@ iD.TelenavLayer = function (context) {
 
         this.getLocation = function() {
             return this._location;
+        };
+
+        this.showsSiblings = function() {
+            return this.siblingsShown;
+        };
+
+        this.getNextSiblingID = function() {
+            var selectedId = getSelectedID();
+            var allLiItems = d3.selectAll('#siblingsPanel li');
+            var allIDs = [];
+            allLiItems.each(function(d, i) {
+                allIDs.push(d3.select(this).attr('data-id'));
+            });
+            for (var i = 0; i < allIDs.length; i++) {
+                if (allIDs[i] === selectedId) {
+                    if (i === allIDs.length - 1) {
+                        return allIDs[0];
+                    } else {
+                        return allIDs[i + 1];
+                    }
+                }
+            }
+        };
+
+        this.isSwitchActive = function() {
+            return switchActive;
         };
 
         this.toggleEditMode = function(editMode) {
@@ -1194,8 +1284,9 @@ iD.TelenavLayer = function (context) {
             var pathMr = d3.select('#telenav_pathMr');
 
             if (typeof editMode !== 'boolean') {
-                throw new Error('EditMode::toggleEditMode - unexpected parameter');
-            } else if (editMode) {
+                editMode = !this.editMode;
+            }
+            if (editMode) {
                 roadMr.classed('editMode', true);
                 parkingMr.classed('editMode', true);
                 bothMr.classed('editMode', true);
@@ -1226,6 +1317,9 @@ iD.TelenavLayer = function (context) {
         };
 
         this.enableActivationSwitch = function(enable) {
+
+            switchActive = enable;
+
             var activeButton = d3.select('#telenav-active');
             var inactiveButton = d3.select('#telenav-inactive');
             var owDot = d3.select('#telenav-oneWay-headerDot');
@@ -1289,13 +1383,15 @@ iD.TelenavLayer = function (context) {
             } else {
                 _editPanel.toggleEditMode(false);
             }
-        }
+        };
 
         this.showSiblings = function(siblings) {
             if (siblings === null) {
                 d3.select('#siblingsPanel').classed('hide', true);
+                this.siblingsShown = false;
                 return;
             }
+            this.siblingsShown = true;
             var selected = siblings.selected,
                 selectedConfidenceLvl;
             siblings = siblings.siblings;
@@ -1544,7 +1640,6 @@ iD.TelenavLayer = function (context) {
 
                     var responseHandler = function(err, rawData) {
                         var data = JSON.parse(rawData.response);
-                        console.log("got response", data);
                     };
 
                     switch (currentItem.className) {
@@ -1612,7 +1707,6 @@ iD.TelenavLayer = function (context) {
                     var responseHandler = function (err, rawData) {
                         var data = JSON.parse(rawData.response);
                         d3.select('#commentText').value('');
-                        console.log("got response", data);
                     };
 
                     switch (currentItem.className) {
