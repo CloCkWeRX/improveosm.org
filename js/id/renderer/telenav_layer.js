@@ -237,9 +237,7 @@ iD.TelenavLayer = function (context) {
                     }
                     break;
                 case 32:
-                    if (_editPanel.isSwitchActive()) {
-                        _editPanel.toggleEditMode();
-                    }
+                    _editPanel.toggleEditable();
                     break;
             }
         };
@@ -1275,114 +1273,604 @@ iD.TelenavLayer = function (context) {
             return switchActive;
         };
 
-        this.toggleEditMode = function(editMode) {
 
-            var roadMr = d3.select('#telenav_roadMr');
-            var parkingMr = d3.select('#telenav_parkingMr');
-            var bothMr = d3.select('#telenav_bothMr');
-            var waterMr = d3.select('#telenav_waterMr');
-            var pathMr = d3.select('#telenav_pathMr');
+        var zoom = Math.floor(context.map().zoom());
+        var mode = zoom > 14 ? 'active' : 'heatmap';
+        var editable = true;
+        var switchEnabled = zoom > 14 ? true : false;
+        var minimized = false;
 
-            if (typeof editMode !== 'boolean') {
-                editMode = !this.editMode;
-            }
-            if (editMode) {
-                roadMr.classed('editMode', true);
-                parkingMr.classed('editMode', true);
-                bothMr.classed('editMode', true);
-                waterMr.classed('editMode', true);
-                pathMr.classed('editMode', true);
+        var renderEditable = function(newEditable) {
 
-                d3.select('#telenav-active').classed('selected', true)
-                d3.select('#telenav-inactive').classed('selected', false)
+            if (newEditable) {
+                d3.select('#telenav_roadMr').classed('editMode', true);
+                d3.select('#telenav_parkingMr').classed('editMode', true);
+                d3.select('#telenav_bothMr').classed('editMode', true);
+                d3.select('#telenav_waterMr').classed('editMode', true);
+                d3.select('#telenav_pathMr').classed('editMode', true);
+
+                d3.select('#telenav-active').classed('selected', true);
+                d3.select('#telenav-inactive').classed('selected', false);
                 d3.select('.layer-telenav').classed('editMode', true);
-                this.editMode = true;
-            } else {
-                roadMr.classed('editMode', false);
-                parkingMr.classed('editMode', false);
-                bothMr.classed('editMode', false);
-                waterMr.classed('editMode', false);
-                pathMr.classed('editMode', false);
 
-                d3.select('#telenav-active').classed('selected', false)
-                d3.select('#telenav-inactive').classed('selected', true)
+            } else {
+                d3.select('#telenav_roadMr').classed('editMode', false);
+                d3.select('#telenav_parkingMr').classed('editMode', false);
+                d3.select('#telenav_bothMr').classed('editMode', false);
+                d3.select('#telenav_waterMr').classed('editMode', false);
+                d3.select('#telenav_pathMr').classed('editMode', false);
+
+                d3.select('#telenav-active').classed('selected', false);
+                d3.select('#telenav-inactive').classed('selected', true);
                 d3.select('.layer-telenav').classed('editMode', false);
-                this.editMode = false;
+
             }
+            editable = newEditable;
+        };
+
+        var renderActivationSwitch = function(newSwitchEnabled) {
+
+            if (newSwitchEnabled) {
+                d3.select('#telenav-inactive').style('opacity', '1');
+                d3.select('#telenav-active').style('opacity', '1');
+                d3.select('#telenav-inactive').on('click', _editPanel.toggleEditable);
+                d3.select('#telenav-active').on('click', _editPanel.toggleEditable);
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'hidden');
+
+                d3.select('#telenav_roadMr').classed('showShade', true);
+                d3.select('#telenav_parkingMr').classed('showShade', true);
+                d3.select('#telenav_bothMr').classed('showShade', true);
+                d3.select('#telenav_waterMr').classed('showShade', true);
+                d3.select('#telenav_pathMr').classed('showShade', true);
+            } else {
+                d3.select('#telenav-inactive').style('opacity', '0.2');
+                d3.select('#telenav-active').style('opacity', '0.2');
+                d3.select('#telenav-inactive').on('click', null);
+                d3.select('#telenav-active').on('click', null);
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'visible');
+
+                d3.select('#telenav_roadMr').classed('showShade', false);
+                d3.select('#telenav_parkingMr').classed('showShade', false);
+                d3.select('#telenav_bothMr').classed('showShade', false);
+                d3.select('#telenav_waterMr').classed('showShade', false);
+                d3.select('#telenav_pathMr').classed('showShade', false);
+            }
+            switchEnabled = newSwitchEnabled;
+        };
+
+        var renderMinimized = function(newMinimized) {
+
+            if (newMinimized) {
+                d3.select('.pane-telenav').transition().style('height', '60px');
+            } else {
+                var fullHeight = d3.select('#id-container').style('height');
+                fullHeight = parseInt(fullHeight.slice(0, -2)) - 16;
+                d3.select('.pane-telenav').transition().style('height', '' + fullHeight + 'px');
+            }
+            minimized = newMinimized;
+        };
+
+        var toggleMode = function(newMode) {
+            switch (newMode) {
+                case 'heatmap':
+                    renderEditable(false);
+                    renderActivationSwitch(false);
+                    renderMinimized(false);
+                    break;
+                case 'active':
+                    renderEditable(true);
+                    renderActivationSwitch(true);
+                    renderMinimized(false);
+                    break;
+                case 'selected':
+                    renderEditable(true);
+                    renderActivationSwitch(true);
+                    renderMinimized(false);
+                    break;
+                case 'inactive':
+                    renderEditable(false);
+                    renderActivationSwitch(true);
+                    renderMinimized(true);
+                    break;
+                default:
+            }
+            mode = newMode;
+        };
+
+        this.init = function() {
+
+            var div = d3.selectAll('.pane_telenav')
+                .data([0]);
+
+            var enter = div.enter().append('div')
+                .attr('class', 'pane-telenav col4 hidden');
+            var telenavWrapPanel = enter.append('div')
+                .attr('class', 'telenav-wrap');
+            var telenavWrap = telenavWrapPanel.append('div')
+                .attr('class', 'telenavwrap');
+
+            //  START 3rd container div
+            var userWindow = telenavWrap.append('div')
+                .attr('id', 'userWindow')
+                .attr('class', 'entity-editor-pane pane');
+            var userWindowHeader = userWindow.append('div')
+                .attr('class', 'header fillL cf');
+
+            userWindowHeader.append('h3')
+                .attr('class', 'main-header')
+                .text('Improve OSM panel');
+            var backDeselectWrapper = userWindowHeader.append('div')
+                .attr('class', 'button-wrap single joined fr')
+            backDeselectWrapper.append('button')
+                .attr('class', 'telenav-back telenav-header-button')
+                .attr('id', 'telenav-back')
+                .on('click', function(){
+                    _editPanel.deselectAll(true);
+                    render(d3.select('.layer-telenav'));
+                })
+                .append('span')
+                .text('Back / Deselect');
+            var userWindowBody = userWindow.append('div')
+                .attr('class', 'telenav-body');
+            var userWindowInner = userWindowBody.append('div')
+                .attr('class', 'inspector-border inspector-preset')
+                .append('div');
+            var userContainer = userWindowInner.append('div')
+                .attr('class', 'preset-form inspector-inner');
+            var multipleTR_form = userContainer.append('div')
+                .attr('class', 'form-field')
+                .attr('id', 'siblingsPanel');
+            multipleTR_form.append('label')
+                .attr('class', 'form-label')
+                .text('Possible Turn Restrictions:')
+                .append('div')
+                .attr('class', 'form-label-button-wrap');
+
+            var multipleTR_formWrap = multipleTR_form.append('form')
+                .attr('class', 'filterForm optionsContainer trList')
+                .append('ul')
+                .attr('id', 'siblingsList');
+
+            var detailedInfo_form = userContainer.append('div')
+                .attr('class', 'form-field');
+            detailedInfo_form.append('label')
+                .attr('class', 'form-label')
+                .text('Detailed Information')
+                .append('div')
+                .attr('class', 'form-label-button-wrap');
+
+            detailedInfo_form.append('form')
+                .attr('class', 'filterForm optionsContainer itemDetails');
+
+            var statusUpdate_form = userContainer.append('div')
+                .attr('class', 'form-field');
+            statusUpdate_form.append('label')
+                .attr('class', 'form-label')
+                .text('Change Status')
+                .append('div')
+                .attr('class', 'form-label-button-wrap');
+            var statusUpdate_formWrap = statusUpdate_form.append('form')
+                .attr('class', 'filterForm optionsContainer')
+                .attr('id', 'statusSetter');
+
+            var statusSetterOpen = statusUpdate_formWrap.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
+                .attr('data-filter-type', 'OPEN');
+            statusSetterOpen.append('span')
+                .text('open');
+
+            var statusSetterSolved = statusUpdate_formWrap.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
+                .attr('data-filter-type', 'SOLVED');
+            statusSetterSolved.append('span')
+                .text('solved');
+
+            var statusSetterInvalid = statusUpdate_formWrap.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
+                .attr('data-filter-type', 'INVALID');
+            statusSetterInvalid.append('span')
+                .text('invalid');
+
+            var comments_form = userContainer.append('div')
+                .attr('class', 'form-field');
+            comments_form.append('label')
+                .attr('class', 'form-label')
+                .text('Comment')
+                .append('div')
+                .attr('class', 'form-label-button-wrap')
+                .append('button')
+                .attr('class', 'save-icon')
+                .attr('id', 'saveComment')
+                .call(iD.svg.Icon('#icon-save'));
+            comments_form.append('textarea')
+                .attr('class', 'commentText')
+                .attr('maxLength', '600')
+                .attr('id', 'commentText');
+
+            //  END 3rd container div
+
+            //  START 1st container div
+            var generalSettingsWindow = telenavWrap.append('div')
+                .attr('id', 'generalSettingsWindow')
+                .attr('class', 'entity-editor-pane pane pane-middle');
+            var generalWindowsWindowHeader = generalSettingsWindow.append('div')
+                .attr('class', 'header fillL cf');
+
+            generalWindowsWindowHeader.append('h3')
+                .attr('class', 'main-header')
+                .text('Improve OSM panel');
+            var switchWrapper = generalWindowsWindowHeader.append('div')
+                .attr('class', 'button-wrap joined fr')
+            switchWrapper.append('button')
+                .attr('class', 'telenav-header-button active selected')
+                .attr('id', 'telenav-active')
+                .append('span')
+                .text('Active');
+            switchWrapper.append('button')
+                .attr('class', 'telenav-header-button inactive')
+                .attr('id', 'telenav-inactive')
+                .append('span')
+                .text('Inactive');
+            var generalSettingsBody = generalSettingsWindow.append('div')
+                .attr('class', 'telenav-body');
+
+            var containerBorder = generalSettingsBody.append('div')
+                .attr('class', 'inspector-border inspector-preset')
+                .append('div');
+            var presetFormContainer = containerBorder.append('div')
+                .attr('class', 'preset-form inspector-inner');
+
+            var presetForm = presetFormContainer.append('div')
+                .attr('class', 'form-field');
+            presetForm.append('label')
+                .attr('class', 'form-label')
+                .text('Reported Status');
+            var statusForm = presetForm.append('form')
+                .attr('class', 'filterForm optionsContainer')
+                .attr('id', 'statusFilter');
+            var statusDivOpen = statusForm.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
+                .attr('data-filter-type', 'OPEN');
+            statusDivOpen.append('span')
+                .text('open');
+
+            var statusDivSolved = statusForm.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
+                .attr('data-filter-type', 'SOLVED');
+            statusDivSolved.append('span')
+                .text('solved');
+
+            var statusDivInvalid = statusForm.append('div')
+                .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
+                .attr('data-filter-type', 'INVALID');
+            statusDivInvalid.append('span')
+                .text('invalid');
+            //  END 1st container div
+
+            //  START 2st container div
+            var direction_form = presetFormContainer.append('div')
+                .attr('class', 'form-field')
+                .attr('id', 'dofFilter');
+            var owHeadWrap = direction_form.append('label')
+                .attr('class', 'form-label')
+                .attr('for', 'oneWay')
+                .text('One Way')
+                .append('div')
+                .attr('class', 'form-label-button-wrap')
+            owHeadWrap.append('span').append('i')
+                .attr('id', 'telenav-oneWay-headerDot');
+            owHeadWrap.append('div')
+                .attr('class', 'input')
+                .append('input')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked')
+                .attr('class', 'filterActivation')
+                .attr('id', 'oneWay');
+            var direction_formWrap = direction_form.append('form')
+                .attr('class', 'filterForm optionsContainer');
+            var direction_highlyProbableContainer = direction_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            direction_highlyProbableContainer.append('input')
+                .attr('id', 'C1')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked');
+            direction_highlyProbableContainer.append('label')
+                .attr('for', 'C1')
+                .text('Highly Probable');
+            var direction_mostLikelyContainer = direction_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            direction_mostLikelyContainer.append('input')
+                .attr('id', 'C2')
+                .attr('type', 'checkbox');
+            direction_mostLikelyContainer.append('label')
+                .attr('for', 'C2')
+                .text('Most Likely');
+            var direction_probableContainer = direction_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            direction_probableContainer.append('input')
+                .attr('id', 'C3')
+                .attr('type', 'checkbox');
+            direction_probableContainer.append('label')
+                .attr('for', 'C3')
+                .text('Probable');
+
+            var missing_form = presetFormContainer.append('div')
+                .attr('class', 'form-field')
+                .attr('id', 'mrFilter');
+            var mrHeadWrap = missing_form.append('label')
+                .attr('class', 'form-label')
+                .attr('for', 'missingRoadType')
+                .text('Missing roads')
+                .append('div')
+                .attr('class', 'form-label-button-wrap');
+            mrHeadWrap.append('span').append('i')
+                .attr('id', 'telenav-missingRoad-headerDot');
+            mrHeadWrap.append('div')
+                .attr('class', 'input')
+                .append('input')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked')
+                .attr('class', 'filterActivation')
+                .attr('id', 'missingRoads');
+            var missing_formWrap = missing_form.append('form')
+                .attr('class', 'filterForm optionsContainer');
+            var missing_roadContainer = missing_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            missing_roadContainer.append('input')
+                .attr('id', 'ROAD')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked');
+            missing_roadContainer.append('label')
+                .attr('id', 'telenav_roadMr')
+                .attr('for', 'ROAD')
+                .text('Road');
+            var missing_parkingContainer = missing_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            missing_parkingContainer.append('input')
+                .attr('id', 'PARKING')
+                .attr('type', 'checkbox');
+            missing_parkingContainer.append('label')
+                .attr('id', 'telenav_parkingMr')
+                .attr('for', 'PARKING')
+                .text('Parking');
+            var missing_bothContainer = missing_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            missing_bothContainer.append('input')
+                .attr('id', 'BOTH')
+                .attr('type', 'checkbox');
+            missing_bothContainer.append('label')
+                .attr('id', 'telenav_bothMr')
+                .attr('for', 'BOTH')
+                .text('Both');
+            missing_formWrap.append('label')
+                .attr('class', 'form-subLabel tel_displayBlock')
+                .text('Filters');
+            var missing_waterContainer = missing_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            missing_waterContainer.append('input')
+                .attr('id', 'WATER')
+                .attr('type', 'checkbox');
+            missing_waterContainer.append('label')
+                .attr('id', 'telenav_waterMr')
+                .attr('for', 'WATER')
+                .text('Water Trail');
+            var missing_pathContainer = missing_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            missing_pathContainer.append('input')
+                .attr('id', 'PATH')
+                .attr('type', 'checkbox');
+            missing_pathContainer.append('label')
+                .attr('id', 'telenav_pathMr')
+                .attr('for', 'PATH')
+                .text('Path Trail');
+
+
+            var restriction_form = presetFormContainer.append('div')
+                .attr('class', 'form-field')
+                .attr('id', 'trFilter');
+            var trHeadWrap = restriction_form.append('label')
+                .attr('class', 'form-label')
+                .attr('for', 'missingRoads')
+                .text('Turn Restriction')
+                .append('div')
+                .attr('class', 'form-label-button-wrap');
+            trHeadWrap.append('span').append('i')
+                .attr('id', 'telenav-turnRestriction-headerDot');
+            trHeadWrap.append('div')
+                .attr('class', 'input')
+                .append('input')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked')
+                .attr('class', 'filterActivation')
+                .attr('id', 'turnRestriction');
+            var restriction_formWrap = restriction_form.append('form')
+                .attr('class', 'filterForm optionsContainer');
+            var restriction_highlyProbableContainer = restriction_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            restriction_highlyProbableContainer.append('input')
+                .attr('id', 'C1')
+                .attr('type', 'checkbox')
+                .attr('checked', 'checked');
+            restriction_highlyProbableContainer.append('label')
+                .attr('for', 'C1')
+                .text('Highly Probable');
+            var restriction_probableContainer = restriction_formWrap.append('div')
+                .attr('class', 'tel_displayInline');
+            restriction_probableContainer.append('input')
+                .attr('id', 'C2')
+                .attr('type', 'checkbox');
+            restriction_probableContainer.append('label')
+                .attr('for', 'C2')
+                .text('Probable');
+            //  END 2st container div
+
+            // ++++++++++++
+            // events
+            // ++++++++++++
+
+            d3.select('#oneWay').on('click', function() {
+                if (d3.select('#oneWay').property('checked')) {
+                    selectedTypes.push('dof');
+                    //---
+                    dofSelectedDetails = dofDetails.slice(0);
+                    d3.select('#dofFilter #C1').property('checked', true);
+                    d3.select('#dofFilter #C2').property('checked', true);
+                    d3.select('#dofFilter #C3').property('checked', true);
+                } else {
+                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                    //---
+                    dofSelectedDetails.length = 0;
+                    d3.select('#dofFilter #C1').property('checked', false);
+                    d3.select('#dofFilter #C2').property('checked', false);
+                    d3.select('#dofFilter #C3').property('checked', false);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.selectAll('#dofFilter form input').on('click', function() {
+                var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
+                if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
+                    if (!d3.select('#oneWay').property('checked')) {
+                        d3.select('#oneWay').property('checked', true);
+                        selectedTypes.push('dof');
+                    }
+                    dofSelectedDetails.push(d3.event.target.id);
+                } else {
+                    var noneSelected = true;
+                    var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
+                    if (checkedItems.length == 0) {
+                        d3.select('#oneWay').property('checked', false);
+                        selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                    }
+                    dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.selectAll('#mrFilter form input').on('click', function() {
+                var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
+                if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
+                    if (!d3.select('#missingRoads').property('checked')) {
+                        d3.select('#missingRoads').property('checked', true);
+                        selectedTypes.push('mr');
+                    }
+                    mrSelectedDetails.push(d3.event.target.id);
+                } else {
+                    var noneSelected = true;
+                    var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
+                    if (checkedItems.length == 0) {
+                        d3.select('#missingRoads').property('checked', false);
+                        selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                    }
+                    mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.selectAll('#trFilter form input').on('click', function() {
+                var allCheckboxes = d3.selectAll('#trFilter form input')[0];
+                if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
+                    if (!d3.select('#turnRestriction').property('checked')) {
+                        d3.select('#turnRestriction').property('checked', true);
+                        selectedTypes.push('tr');
+                    }
+                    trSelectedDetails.push(d3.event.target.id);
+                } else {
+                    var noneSelected = true;
+                    var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
+                    if (checkedItems.length == 0) {
+                        d3.select('#turnRestriction').property('checked', false);
+                        selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                    }
+                    trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.select('#missingRoads').on('click', function() {
+                if (d3.select('#missingRoads').property('checked')) {
+                    selectedTypes.push('mr');
+                    //---
+                    mrSelectedDetails = mrDetails.slice(0);
+                    d3.select('#mrFilter #ROAD').property('checked', true);
+                    d3.select('#mrFilter #PARKING').property('checked', true);
+                    d3.select('#mrFilter #BOTH').property('checked', true);
+                    d3.select('#mrFilter #WATER').property('checked', true);
+                    d3.select('#mrFilter #PATH').property('checked', true);
+                } else {
+                    selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
+                    //---
+                    mrSelectedDetails.length = 0;
+                    d3.select('#mrFilter #ROAD').property('checked', false);
+                    d3.select('#mrFilter #PARKING').property('checked', false);
+                    d3.select('#mrFilter #BOTH').property('checked', false);
+                    d3.select('#mrFilter #WATER').property('checked', false);
+                    d3.select('#mrFilter #PATH').property('checked', false);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.select('#turnRestriction').on('click', function() {
+                if (d3.select('#turnRestriction').property('checked')) {
+                    selectedTypes.push('tr');
+                    //---
+                    trSelectedDetails = trDetails.slice(0);
+                    d3.select('#trFilter #C1').property('checked', true);
+                    d3.select('#trFilter #C2').property('checked', true);
+                } else {
+                    selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
+                    //---
+                    trSelectedDetails.length = 0;
+                    d3.select('#trFilter #C1').property('checked', false);
+                    d3.select('#trFilter #C2').property('checked', false);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.selectAll('#statusFilter div').on('click', function() {
+                _editPanel.status = d3.event.currentTarget.getAttribute('data-filter-type');
+                d3.selectAll('#statusFilter div').classed('selected', false);
+                d3.select('#statusFilter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
+                render(d3.select('.layer-telenav'));
+            });
+
+            d3.select('#saveComment').on('click', _editPanel.saveComment);
+
+            d3.selectAll('#statusSetter div').on('click', function() {
+                var newStatus = d3.event.currentTarget.getAttribute('data-filter-type');
+                d3.selectAll('#statusSetter div').classed('selected', false);
+                d3.select('#statusSetter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
+                _editPanel.setStatus.call(_editPanel, newStatus);
+            });
+
+            toggleMode(mode);
+        };
+
+        this.toggleEditable = function() {
+            switch (mode) {
+                case 'active':
+                case 'slected':
+                    toggleMode('inactive');
+                    break;
+                case 'inactive':
+                    toggleMode('active');
+                    break;
+                case 'heatmap':
+                default:
+            }
+        };
+
+        this.enableActivationSwitch = function(enable) {
+            renderActivationSwitch(enable);
         };
 
         this.deselectAll = function(redraw) {
             visibleItems.deselectAll(redraw);
             this.goToMain();
-        };
-
-        this.enableActivationSwitch = function(enable) {
-
-            switchActive = enable;
-
-            var activeButton = d3.select('#telenav-active');
-            var inactiveButton = d3.select('#telenav-inactive');
-            var owDot = d3.select('#telenav-oneWay-headerDot');
-            var mrwDot = d3.select('#telenav-missingRoad-headerDot');
-            var trDot = d3.select('#telenav-turnRestriction-headerDot');
-
-            var roadMr = d3.select('#telenav_roadMr');
-            var parkingMr = d3.select('#telenav_parkingMr');
-            var bothMr = d3.select('#telenav_bothMr');
-            var waterMr = d3.select('#telenav_waterMr');
-            var pathMr = d3.select('#telenav_pathMr');
-
-            if (_editPanel.editMode) {
-                roadMr.classed('editMode', true);
-                parkingMr.classed('editMode', true);
-                bothMr.classed('editMode', true);
-                waterMr.classed('editMode', true);
-                pathMr.classed('editMode', true);
-            } else {
-                roadMr.classed('editMode', false);
-                parkingMr.classed('editMode', false);
-                bothMr.classed('editMode', false);
-                waterMr.classed('editMode', false);
-                pathMr.classed('editMode', false);
-            }
-
-            if (enable) {
-                inactiveButton.style('opacity', '1');
-                activeButton.style('opacity', '1');
-                inactiveButton.on('click', _editPanel.onActivationSwitchClick);
-                activeButton.on('click', _editPanel.onActivationSwitchClick);
-                owDot.style('visibility', 'hidden');
-                mrwDot.style('visibility', 'hidden');
-                trDot.style('visibility', 'hidden');
-
-                roadMr.classed('showShade', true);
-                parkingMr.classed('showShade', true);
-                bothMr.classed('showShade', true);
-                waterMr.classed('showShade', true);
-                pathMr.classed('showShade', true);
-            } else {
-                inactiveButton.style('opacity', '0.2');
-                activeButton.style('opacity', '0.2');
-                inactiveButton.on('click', null);
-                activeButton.on('click', null);
-                owDot.style('visibility', 'visible');
-                mrwDot.style('visibility', 'visible');
-                trDot.style('visibility', 'visible');
-
-                roadMr.classed('showShade', false);
-                parkingMr.classed('showShade', false);
-                bothMr.classed('showShade', false);
-                waterMr.classed('showShade', false);
-                pathMr.classed('showShade', false);
-            }
-        };
-
-        this.onActivationSwitchClick = function() {
-            if(!_editPanel.editMode){
-                _editPanel.toggleEditMode(true);
-            } else {
-                _editPanel.toggleEditMode(false);
-            }
         };
 
         this.showSiblings = function(siblings) {
@@ -1467,24 +1955,6 @@ iD.TelenavLayer = function (context) {
                     break;
             }
             this._location = 'EDIT';
-        };
-
-        this.goToMore = function() {
-            switch (this.getLocation()) {
-                case 'MAIN':
-                    d3.select('.telenavwrap')
-                        .transition()
-                        .style('transform', 'translate3d(-' + this._panelWidth() + 'px, 0px,  0px)');
-                    break;
-                case 'EDIT':
-                    d3.select('.telenavwrap')
-                        .transition()
-                        .style('transform', 'translate3d(-' + 2 * this._panelWidth() + 'px, 0px,  0px)');
-                    break;
-                case 'MORE':
-                    break;
-            }
-            this._location = 'MORE';
         };
 
         this.selectedItemDetails = function selectedItemDetails(item){
@@ -1744,8 +2214,7 @@ iD.TelenavLayer = function (context) {
         };
 
     };
-
-    var _editPanel = new EditPanel();
+    var _editPanel = null;
 
     var _synchClusterCallbacks = function(error, data, type) {
 
@@ -2050,6 +2519,12 @@ iD.TelenavLayer = function (context) {
     };
 
     function render(selection) {
+
+        // object initialization
+        if (_editPanel === null) {
+            _editPanel = new EditPanel();
+            _editPanel.init();
+        }
 
         var realZoom = context.map().zoom();
         var zoom = Math.floor(realZoom);
@@ -2386,474 +2861,6 @@ iD.TelenavLayer = function (context) {
         svg.dimensions(_);
         return render;
     };
-
-    var buildPane = function() {
-
-        var div = d3.selectAll('.pane_telenav')
-            .data([0]);
-
-        var enter = div.enter().append('div')
-            .attr('class', 'pane-telenav col4 hidden');
-        var telenavWrapPanel = enter.append('div')
-            .attr('class', 'telenav-wrap');
-        var telenavWrap = telenavWrapPanel.append('div')
-            .attr('class', 'telenavwrap');
-
-        //  START 3rd container div
-        var userWindow = telenavWrap.append('div')
-            .attr('id', 'userWindow')
-            .attr('class', 'entity-editor-pane pane');
-        var userWindowHeader = userWindow.append('div')
-            .attr('class', 'header fillL cf');
-
-        userWindowHeader.append('h3')
-            .attr('class', 'main-header')
-            .text('Improve OSM panel');
-        var backDeselectWrapper = userWindowHeader.append('div')
-            .attr('class', 'button-wrap single joined fr')
-        backDeselectWrapper.append('button')
-            .attr('class', 'telenav-back telenav-header-button')
-            .attr('id', 'telenav-back')
-            .on('click', function(){
-                _editPanel.deselectAll(true);
-                render(d3.select('.layer-telenav'));
-            })
-            .append('span')
-            .text('Back / Deselect');
-        var userWindowBody = userWindow.append('div')
-            .attr('class', 'telenav-body');
-        var userWindowInner = userWindowBody.append('div')
-            .attr('class', 'inspector-border inspector-preset')
-            .append('div');
-        var userContainer = userWindowInner.append('div')
-            .attr('class', 'preset-form inspector-inner');
-        var multipleTR_form = userContainer.append('div')
-            .attr('class', 'form-field')
-            .attr('id', 'siblingsPanel');
-        multipleTR_form.append('label')
-            .attr('class', 'form-label')
-            .text('Possible Turn Restrictions:')
-            .append('div')
-            .attr('class', 'form-label-button-wrap');
-
-        var multipleTR_formWrap = multipleTR_form.append('form')
-            .attr('class', 'filterForm optionsContainer trList')
-            .append('ul')
-            .attr('id', 'siblingsList');
-
-        var detailedInfo_form = userContainer.append('div')
-            .attr('class', 'form-field');
-        detailedInfo_form.append('label')
-            .attr('class', 'form-label')
-            .text('Detailed Information')
-            .append('div')
-            .attr('class', 'form-label-button-wrap');
-
-        detailedInfo_form.append('form')
-            .attr('class', 'filterForm optionsContainer itemDetails');
-
-        var statusUpdate_form = userContainer.append('div')
-            .attr('class', 'form-field');
-        statusUpdate_form.append('label')
-            .attr('class', 'form-label')
-            .text('Change Status')
-            .append('div')
-            .attr('class', 'form-label-button-wrap');
-        var statusUpdate_formWrap = statusUpdate_form.append('form')
-            .attr('class', 'filterForm optionsContainer')
-            .attr('id', 'statusSetter');
-
-        var statusSetterOpen = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
-            .attr('data-filter-type', 'OPEN');
-        statusSetterOpen.append('span')
-            .text('open');
-
-        var statusSetterSolved = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
-            .attr('data-filter-type', 'SOLVED');
-        statusSetterSolved.append('span')
-            .text('solved');
-
-        var statusSetterInvalid = statusUpdate_formWrap.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
-            .attr('data-filter-type', 'INVALID');
-        statusSetterInvalid.append('span')
-            .text('invalid');
-
-        var comments_form = userContainer.append('div')
-            .attr('class', 'form-field');
-        comments_form.append('label')
-            .attr('class', 'form-label')
-            .text('Comment')
-            .append('div')
-            .attr('class', 'form-label-button-wrap')
-            .append('button')
-            .attr('class', 'save-icon')
-            .attr('id', 'saveComment')
-            .call(iD.svg.Icon('#icon-save'));
-        comments_form.append('textarea')
-            .attr('class', 'commentText')
-            .attr('maxLength', '600')
-            .attr('id', 'commentText');
-
-        //  END 3rd container div
-
-        //  START 1st container div
-        var generalSettingsWindow = telenavWrap.append('div')
-            .attr('id', 'generalSettingsWindow')
-            .attr('class', 'entity-editor-pane pane pane-middle');
-        var generalWindowsWindowHeader = generalSettingsWindow.append('div')
-            .attr('class', 'header fillL cf');
-
-        generalWindowsWindowHeader.append('h3')
-            .attr('class', 'main-header')
-            .text('Improve OSM panel');
-        var switchWrapper = generalWindowsWindowHeader.append('div')
-            .attr('class', 'button-wrap joined fr')
-        switchWrapper.append('button')
-            .attr('class', 'telenav-header-button active selected')
-            .attr('id', 'telenav-active')
-            .append('span')
-            .text('Active');
-        switchWrapper.append('button')
-            .attr('class', 'telenav-header-button inactive')
-            .attr('id', 'telenav-inactive')
-            .append('span')
-            .text('Inactive');
-        var generalSettingsBody = generalSettingsWindow.append('div')
-            .attr('class', 'telenav-body');
-
-        var containerBorder = generalSettingsBody.append('div')
-            .attr('class', 'inspector-border inspector-preset')
-            .append('div');
-        var presetFormContainer = containerBorder.append('div')
-            .attr('class', 'preset-form inspector-inner');
-
-        var presetForm = presetFormContainer.append('div')
-            .attr('class', 'form-field');
-        presetForm.append('label')
-            .attr('class', 'form-label')
-            .text('Reported Status');
-        var statusForm = presetForm.append('form')
-            .attr('class', 'filterForm optionsContainer')
-            .attr('id', 'statusFilter');
-        var statusDivOpen = statusForm.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
-            .attr('data-filter-type', 'OPEN');
-        statusDivOpen.append('span')
-            .text('open');
-
-        var statusDivSolved = statusForm.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
-            .attr('data-filter-type', 'SOLVED');
-        statusDivSolved.append('span')
-            .text('solved');
-
-        var statusDivInvalid = statusForm.append('div')
-            .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
-            .attr('data-filter-type', 'INVALID');
-        statusDivInvalid.append('span')
-            .text('invalid');
-        //  END 1st container div
-
-        //  START 2st container div
-        var direction_form = presetFormContainer.append('div')
-            .attr('class', 'form-field')
-            .attr('id', 'dofFilter');
-        var owHeadWrap = direction_form.append('label')
-            .attr('class', 'form-label')
-            .attr('for', 'oneWay')
-            .text('One Way')
-            .append('div')
-            .attr('class', 'form-label-button-wrap')
-            owHeadWrap.append('span').append('i')
-                .attr('id', 'telenav-oneWay-headerDot');
-            owHeadWrap.append('div')
-            .attr('class', 'input')
-            .append('input')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked')
-            .attr('class', 'filterActivation')
-            .attr('id', 'oneWay');
-        var direction_formWrap = direction_form.append('form')
-            .attr('class', 'filterForm optionsContainer');
-        var direction_highlyProbableContainer = direction_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        direction_highlyProbableContainer.append('input')
-            .attr('id', 'C1')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked');
-        direction_highlyProbableContainer.append('label')
-            .attr('for', 'C1')
-            .text('Highly Probable');
-        var direction_mostLikelyContainer = direction_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        direction_mostLikelyContainer.append('input')
-            .attr('id', 'C2')
-            .attr('type', 'checkbox');
-        direction_mostLikelyContainer.append('label')
-            .attr('for', 'C2')
-            .text('Most Likely');
-        var direction_probableContainer = direction_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        direction_probableContainer.append('input')
-            .attr('id', 'C3')
-            .attr('type', 'checkbox');
-        direction_probableContainer.append('label')
-            .attr('for', 'C3')
-            .text('Probable');
-
-        var missing_form = presetFormContainer.append('div')
-            .attr('class', 'form-field')
-            .attr('id', 'mrFilter');
-        var mrHeadWrap = missing_form.append('label')
-            .attr('class', 'form-label')
-            .attr('for', 'missingRoadType')
-            .text('Missing roads')
-            .append('div')
-            .attr('class', 'form-label-button-wrap');
-            mrHeadWrap.append('span').append('i')
-                .attr('id', 'telenav-missingRoad-headerDot');
-            mrHeadWrap.append('div')
-            .attr('class', 'input')
-            .append('input')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked')
-            .attr('class', 'filterActivation')
-            .attr('id', 'missingRoads');
-        var missing_formWrap = missing_form.append('form')
-            .attr('class', 'filterForm optionsContainer');
-        var missing_roadContainer = missing_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        missing_roadContainer.append('input')
-            .attr('id', 'ROAD')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked');
-        missing_roadContainer.append('label')
-            .attr('id', 'telenav_roadMr')
-            .attr('for', 'ROAD')
-            .text('Road');
-        var missing_parkingContainer = missing_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        missing_parkingContainer.append('input')
-            .attr('id', 'PARKING')
-            .attr('type', 'checkbox');
-        missing_parkingContainer.append('label')
-            .attr('id', 'telenav_parkingMr')
-            .attr('for', 'PARKING')
-            .text('Parking');
-        var missing_bothContainer = missing_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        missing_bothContainer.append('input')
-            .attr('id', 'BOTH')
-            .attr('type', 'checkbox');
-        missing_bothContainer.append('label')
-            .attr('id', 'telenav_bothMr')
-            .attr('for', 'BOTH')
-            .text('Both');
-        missing_formWrap.append('label')
-            .attr('class', 'form-subLabel tel_displayBlock')
-            .text('Filters');
-        var missing_waterContainer = missing_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        missing_waterContainer.append('input')
-            .attr('id', 'WATER')
-            .attr('type', 'checkbox');
-        missing_waterContainer.append('label')
-            .attr('id', 'telenav_waterMr')
-            .attr('for', 'WATER')
-            .text('Water Trail');
-        var missing_pathContainer = missing_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        missing_pathContainer.append('input')
-            .attr('id', 'PATH')
-            .attr('type', 'checkbox');
-        missing_pathContainer.append('label')
-            .attr('id', 'telenav_pathMr')
-            .attr('for', 'PATH')
-            .text('Path Trail');
-
-
-        var restriction_form = presetFormContainer.append('div')
-            .attr('class', 'form-field')
-            .attr('id', 'trFilter');
-        var trHeadWrap = restriction_form.append('label')
-            .attr('class', 'form-label')
-            .attr('for', 'missingRoads')
-            .text('Turn Restriction')
-            .append('div')
-            .attr('class', 'form-label-button-wrap');
-        trHeadWrap.append('span').append('i')
-            .attr('id', 'telenav-turnRestriction-headerDot');
-        trHeadWrap.append('div')
-            .attr('class', 'input')
-            .append('input')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked')
-            .attr('class', 'filterActivation')
-            .attr('id', 'turnRestriction');
-        var restriction_formWrap = restriction_form.append('form')
-            .attr('class', 'filterForm optionsContainer');
-        var restriction_highlyProbableContainer = restriction_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        restriction_highlyProbableContainer.append('input')
-            .attr('id', 'C1')
-            .attr('type', 'checkbox')
-            .attr('checked', 'checked');
-        restriction_highlyProbableContainer.append('label')
-            .attr('for', 'C1')
-            .text('Highly Probable');
-        var restriction_probableContainer = restriction_formWrap.append('div')
-            .attr('class', 'tel_displayInline');
-        restriction_probableContainer.append('input')
-            .attr('id', 'C2')
-            .attr('type', 'checkbox');
-        restriction_probableContainer.append('label')
-            .attr('for', 'C2')
-            .text('Probable');
-        //  END 2st container div
-
-        // ++++++++++++
-        // events
-        // ++++++++++++
-
-        d3.select('#oneWay').on('click', function() {
-            if (d3.select('#oneWay').property('checked')) {
-                selectedTypes.push('dof');
-                //---
-                dofSelectedDetails = dofDetails.slice(0);
-                d3.select('#dofFilter #C1').property('checked', true);
-                d3.select('#dofFilter #C2').property('checked', true);
-                d3.select('#dofFilter #C3').property('checked', true);
-            } else {
-                selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
-                //---
-                dofSelectedDetails.length = 0;
-                d3.select('#dofFilter #C1').property('checked', false);
-                d3.select('#dofFilter #C2').property('checked', false);
-                d3.select('#dofFilter #C3').property('checked', false);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.selectAll('#dofFilter form input').on('click', function() {
-            var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
-            if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#oneWay').property('checked')) {
-                    d3.select('#oneWay').property('checked', true);
-                    selectedTypes.push('dof');
-                }
-                dofSelectedDetails.push(d3.event.target.id);
-            } else {
-                var noneSelected = true;
-                var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
-                if (checkedItems.length == 0) {
-                    d3.select('#oneWay').property('checked', false);
-                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
-                }
-                dofSelectedDetails.splice(dofSelectedDetails.indexOf(d3.event.target.id), 1);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.selectAll('#mrFilter form input').on('click', function() {
-            var allCheckboxes = d3.selectAll('#mrFilter form input')[0];
-            if (d3.select('#mrFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#missingRoads').property('checked')) {
-                    d3.select('#missingRoads').property('checked', true);
-                    selectedTypes.push('mr');
-                }
-                mrSelectedDetails.push(d3.event.target.id);
-            } else {
-                var noneSelected = true;
-                var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
-                if (checkedItems.length == 0) {
-                    d3.select('#missingRoads').property('checked', false);
-                    selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
-                }
-                mrSelectedDetails.splice(mrSelectedDetails.indexOf(d3.event.target.id), 1);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.selectAll('#trFilter form input').on('click', function() {
-            var allCheckboxes = d3.selectAll('#trFilter form input')[0];
-            if (d3.select('#trFilter #' + d3.event.target.id).property('checked')) {
-                if (!d3.select('#turnRestriction').property('checked')) {
-                    d3.select('#turnRestriction').property('checked', true);
-                    selectedTypes.push('tr');
-                }
-                trSelectedDetails.push(d3.event.target.id);
-            } else {
-                var noneSelected = true;
-                var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
-                if (checkedItems.length == 0) {
-                    d3.select('#turnRestriction').property('checked', false);
-                    selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
-                }
-                trSelectedDetails.splice(trSelectedDetails.indexOf(d3.event.target.id), 1);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.select('#missingRoads').on('click', function() {
-            if (d3.select('#missingRoads').property('checked')) {
-                selectedTypes.push('mr');
-                //---
-                mrSelectedDetails = mrDetails.slice(0);
-                d3.select('#mrFilter #ROAD').property('checked', true);
-                d3.select('#mrFilter #PARKING').property('checked', true);
-                d3.select('#mrFilter #BOTH').property('checked', true);
-                d3.select('#mrFilter #WATER').property('checked', true);
-                d3.select('#mrFilter #PATH').property('checked', true);
-            } else {
-                selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
-                //---
-                mrSelectedDetails.length = 0;
-                d3.select('#mrFilter #ROAD').property('checked', false);
-                d3.select('#mrFilter #PARKING').property('checked', false);
-                d3.select('#mrFilter #BOTH').property('checked', false);
-                d3.select('#mrFilter #WATER').property('checked', false);
-                d3.select('#mrFilter #PATH').property('checked', false);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.select('#turnRestriction').on('click', function() {
-            if (d3.select('#turnRestriction').property('checked')) {
-                selectedTypes.push('tr');
-                //---
-                trSelectedDetails = trDetails.slice(0);
-                d3.select('#trFilter #C1').property('checked', true);
-                d3.select('#trFilter #C2').property('checked', true);
-            } else {
-                selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
-                //---
-                trSelectedDetails.length = 0;
-                d3.select('#trFilter #C1').property('checked', false);
-                d3.select('#trFilter #C2').property('checked', false);
-            }
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.selectAll('#statusFilter div').on('click', function() {
-            _editPanel.status = d3.event.currentTarget.getAttribute('data-filter-type');
-            d3.selectAll('#statusFilter div').classed('selected', false);
-            d3.select('#statusFilter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
-            render(d3.select('.layer-telenav'));
-        });
-
-        d3.select('#saveComment').on('click', _editPanel.saveComment);
-
-        d3.selectAll('#statusSetter div').on('click', function() {
-            var newStatus = d3.event.currentTarget.getAttribute('data-filter-type');
-            d3.selectAll('#statusSetter div').classed('selected', false);
-            d3.select('#statusSetter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
-            _editPanel.setStatus.call(_editPanel, newStatus);
-        });
-
-    }();
 
     return render;
 };

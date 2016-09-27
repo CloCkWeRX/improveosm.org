@@ -674,8 +674,9 @@ button.save.has-count .count::before {
     position: absolute;
     bottom: 15px;
     z-index: 1000;
-    height: 350px;
+    height: 60px;
     overflow: hidden;
+    background-color: white;
 }
 .telenavwrap .header {
     border-top: 1px solid #ddd;
@@ -825,7 +826,7 @@ label .form-label-button-wrap .input {
     display: none;
 }
 #sidebar.telenavPaneActive {
-    height: calc(100% - 380px);
+    height: calc(100% - 60px);
 }
 
 .mapillary-image {
