@@ -1227,6 +1227,8 @@ iD.TelenavLayer = function (context) {
 
         var switchActive = null;
 
+        var deselectionSheduled = false;//flag alerting the next map pan should trigger a deselection
+
         this._location = 'MAIN';
         this.editMode = true;
 
@@ -1273,6 +1275,18 @@ iD.TelenavLayer = function (context) {
             return switchActive;
         };
 
+        this.scheduleDeselection = function() {// exists because of WEBEU-936
+            // called after a status change
+            deselectionSheduled = true;
+        };
+
+        this.performScheduledDeselection = function() {// exists because of WEBEU-936
+            // if a deselection was scheduled, deselect all
+            if (deselectionSheduled) {
+                this.deselectAll(false);
+                deselectionSheduled = false;
+            }
+        }
 
         var zoom = Math.floor(context.map().zoom());
         var mode = zoom > 14 ? 'active' : 'heatmap';
@@ -1845,6 +1859,7 @@ iD.TelenavLayer = function (context) {
                 d3.selectAll('#statusSetter div').classed('selected', false);
                 d3.select('#statusSetter div[data-filter-type=' + _editPanel.status + ']').classed('selected', true);
                 _editPanel.setStatus.call(_editPanel, newStatus);
+                _editPanel.scheduleDeselection();
             });
 
             toggleMode(mode);
@@ -2629,6 +2644,8 @@ iD.TelenavLayer = function (context) {
             svg
                 .append('g')
                 .attr('class', 'highlightedItemLayer');
+        } else {
+            svg.selectAll('g.highlightedItemLayer *').remove();
         }
 
         svg.style('display', enable ? 'block' : 'none');
@@ -2817,6 +2834,7 @@ iD.TelenavLayer = function (context) {
             svg.selectAll('g.cluster')
                 .remove();
         }
+        _editPanel.performScheduledDeselection();
     };
 
     function moveClusteredItems() {
