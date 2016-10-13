@@ -1329,30 +1329,34 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav-active').style('opacity', '1');
                 d3.select('#telenav-inactive').on('click', _editPanel.toggleEditable);
                 d3.select('#telenav-active').on('click', _editPanel.toggleEditable);
+/*
                 d3.select('#telenav-oneWay-headerDot').style('visibility', 'hidden');
                 d3.select('#telenav-missingRoad-headerDot').style('visibility', 'hidden');
                 d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'hidden');
+*/
 
-                d3.select('#telenav_roadMr').classed('showShade', true);
+/*                d3.select('#telenav_roadMr').classed('showShade', true);
                 d3.select('#telenav_parkingMr').classed('showShade', true);
                 d3.select('#telenav_bothMr').classed('showShade', true);
                 d3.select('#telenav_waterMr').classed('showShade', true);
-                d3.select('#telenav_pathMr').classed('showShade', true);
+                d3.select('#telenav_pathMr').classed('showShade', true);*/
             } else {
                 d3.select('#telenav-inactive').style('opacity', '0.2');
                 d3.select('#telenav-active').style('opacity', '0.2');
                 d3.select('#telenav-inactive').on('click', null);
                 d3.select('#telenav-active').on('click', null);
+/*
                 d3.select('#telenav-oneWay-headerDot').style('visibility', 'visible');
                 d3.select('#telenav-missingRoad-headerDot').style('visibility', 'visible');
                 d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'visible');
+*/
 
-                d3.select('#telenav_roadMr').classed('showShade', false);
+  /*              d3.select('#telenav_roadMr').classed('showShade', false);
                 d3.select('#telenav_parkingMr').classed('showShade', false);
                 d3.select('#telenav_bothMr').classed('showShade', false);
                 d3.select('#telenav_waterMr').classed('showShade', false);
                 d3.select('#telenav_pathMr').classed('showShade', false);
-            }
+  */          }
             switchEnabled = newSwitchEnabled;
         };
 
@@ -1362,7 +1366,7 @@ iD.TelenavLayer = function (context) {
                 d3.select('.pane-telenav').transition().style('height', '60px');
             } else {
                 var fullHeight = d3.select('#id-container').style('height');
-                fullHeight = parseInt(fullHeight.slice(0, -2)) - 16;
+                fullHeight = parseInt(fullHeight.slice(0, -2)) - 1;
                 d3.select('.pane-telenav').transition().style('height', '' + fullHeight + 'px');
             }
             minimized = newMinimized;
@@ -1475,19 +1479,19 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
                 .attr('data-filter-type', 'OPEN');
             statusSetterOpen.append('span')
-                .text('open');
+                .text('Open');
 
             var statusSetterSolved = statusUpdate_formWrap.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
                 .attr('data-filter-type', 'SOLVED');
             statusSetterSolved.append('span')
-                .text('solved');
+                .text('Solved');
 
             var statusSetterInvalid = statusUpdate_formWrap.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
                 .attr('data-filter-type', 'INVALID');
             statusSetterInvalid.append('span')
-                .text('invalid');
+                .text('Invalid');
 
             var comments_form = userContainer.append('div')
                 .attr('class', 'form-field');
@@ -1550,19 +1554,19 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
                 .attr('data-filter-type', 'OPEN');
             statusDivOpen.append('span')
-                .text('open');
+                .text('Open');
 
             var statusDivSolved = statusForm.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
                 .attr('data-filter-type', 'SOLVED');
             statusDivSolved.append('span')
-                .text('solved');
+                .text('Solved');
 
             var statusDivInvalid = statusForm.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
                 .attr('data-filter-type', 'INVALID');
             statusDivInvalid.append('span')
-                .text('invalid');
+                .text('Invalid');
             //  END 1st container div
 
             //  START 2st container div
@@ -1572,11 +1576,13 @@ iD.TelenavLayer = function (context) {
             var owHeadWrap = direction_form.append('label')
                 .attr('class', 'form-label')
                 .attr('for', 'oneWay')
-                .text('One Way')
+                .text('OneWay - Confidence')
                 .append('div')
                 .attr('class', 'form-label-button-wrap')
+/*
             owHeadWrap.append('span').append('i')
                 .attr('id', 'telenav-oneWay-headerDot');
+*/
             owHeadWrap.append('div')
                 .attr('class', 'input')
                 .append('input')
@@ -1594,7 +1600,7 @@ iD.TelenavLayer = function (context) {
                 .attr('checked', 'checked');
             direction_highlyProbableContainer.append('label')
                 .attr('for', 'C1')
-                .text('Highly Probable');
+                .text('Super');
             var direction_mostLikelyContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_mostLikelyContainer.append('input')
@@ -1602,7 +1608,7 @@ iD.TelenavLayer = function (context) {
                 .attr('type', 'checkbox');
             direction_mostLikelyContainer.append('label')
                 .attr('for', 'C2')
-                .text('Most Likely');
+                .text('High');
             var direction_probableContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_probableContainer.append('input')
@@ -1610,7 +1616,7 @@ iD.TelenavLayer = function (context) {
                 .attr('type', 'checkbox');
             direction_probableContainer.append('label')
                 .attr('for', 'C3')
-                .text('Probable');
+                .text('Okay');
 
             var missing_form = presetFormContainer.append('div')
                 .attr('class', 'form-field')
@@ -1621,8 +1627,10 @@ iD.TelenavLayer = function (context) {
                 .text('Missing roads')
                 .append('div')
                 .attr('class', 'form-label-button-wrap');
+/*
             mrHeadWrap.append('span').append('i')
                 .attr('id', 'telenav-missingRoad-headerDot');
+*/
             mrHeadWrap.append('div')
                 .attr('class', 'input')
                 .append('input')
@@ -1633,7 +1641,8 @@ iD.TelenavLayer = function (context) {
             var missing_formWrap = missing_form.append('form')
                 .attr('class', 'filterForm optionsContainer');
             var missing_roadContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow')
+                .append('span');
             missing_roadContainer.append('input')
                 .attr('id', 'ROAD')
                 .attr('type', 'checkbox')
@@ -1641,18 +1650,22 @@ iD.TelenavLayer = function (context) {
             missing_roadContainer.append('label')
                 .attr('id', 'telenav_roadMr')
                 .attr('for', 'ROAD')
-                .text('Road');
+                .text('Show Roads');
             var missing_parkingContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow')
+                .append('span');
             missing_parkingContainer.append('input')
                 .attr('id', 'PARKING')
                 .attr('type', 'checkbox');
             missing_parkingContainer.append('label')
                 .attr('id', 'telenav_parkingMr')
                 .attr('for', 'PARKING')
-                .text('Parking');
+                .text('Show Parking');
+
+/*
             var missing_bothContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline')
+                .append('span');
             missing_bothContainer.append('input')
                 .attr('id', 'BOTH')
                 .attr('type', 'checkbox');
@@ -1660,27 +1673,28 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'telenav_bothMr')
                 .attr('for', 'BOTH')
                 .text('Both');
+*/
             missing_formWrap.append('label')
                 .attr('class', 'form-subLabel tel_displayBlock')
                 .text('Filters');
             var missing_waterContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow');
             missing_waterContainer.append('input')
                 .attr('id', 'WATER')
                 .attr('type', 'checkbox');
             missing_waterContainer.append('label')
                 .attr('id', 'telenav_waterMr')
                 .attr('for', 'WATER')
-                .text('Water Trail');
+                .text('Show Water Trail');
             var missing_pathContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow');
             missing_pathContainer.append('input')
                 .attr('id', 'PATH')
                 .attr('type', 'checkbox');
             missing_pathContainer.append('label')
                 .attr('id', 'telenav_pathMr')
                 .attr('for', 'PATH')
-                .text('Path Trail');
+                .text('Show Path Trail');
 
 
             var restriction_form = presetFormContainer.append('div')
@@ -1689,11 +1703,13 @@ iD.TelenavLayer = function (context) {
             var trHeadWrap = restriction_form.append('label')
                 .attr('class', 'form-label')
                 .attr('for', 'missingRoads')
-                .text('Turn Restriction')
+                .text('Turn Restriction - Confidence')
                 .append('div')
                 .attr('class', 'form-label-button-wrap');
+/*
             trHeadWrap.append('span').append('i')
                 .attr('id', 'telenav-turnRestriction-headerDot');
+*/
             trHeadWrap.append('div')
                 .attr('class', 'input')
                 .append('input')
@@ -1704,22 +1720,22 @@ iD.TelenavLayer = function (context) {
             var restriction_formWrap = restriction_form.append('form')
                 .attr('class', 'filterForm optionsContainer');
             var restriction_highlyProbableContainer = restriction_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow');
             restriction_highlyProbableContainer.append('input')
                 .attr('id', 'C1')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
             restriction_highlyProbableContainer.append('label')
                 .attr('for', 'C1')
-                .text('Highly Probable');
+                .text('High');
             var restriction_probableContainer = restriction_formWrap.append('div')
-                .attr('class', 'tel_displayInline');
+                .attr('class', 'tel_displayInline twoPerRow');
             restriction_probableContainer.append('input')
                 .attr('id', 'C2')
                 .attr('type', 'checkbox');
             restriction_probableContainer.append('label')
                 .attr('for', 'C2')
-                .text('Probable');
+                .text('Normal');
             //  END 2st container div
 
             // ++++++++++++

@@ -663,6 +663,7 @@ button.save.has-count .count::before {
     right: 0%;
     /*right: -200%;*/
     transition: transform .3s ease-in-out;
+    font-family: Helvetica-Neue-Bold;
 }
 .telenavwrap .pane {
     width: 50%;
@@ -672,7 +673,7 @@ button.save.has-count .count::before {
 }
 .pane-telenav {
     position: absolute;
-    bottom: 15px;
+    bottom: 0px;
     z-index: 1000;
     height: 60px;
     overflow: hidden;
@@ -683,6 +684,9 @@ button.save.has-count .count::before {
 }
 .pane-telenav .header .main-header {
     display: inline-block;
+    font-size: 14px;
+    font-family: Helvetica-Neue-Bold;
+    color: #333;
 }
 .pane-telenav .header .button-wrap {
      display: inline-block;
@@ -714,22 +718,25 @@ button.save.has-count .count::before {
     border-radius: 0px;
     min-width: 75px;
     border: 0px;
-    background-color: lightgrey;
+    background-color: #d3d3d3;
 }
 .pane-telenav .header .telenav-header-button span {
 /*    border: 1px solid #666;
     height: 30px;
     line-height: 30px;*/
-    color: dimgrey;
+    color: #333;
     display: block;
     padding-left: 10px; padding-right: 10px;
     border-radius: 4px;
+    font-family: Helvetica-Neue-Bold;
+    font-size: 14px;
+
 }
-.pane-telenav .header .telenav-header-button.active.selected {
-    background: limegreen;
+.pane-telenav .header .telenav-header-button.active.selected{
+    background: #8ad258;
 }
 .pane-telenav .header .telenav-header-button.inactive.selected {
-    background: #D32232;
+    background: #e26d5b;
 }
 .pane-telenav .header .telenav-header-button.selected span {
     color: white;
@@ -743,6 +750,15 @@ button.save.has-count .count::before {
     left: 0;
     bottom: 0;
     top: 60px;
+}
+.telenav-body .form-label {
+    font-size: 12px;
+    font-family: Helvetica-Neue-Bold;
+    color: #333;
+}
+.telenav-body input[type="checkbox"], input[type="radio"] {
+    float: none;
+    vertical-align: -3px;
 }
 .pane-telenav .pane {
     bottom: 0;
@@ -761,7 +777,7 @@ button.save.has-count .count::before {
     border-color: #ccc;
     border-style: none solid solid;
     background-color: white;
-    padding: 0 0 0 10px;
+    padding: 0;
 }
 .telenavwrap .optionsContainer.trList {
     padding-left: 0;
@@ -779,7 +795,7 @@ label .form-label-button-wrap .input {
 }
 .form-subLabel {
     background: #F6F6F6;
-    padding: 3px 10px;
+    padding: 3px 20px;
     width: calc(100% + 10px)!important;
     margin-left: -10px;
 }
@@ -788,9 +804,43 @@ label .form-label-button-wrap .input {
     margin-right: 0;
     font-weight: bolder;
     cursor: pointer;
+    width: 33.32%;
+}
+/**BEGIN style checked checkboxes**/
+.filterForm input[type=checkbox],
+.filterActivation {
+    width: 14px;
+    height: 14px;
+    /*margin-right: 8px;*/
+    cursor: pointer;
+    font-size: 10px;
+}
+.filterForm input[type=checkbox]:after,
+.filterActivation:after {
+    content: " ";
+    background-color: #6e8fff;
+    display: inline-block;
+    visibility: visible;
+    width: 14px;
+    text-align: center;
+}
+.filterForm input[type=checkbox]:checked:after,
+.filterActivation:checked:after {
+    content: "\2714";
+    color: white;
+}
+/**END style checked checkboxes**/
+.telenav-body .filterActivation {
+    margin-top: 0;
+}
+.filterForm div {
+    text-align: center;
+}
+.filterForm div.twoPerRow {
+    width: 50%;
 }
 .filterForm div.selected {
-    background-color: limegreen;
+    background: #8ad258;
     color: white;
 }
 /*.filterForm div:first-child{*/
@@ -804,6 +854,7 @@ label .form-label-button-wrap .input {
 }
 .filterForm label {
     font-size: 12px;
+    font-weight: normal;
 }
 
 .tel_displayInline{
@@ -815,6 +866,10 @@ label .form-label-button-wrap .input {
     display: block;
     overflow: hidden;
     width: 100%;
+}
+#statusFilter span {
+    font-size: 12px;
+    font-weight: normal;
 }
 .sectionHeader {
     font-weight: bold;
