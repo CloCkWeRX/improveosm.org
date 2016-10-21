@@ -1738,9 +1738,115 @@ iD.TelenavLayer = function (context) {
                 .text('Normal');
             //  END 2st container div
 
+            var modal = div.enter().append('div')
+                .attr('class', 'modalWrapper')
+                .append('div')
+                .attr('class', 'modalContent');
+            modal.append('h2')
+                .text('Step by Step Tutorial')
+                .append('button')
+                .attr('class', 'close-btn')
+                .text('x');
+            var modalContent = modal.append('div')
+                .attr('class', 'modalBody');
+            var sectionOne = modalContent.append('section')
+                .attr('class', 'current');
+            sectionOne.append('div')
+                .attr('class', 'info-text')
+                .append('p')
+                .text('Make sure the ImproveOSM layer is selected in iD\'s right tollbar');
+            sectionOne.append('img')
+                .attr('src', context.imagePath('stepOne.jpg'));
+
+            var sectionTwo = modalContent.append('section')
+                .attr('class', 'next');
+            var sectionTwoInfo = sectionTwo.append('div')
+                .attr('class', 'info-text');
+            sectionTwoInfo.append('p')
+                .text('1) Choose a map region that has pending issues');
+            sectionTwoInfo.append('p')
+                .text('2) Zoom into a relevant position');
+            sectionTwoInfo.append('p')
+                .text('3) Pick an issue to resolve and analyse it\'s propreties by selecting it');
+            sectionTwo.append('img')
+                .attr('src', context.imagePath('stepTwo.jpg'));
+
+            var sectionThree = modalContent.append('section');
+            var sectionThreeInfo = sectionThree.append('div')
+                .attr('class', 'info-text');
+            sectionThreeInfo.append('p')
+                .text('1) Press SPACE or click the ACTIVATION toggle buttons to switch the ImproveOSM layer to thee inactive (transparent) state');
+            sectionThreeInfo.append('p')
+                .text('2) Use the iD\'s tooling to make the desired edit that would solve the ImproveOSM issue');
+            sectionThreeInfo.append('p')
+                .text('3) Save the iD edit');
+            sectionThree.append('img')
+                .attr('src', context.imagePath('stepThree.jpg'));
+
+            var sectionFour = modalContent.append('section');
+            var sectionFourInfo = sectionFour.append('div')
+                .attr('class', 'info-text');
+            sectionFourInfo.append('p')
+                .text('1) Use SPACE or the ACTIVATION toggle buttons to enable the ImproveOSM layer');
+            sectionFourInfo.append('p')
+                .text('2) Select the item again');
+            sectionFourInfo.append('p')
+                .text('3) Write a comment and choose a new status');
+            sectionFour.append('img')
+                .attr('src', context.imagePath('stepFour.jpg'));
+
+            var modalFooter = modal.append('div')
+                .attr('class', 'modalFooter');
+            modalFooter.append('button')
+                .text('previous')
+                .attr('id', 'previous-btn')
+                .attr('disabled', 'disabled');
+            modalFooter.append('button')
+                .text('next')
+                .attr('id', 'next-btn');
+            if(localStorage.getItem('modalWrapper') === null) {
+                d3.select('.modalWrapper').style('display', 'flex');
+            }
+
+            d3.select('.close-btn').on('click', function(){
+                localStorage.setItem('modalWrapper', 'watched');
+                $('.modalWrapper').css('display', 'none');
+            });
+
             // ++++++++++++
             // events
             // ++++++++++++
+
+            d3.select('#next-btn').on('click', function(){
+                if($('.modalBody').find('.next').next().length != 0) {
+                    $('.modalBody').find('.previous').removeClass('previous');
+                    $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('previous');
+                    $('.modalBody').find('.next').fadeIn().removeClass('next').addClass('current').next().addClass('next');
+                    if($('.modalFooter').find('#previous-btn').is(':disabled')) {
+                        $('.modalFooter').find('#previous-btn').removeAttr('disabled')
+                    }
+                } else {
+                    $('.modalBody').find('.previous').removeClass('previous');
+                    $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('previous');
+                    $('.modalBody').find('.next').fadeIn().removeClass('next').addClass('current');
+                    $(this).prop('disabled', true);
+                }
+            });
+            d3.select('#previous-btn').on('click', function(){
+                if($('.modalBody').find('.previous').prev().length != 0) {
+                    $('.modalBody').find('.next').removeClass('next');
+                    $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('next');
+                    $('.modalBody').find('.previous').fadeIn().removeClass('previous').addClass('current').prev().addClass('previous');
+                    if($('.modalFooter').find('#next-btn').is(':disabled')) {
+                        $('.modalFooter').find('#next-btn').removeAttr('disabled')
+                    }
+                } else {
+                    $('.modalBody').find('.next').removeClass('next');
+                    $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('next');
+                    $('.modalBody').find('.previous').fadeIn().removeClass('previous').addClass('current');
+                    $(this).prop('disabled', true);
+                }
+            });
 
             d3.select('#oneWay').on('click', function() {
                 if (d3.select('#oneWay').property('checked')) {
@@ -2378,8 +2484,7 @@ iD.TelenavLayer = function (context) {
             .remove();
     }
 
-    function drawItems(type) {
-        var data = null;
+    function drawItems(type) {        var data = null;
         switch (type) {
             case 'normal':
                 data = svg.select('g.normalItemsLayer').selectAll('g.item')
