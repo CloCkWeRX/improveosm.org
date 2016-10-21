@@ -656,6 +656,8 @@ button.save.has-count .count::before {
 
 /* Telenav pane
 ------------------------------------------------------- */
+@font-face { font-family: Helvetica-Neue-Bold; src: url('fonts/helvetica-neue-bold.ttf'); }
+@font-face { font-family: Helvetica-Neue; src: url('fonts/helvetica-neue.ttf'); }
 .telenavwrap {
     position: absolute;
     width: 200%;
@@ -691,7 +693,7 @@ button.save.has-count .count::before {
 .pane-telenav .header .button-wrap {
      display: inline-block;
      height: 100%;
-     margin-right: 10px
+     margin-right: 30px
 }
 .pane-telenav .header .button-wrap:hover {
     opacity: 0.85;
@@ -758,7 +760,7 @@ button.save.has-count .count::before {
 }
 .telenav-body input[type="checkbox"], input[type="radio"] {
     float: none;
-    vertical-align: -3px;
+    vertical-align: -1px;
 }
 .pane-telenav .pane {
     bottom: 0;
@@ -784,6 +786,12 @@ button.save.has-count .count::before {
 }
 .telenav-wrap .commentText {
     resize: none;
+}
+.telenav-wrap .header h3 {
+    padding-left: 30px;
+}
+.telenav-wrap .optionsContainer {
+    font-family: Helvetica-Neue;
 }
 label .form-label-button-wrap .input {
     background: #f6f6f6;
@@ -823,6 +831,7 @@ label .form-label-button-wrap .input {
     visibility: visible;
     width: 14px;
     text-align: center;
+    border-radius: 3px;
 }
 .filterForm input[type=checkbox]:checked:after,
 .filterActivation:checked:after {
@@ -855,6 +864,7 @@ label .form-label-button-wrap .input {
 .filterForm label {
     font-size: 12px;
     font-weight: normal;
+    vertical-align: 2px;
 }
 
 .tel_displayInline{
@@ -882,6 +892,80 @@ label .form-label-button-wrap .input {
 }
 #sidebar.telenavPaneActive {
     height: calc(100% - 60px);
+}
+/**
+MODAL POPUP FOR ONBOARDING TUTORIAL
+**/
+.modalWrapper {
+    background: rgba(0, 0, 0, .8);
+    top: 0; bottom: 0; left: 0; right: 0;
+    position: fixed;
+    z-index: 10000000000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.modalWrapper .modalFooter {
+    border-top: 1px solid #eee;
+    text-align: right;
+    padding-top: 15px;
+}
+.modalWrapper .close-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 12px;
+    background: none;
+    height: auto;
+    color: #aaa;
+}
+.modalWrapper button {
+    line-height: 24px;
+    background: #8ad258;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 0;
+    margin-left: 1px;
+    color: white;
+    font-weight: normal;
+}
+.modalWrapper button[disabled] {
+    background: #d3d3d3;
+    color: #333;
+}
+.modalWrapper h2 {
+    font-family: Helvetica-Neue-Bold;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    position: relative;
+}
+.modalWrapper .modalContent {
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #ccc;
+    color: #333;
+    font-family: Helvetica-Neue;
+}
+.modalWrapper .modalBody {
+    display: block;
+    height: 450px;
+    width: 965px;
+}
+.modalWrapper section {
+    width: 100%;
+    position: absolute;
+    display: none;
+}
+.modalWrapper section .info-text {
+    width: 165px;
+    float: left;
+    padding-right: 15px;
+}
+.modalWrapper section.current {
+    display: block;
 }
 
 .mapillary-image {
