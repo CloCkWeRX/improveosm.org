@@ -656,6 +656,67 @@ iD.TelenavLayer = function (context) {
 
     // ==============================
     // ==============================
+    // ZoomHandler
+    // ==============================
+    // ==============================
+    var ZoomHandler = function() {
+        // ---
+        var oldZoom = null;
+        var zoom = null;
+
+        var realZoom = null;
+
+        var zoomSwitchType = null;
+
+        this.setNewRealZoom = function(newRealZoom) {
+
+            realZoom = newRealZoom;
+            oldZoom = zoom;
+            zoom = Math.floor(realZoom);
+        };
+
+        this.getZoom = function() {
+            return zoom;
+        };
+
+        this.getRealZoom = function() {
+            return realZoom;
+        };
+
+        this.indicatesZoomSwitch = function() {
+            if (oldZoom === null) {
+                zoomSwitchType = null;
+                return false;
+            } else if (zoom > 14 && oldZoom <= 14) {
+                zoomSwitchType = 'in';
+                return true;
+            } else if (oldZoom > 14 && zoom <= 14) {
+                zoomSwitchType = 'out';
+                return true;
+            } else {
+                zoomSwitchType = null;
+                return false;
+            }
+        };
+
+        this.indicatesHeatmap = function() {
+            if (zoom > 14) {
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        this.getZoomSwitchType = function() {
+            return zoomSwitchType;
+        };
+
+    };
+
+    var zoomHandler = new ZoomHandler();
+
+    // ==============================
+    // ==============================
     // TurnRestrictionItem
     // ==============================
     // ==============================
@@ -1288,10 +1349,13 @@ iD.TelenavLayer = function (context) {
             }
         }
 
-        var zoom = Math.floor(context.map().zoom());
-        var mode = zoom > 14 ? 'active' : 'heatmap';
+        //var zoom = Math.floor(context.map().zoom());
+        zoomHandler.setNewRealZoom(context.map().zoom());
+        var mode = zoomHandler.indicatesHeatmap() ? 'heatmap' : 'active';
+        var lastMode = null;
         var editable = true;
-        var switchEnabled = zoom > 14 ? true : false;
+        //var switchEnabled = zoom > 14 ? true : false;
+        var switchEnabled = null;
         var minimized = false;
 
         var renderEditable = function(newEditable) {
@@ -1329,34 +1393,12 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav-active').style('opacity', '1');
                 d3.select('#telenav-inactive').on('click', _editPanel.toggleEditable);
                 d3.select('#telenav-active').on('click', _editPanel.toggleEditable);
-/*
-                d3.select('#telenav-oneWay-headerDot').style('visibility', 'hidden');
-                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'hidden');
-                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'hidden');
-*/
-
-/*                d3.select('#telenav_roadMr').classed('showShade', true);
-                d3.select('#telenav_parkingMr').classed('showShade', true);
-                d3.select('#telenav_bothMr').classed('showShade', true);
-                d3.select('#telenav_waterMr').classed('showShade', true);
-                d3.select('#telenav_pathMr').classed('showShade', true);*/
             } else {
                 d3.select('#telenav-inactive').style('opacity', '0.2');
                 d3.select('#telenav-active').style('opacity', '0.2');
                 d3.select('#telenav-inactive').on('click', null);
                 d3.select('#telenav-active').on('click', null);
-/*
-                d3.select('#telenav-oneWay-headerDot').style('visibility', 'visible');
-                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'visible');
-                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'visible');
-*/
-
-  /*              d3.select('#telenav_roadMr').classed('showShade', false);
-                d3.select('#telenav_parkingMr').classed('showShade', false);
-                d3.select('#telenav_bothMr').classed('showShade', false);
-                d3.select('#telenav_waterMr').classed('showShade', false);
-                d3.select('#telenav_pathMr').classed('showShade', false);
-  */          }
+            }
             switchEnabled = newSwitchEnabled;
         };
 
@@ -1373,9 +1415,15 @@ iD.TelenavLayer = function (context) {
         };
 
         var toggleMode = function(newMode) {
+            lastMode = mode;
+            mode = newMode;
             switch (newMode) {
                 case 'heatmap':
-                    renderEditable(false);
+                    if (lastMode === 'inactive') {
+                        renderEditable(false);
+                    } else {
+                        renderEditable(true);
+                    }
                     renderActivationSwitch(false);
                     renderMinimized(false);
                     break;
@@ -1396,7 +1444,8 @@ iD.TelenavLayer = function (context) {
                     break;
                 default:
             }
-            mode = newMode;
+            //lastMode = mode;
+            //mode = newMode;
         };
 
         this.init = function() {
@@ -1878,13 +1927,35 @@ iD.TelenavLayer = function (context) {
                 _editPanel.scheduleDeselection();
             });
 
-            toggleMode(mode);
+            initMode(mode);
+        };
+
+        var initMode = function(mode) {
+
+            switch (mode) {
+                case 'heatmap':
+                    if (lastMode === 'inactive') {
+                        renderEditable(false);
+                    } else {
+                        renderEditable(true);
+                    }
+                    renderActivationSwitch(false);
+                    renderMinimized(false);
+                    break;
+                case 'active':
+                    renderEditable(true);
+                    renderActivationSwitch(true);
+                    renderMinimized(false);
+                    break;
+                default:
+                    throw new Error('unexpected initial mode');
+            }
         };
 
         this.toggleEditable = function() {
             switch (mode) {
                 case 'active':
-                case 'slected':
+                case 'selected':
                     toggleMode('inactive');
                     break;
                 case 'inactive':
@@ -1895,9 +1966,29 @@ iD.TelenavLayer = function (context) {
             }
         };
 
-        this.enableActivationSwitch = function(enable) {
-            renderActivationSwitch(enable);
+        this.toggleZoom = function(type) {
+            if (type !== 'in' && type !== 'out') {
+                throw new Error('unexpected zoom switch type');
+            }
+
+            switch (type) {
+                case 'in':
+                    if (lastMode === null) {
+                        toggleMode('active');
+                    } else {
+                        toggleMode(lastMode);
+                    }
+                    break;
+                case 'out':
+                    toggleMode('heatmap');
+                    break;
+                default:
+            }
         };
+
+        //this.enableActivationSwitch = function(enable) {
+        //    renderActivationSwitch(enable);
+        //};
 
         this.deselectAll = function(redraw) {
             visibleItems.deselectAll(redraw);
@@ -2557,8 +2648,9 @@ iD.TelenavLayer = function (context) {
             _editPanel.init();
         }
 
-        var realZoom = context.map().zoom();
-        var zoom = Math.floor(realZoom);
+        zoomHandler.setNewRealZoom(context.map().zoom());
+        //var realZoom = context.map().zoom();
+        //var zoom = Math.floor(realZoom);
 
         var extent = context.map().extent();
 
@@ -2578,12 +2670,13 @@ iD.TelenavLayer = function (context) {
 
         var boundingBoxUrlFragments = '?south=' +
             south + '&north=' + north + '&west=' +
-            west + '&east=' + east + '&zoom=' + zoom;
+            west + '&east=' + east + '&zoom=' + zoomHandler.getZoom();
 
 
         d3.select("#sidebar").classed('telenavPaneActive', enable);
         d3.select(".pane-telenav").classed('hidden', !enable);
         var telenavLayer = d3.select('.layer-telenav');
+        var realZoom = zoomHandler.getRealZoom();
         if (15 <= realZoom && realZoom < 15.5) {
             telenavLayer.attr('data-zoom', 'z15p');
         } else if (15.5 <= realZoom && realZoom < 16) {
@@ -2823,17 +2916,17 @@ iD.TelenavLayer = function (context) {
         requestCount = requestUrlQueue.length;
         visibleItems.items.length = 0;
 
-        if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
+        if ((zoomHandler.getZoom() > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
                 .remove();
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
-            _editPanel.enableActivationSwitch(true);
+            //_editPanel.enableActivationSwitch(true);
         } else if (requestUrlQueue.length !== 0) {
             clearAllLayers();
-            heatMap = new HeatMap(zoom);
-            _editPanel.enableActivationSwitch(false);
+            heatMap = new HeatMap(zoomHandler.getZoom());
+            //_editPanel.enableActivationSwitch(false);
             _editPanel.deselectAll(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
@@ -2849,6 +2942,9 @@ iD.TelenavLayer = function (context) {
             clearAllLayers();
             svg.selectAll('g.cluster')
                 .remove();
+        }
+        if (zoomHandler.indicatesZoomSwitch()) {
+            _editPanel.toggleZoom(zoomHandler.getZoomSwitchType());
         }
         _editPanel.performScheduledDeselection();
     };
