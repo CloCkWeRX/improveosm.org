@@ -1884,6 +1884,7 @@ text.gpx {
     stroke: black;
     stroke-width: 20;
     opacity: .5;
+    fill-opacity: 0;
 }
 
 /* --- PULSATING SELECTION ----------------------*/
