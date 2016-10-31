@@ -349,17 +349,16 @@ iD.TelenavLayer = function (context) {
             }
             render(d3.select('.layer-telenav'));
         };
-        this.selectItem = function(item) {
-            // item must be added to both total and current selection arrays
-            // item must be removed from the normal items, OR from the cluster items, if inside a cluster
-            this.totalSelectedItems.push(item);
-            this.selectedItems.push(item);
-            // remove item from normal or cluster arrays
+
+        this._removeItemFromNormals = function(item) {
             for (var i = 0; i < this.normalItems.length; i++) {
                 if (this.normalItems[i].id === item.id) {
                     this.normalItems.splice(i , 1);
                 }
             }
+        };
+
+        this._removeItemFromClusters = function(item) {
             for (var i = 0; i < this.clusteredItems.length; i++) {
                 var checkedItem = this.clusteredItems[i];
                 // compare for equality
@@ -374,6 +373,51 @@ iD.TelenavLayer = function (context) {
                     }
                 }
             }
+        };
+
+        this._handleItemSelection = function(item) {
+            // item must be added to both total and current selection arrays
+            // item must be removed from the normal items, OR from the cluster items, if inside a cluster
+            this.totalSelectedItems.push(item);
+            this.selectedItems.push(item);
+            // remove item from normal or cluster arrays
+            this._removeItemFromNormals(item);
+            this._removeItemFromClusters(item);
+        };
+
+        this._handleRecursiveTileSelection = function(x, y) {
+            // search normal items
+            var itemFound = false;
+            for (var i = 0; i < this.normalItems.length; i++) {
+                var item = this.normalItems[i];
+                if (
+                    (x === item.x) &&
+                    (y === item.y)
+                ) {
+                    itemFound = true;
+                    break;
+                }
+            }
+
+            if (itemFound) {
+                this._handleItemSelection(item);
+
+                this._handleRecursiveTileSelection(x, y + 1);
+                this._handleRecursiveTileSelection(x, y - 1);
+                this._handleRecursiveTileSelection(x + 1, y);
+                this._handleRecursiveTileSelection(x - 1, y);
+            }
+        };
+
+        this.selectItem = function(item) {
+            this._handleItemSelection(item);
+            render(d3.select('.layer-telenav'));
+        };
+
+        this.selectTileCluster = function(item) {
+
+            this._handleRecursiveTileSelection(item.x, item.y);
+
             render(d3.select('.layer-telenav'));
         };
 
@@ -625,6 +669,10 @@ iD.TelenavLayer = function (context) {
                 if (d3.event.ctrlKey) {
                     visibleItems.selectItem(this);
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
+                } else if (d3.event.shiftKey) {
+                    if (this.isA('MissingRoadItem')) {
+                        visibleItems.selectTileCluster(this);
+                    }
                 } else {
                     visibleItems.deselectAll(true);
                     visibleItems.selectItem(this);
