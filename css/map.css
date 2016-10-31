@@ -1800,7 +1800,8 @@ text.gpx {
     opacity: .4;
 }
 .layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem :not(circle):not(.selectable) {
-    opacity: .75;
+    /*opacity: .75;*/
+    opacity: 1; /* WEBEU-1221 */
 
     animation-name: pulsingThickness-6-8;
     animation-duration: 1s;
