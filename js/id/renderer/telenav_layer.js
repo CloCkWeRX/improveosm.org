@@ -349,16 +349,17 @@ iD.TelenavLayer = function (context) {
             }
             render(d3.select('.layer-telenav'));
         };
-
-        this._removeItemFromNormals = function(item) {
+        this.selectItem = function(item) {
+            // item must be added to both total and current selection arrays
+            // item must be removed from the normal items, OR from the cluster items, if inside a cluster
+            this.totalSelectedItems.push(item);
+            this.selectedItems.push(item);
+            // remove item from normal or cluster arrays
             for (var i = 0; i < this.normalItems.length; i++) {
                 if (this.normalItems[i].id === item.id) {
                     this.normalItems.splice(i , 1);
                 }
             }
-        };
-
-        this._removeItemFromClusters = function(item) {
             for (var i = 0; i < this.clusteredItems.length; i++) {
                 var checkedItem = this.clusteredItems[i];
                 // compare for equality
@@ -373,51 +374,6 @@ iD.TelenavLayer = function (context) {
                     }
                 }
             }
-        };
-
-        this._handleItemSelection = function(item) {
-            // item must be added to both total and current selection arrays
-            // item must be removed from the normal items, OR from the cluster items, if inside a cluster
-            this.totalSelectedItems.push(item);
-            this.selectedItems.push(item);
-            // remove item from normal or cluster arrays
-            this._removeItemFromNormals(item);
-            this._removeItemFromClusters(item);
-        };
-
-        this._handleRecursiveTileSelection = function(x, y) {
-            // search normal items
-            var itemFound = false;
-            for (var i = 0; i < this.normalItems.length; i++) {
-                var item = this.normalItems[i];
-                if (
-                    (x === item.x) &&
-                    (y === item.y)
-                ) {
-                    itemFound = true;
-                    break;
-                }
-            }
-
-            if (itemFound) {
-                this._handleItemSelection(item);
-
-                this._handleRecursiveTileSelection(x, y + 1);
-                this._handleRecursiveTileSelection(x, y - 1);
-                this._handleRecursiveTileSelection(x + 1, y);
-                this._handleRecursiveTileSelection(x - 1, y);
-            }
-        };
-
-        this.selectItem = function(item) {
-            this._handleItemSelection(item);
-            render(d3.select('.layer-telenav'));
-        };
-
-        this.selectTileCluster = function(item) {
-
-            this._handleRecursiveTileSelection(item.x, item.y);
-
             render(d3.select('.layer-telenav'));
         };
 
@@ -669,10 +625,6 @@ iD.TelenavLayer = function (context) {
                 if (d3.event.ctrlKey) {
                     visibleItems.selectItem(this);
                     _editPanel.showSiblings(visibleItems.getClusterSiblings(this));
-                } else if (d3.event.shiftKey) {
-                    if (this.isA('MissingRoadItem')) {
-                        visibleItems.selectTileCluster(this);
-                    }
                 } else {
                     visibleItems.deselectAll(true);
                     visibleItems.selectItem(this);
@@ -701,67 +653,6 @@ iD.TelenavLayer = function (context) {
         this.point = rawItemData.point;
         this.spotId = [rawItemData.point.lat, rawItemData.point.lon].join(',');
     };
-
-    // ==============================
-    // ==============================
-    // ZoomHandler
-    // ==============================
-    // ==============================
-    var ZoomHandler = function() {
-        // ---
-        var oldZoom = null;
-        var zoom = null;
-
-        var realZoom = null;
-
-        var zoomSwitchType = null;
-
-        this.setNewRealZoom = function(newRealZoom) {
-
-            realZoom = newRealZoom;
-            oldZoom = zoom;
-            zoom = Math.floor(realZoom);
-        };
-
-        this.getZoom = function() {
-            return zoom;
-        };
-
-        this.getRealZoom = function() {
-            return realZoom;
-        };
-
-        this.indicatesZoomSwitch = function() {
-            if (oldZoom === null) {
-                zoomSwitchType = null;
-                return false;
-            } else if (zoom > 14 && oldZoom <= 14) {
-                zoomSwitchType = 'in';
-                return true;
-            } else if (oldZoom > 14 && zoom <= 14) {
-                zoomSwitchType = 'out';
-                return true;
-            } else {
-                zoomSwitchType = null;
-                return false;
-            }
-        };
-
-        this.indicatesHeatmap = function() {
-            if (zoom > 14) {
-                return false;
-            } else {
-                return true;
-            }
-        };
-
-        this.getZoomSwitchType = function() {
-            return zoomSwitchType;
-        };
-
-    };
-
-    var zoomHandler = new ZoomHandler();
 
     // ==============================
     // ==============================
@@ -1397,13 +1288,10 @@ iD.TelenavLayer = function (context) {
             }
         }
 
-        //var zoom = Math.floor(context.map().zoom());
-        zoomHandler.setNewRealZoom(context.map().zoom());
-        var mode = zoomHandler.indicatesHeatmap() ? 'heatmap' : 'active';
-        var lastMode = null;
+        var zoom = Math.floor(context.map().zoom());
+        var mode = zoom > 14 ? 'active' : 'heatmap';
         var editable = true;
-        //var switchEnabled = zoom > 14 ? true : false;
-        var switchEnabled = null;
+        var switchEnabled = zoom > 14 ? true : false;
         var minimized = false;
 
         var renderEditable = function(newEditable) {
@@ -1441,12 +1329,34 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav-active').style('opacity', '1');
                 d3.select('#telenav-inactive').on('click', _editPanel.toggleEditable);
                 d3.select('#telenav-active').on('click', _editPanel.toggleEditable);
+/*
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'hidden');
+*/
+
+/*                d3.select('#telenav_roadMr').classed('showShade', true);
+                d3.select('#telenav_parkingMr').classed('showShade', true);
+                d3.select('#telenav_bothMr').classed('showShade', true);
+                d3.select('#telenav_waterMr').classed('showShade', true);
+                d3.select('#telenav_pathMr').classed('showShade', true);*/
             } else {
                 d3.select('#telenav-inactive').style('opacity', '0.2');
                 d3.select('#telenav-active').style('opacity', '0.2');
                 d3.select('#telenav-inactive').on('click', null);
                 d3.select('#telenav-active').on('click', null);
-            }
+/*
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'visible');
+*/
+
+  /*              d3.select('#telenav_roadMr').classed('showShade', false);
+                d3.select('#telenav_parkingMr').classed('showShade', false);
+                d3.select('#telenav_bothMr').classed('showShade', false);
+                d3.select('#telenav_waterMr').classed('showShade', false);
+                d3.select('#telenav_pathMr').classed('showShade', false);
+  */          }
             switchEnabled = newSwitchEnabled;
         };
 
@@ -1463,15 +1373,9 @@ iD.TelenavLayer = function (context) {
         };
 
         var toggleMode = function(newMode) {
-            lastMode = mode;
-            mode = newMode;
             switch (newMode) {
                 case 'heatmap':
-                    if (lastMode === 'inactive') {
-                        renderEditable(false);
-                    } else {
-                        renderEditable(true);
-                    }
+                    renderEditable(false);
                     renderActivationSwitch(false);
                     renderMinimized(false);
                     break;
@@ -1492,8 +1396,7 @@ iD.TelenavLayer = function (context) {
                     break;
                 default:
             }
-            //lastMode = mode;
-            //mode = newMode;
+            mode = newMode;
         };
 
         this.init = function() {
@@ -1901,11 +1804,19 @@ iD.TelenavLayer = function (context) {
             modalFooter.append('button')
                 .text('next')
                 .attr('id', 'next-btn');
+            modalFooter.append('button')
+                .text('completed')
+                .attr('id', 'completed-btn')
+                .attr('class', 'completed');
             if(localStorage.getItem('modalWrapper') === null) {
                 d3.select('.modalWrapper').style('display', 'flex');
             }
 
             d3.select('.close-btn').on('click', function(){
+                localStorage.setItem('modalWrapper', 'watched');
+                $('.modalWrapper').css('display', 'none');
+            });
+            d3.select('.completed').on('click', function(){
                 localStorage.setItem('modalWrapper', 'watched');
                 $('.modalWrapper').css('display', 'none');
             });
@@ -1925,8 +1836,9 @@ iD.TelenavLayer = function (context) {
                 } else {
                     $('.modalBody').find('.previous').removeClass('previous');
                     $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('previous');
-                    $('.modalBody').find('.next').fadeIn().removeClass('next').addClass('current');
-                    $(this).prop('disabled', true);
+                    $('.modalBody').find('.next').removeClass('next').addClass('current');
+                    $(this).css('display', 'none');
+                    $('.modalFooter').find('#completed-btn').css('display', 'inline');
                 }
             });
             d3.select('#previous-btn').on('click', function(){
@@ -1934,8 +1846,9 @@ iD.TelenavLayer = function (context) {
                     $('.modalBody').find('.next').removeClass('next');
                     $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('next');
                     $('.modalBody').find('.previous').fadeIn().removeClass('previous').addClass('current').prev().addClass('previous');
-                    if($('.modalFooter').find('#next-btn').is(':disabled')) {
-                        $('.modalFooter').find('#next-btn').removeAttr('disabled')
+                    if($('.modalFooter').find('#completed-btn').is(':visible')) {
+                        $('.modalFooter').find('#completed-btn').css('display', 'none');
+                        $('.modalFooter').find('#next-btn').css('display', 'inline');
                     }
                 } else {
                     $('.modalBody').find('.next').removeClass('next');
@@ -2081,35 +1994,13 @@ iD.TelenavLayer = function (context) {
                 _editPanel.scheduleDeselection();
             });
 
-            initMode(mode);
-        };
-
-        var initMode = function(mode) {
-
-            switch (mode) {
-                case 'heatmap':
-                    if (lastMode === 'inactive') {
-                        renderEditable(false);
-                    } else {
-                        renderEditable(true);
-                    }
-                    renderActivationSwitch(false);
-                    renderMinimized(false);
-                    break;
-                case 'active':
-                    renderEditable(true);
-                    renderActivationSwitch(true);
-                    renderMinimized(false);
-                    break;
-                default:
-                    throw new Error('unexpected initial mode');
-            }
+            toggleMode(mode);
         };
 
         this.toggleEditable = function() {
             switch (mode) {
                 case 'active':
-                case 'selected':
+                case 'slected':
                     toggleMode('inactive');
                     break;
                 case 'inactive':
@@ -2120,29 +2011,9 @@ iD.TelenavLayer = function (context) {
             }
         };
 
-        this.toggleZoom = function(type) {
-            if (type !== 'in' && type !== 'out') {
-                throw new Error('unexpected zoom switch type');
-            }
-
-            switch (type) {
-                case 'in':
-                    if (lastMode === null) {
-                        toggleMode('active');
-                    } else {
-                        toggleMode(lastMode);
-                    }
-                    break;
-                case 'out':
-                    toggleMode('heatmap');
-                    break;
-                default:
-            }
+        this.enableActivationSwitch = function(enable) {
+            renderActivationSwitch(enable);
         };
-
-        //this.enableActivationSwitch = function(enable) {
-        //    renderActivationSwitch(enable);
-        //};
 
         this.deselectAll = function(redraw) {
             visibleItems.deselectAll(redraw);
@@ -2801,9 +2672,8 @@ iD.TelenavLayer = function (context) {
             _editPanel.init();
         }
 
-        zoomHandler.setNewRealZoom(context.map().zoom());
-        //var realZoom = context.map().zoom();
-        //var zoom = Math.floor(realZoom);
+        var realZoom = context.map().zoom();
+        var zoom = Math.floor(realZoom);
 
         var extent = context.map().extent();
 
@@ -2823,13 +2693,12 @@ iD.TelenavLayer = function (context) {
 
         var boundingBoxUrlFragments = '?south=' +
             south + '&north=' + north + '&west=' +
-            west + '&east=' + east + '&zoom=' + zoomHandler.getZoom();
+            west + '&east=' + east + '&zoom=' + zoom;
 
 
         d3.select("#sidebar").classed('telenavPaneActive', enable);
         d3.select(".pane-telenav").classed('hidden', !enable);
         var telenavLayer = d3.select('.layer-telenav');
-        var realZoom = zoomHandler.getRealZoom();
         if (15 <= realZoom && realZoom < 15.5) {
             telenavLayer.attr('data-zoom', 'z15p');
         } else if (15.5 <= realZoom && realZoom < 16) {
@@ -3069,17 +2938,17 @@ iD.TelenavLayer = function (context) {
         requestCount = requestUrlQueue.length;
         visibleItems.items.length = 0;
 
-        if ((zoomHandler.getZoom() > 14) && (requestUrlQueue.length !== 0)) {
+        if ((zoom > 14) && (requestUrlQueue.length !== 0)) {
             svg.selectAll('g.cluster')
                 .remove();
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
-            //_editPanel.enableActivationSwitch(true);
+            _editPanel.enableActivationSwitch(true);
         } else if (requestUrlQueue.length !== 0) {
             clearAllLayers();
-            heatMap = new HeatMap(zoomHandler.getZoom());
-            //_editPanel.enableActivationSwitch(false);
+            heatMap = new HeatMap(zoom);
+            _editPanel.enableActivationSwitch(false);
             _editPanel.deselectAll(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
@@ -3095,9 +2964,6 @@ iD.TelenavLayer = function (context) {
             clearAllLayers();
             svg.selectAll('g.cluster')
                 .remove();
-        }
-        if (zoomHandler.indicatesZoomSwitch()) {
-            _editPanel.toggleZoom(zoomHandler.getZoomSwitchType());
         }
         _editPanel.performScheduledDeselection();
     };
