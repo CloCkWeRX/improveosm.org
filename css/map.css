@@ -1666,7 +1666,7 @@ text.gpx {
 }
 
 .layer-telenav svg g.clusteredItemsLayer g.ClusteredItem circle.main {
-    fill: #F00;
+    fill: #244;
     stroke: #FFF;
     stroke-width: 2;
 }
@@ -1800,7 +1800,8 @@ text.gpx {
     opacity: .4;
 }
 .layer-telenav.editMode svg g.selectedItemsLayer g.MissingRoadItem :not(circle):not(.selectable) {
-    opacity: .75;
+    /*opacity: .75;*/
+    opacity: 1; /* WEBEU-1221 */
 
     animation-name: pulsingThickness-6-8;
     animation-duration: 1s;
@@ -1883,6 +1884,7 @@ text.gpx {
     stroke: black;
     stroke-width: 20;
     opacity: .5;
+    fill-opacity: 0;
 }
 
 /* --- PULSATING SELECTION ----------------------*/
