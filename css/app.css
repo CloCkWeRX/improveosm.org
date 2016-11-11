@@ -930,10 +930,6 @@ MODAL POPUP FOR ONBOARDING TUTORIAL
     color: white;
     font-weight: normal;
 }
-.modalWrapper .completed {
-    background: #ff0000;
-    display: none;
-}
 .modalWrapper button[disabled] {
     background: #d3d3d3;
     color: #333;
