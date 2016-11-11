@@ -1901,11 +1901,19 @@ iD.TelenavLayer = function (context) {
             modalFooter.append('button')
                 .text('next')
                 .attr('id', 'next-btn');
+            modalFooter.append('button')
+                .text('completed')
+                .attr('id', 'completed-btn')
+                .attr('class', 'completed');
             if(localStorage.getItem('modalWrapper') === null) {
                 d3.select('.modalWrapper').style('display', 'flex');
             }
 
             d3.select('.close-btn').on('click', function(){
+                localStorage.setItem('modalWrapper', 'watched');
+                $('.modalWrapper').css('display', 'none');
+            });
+            d3.select('.completed').on('click', function(){
                 localStorage.setItem('modalWrapper', 'watched');
                 $('.modalWrapper').css('display', 'none');
             });
@@ -1925,8 +1933,9 @@ iD.TelenavLayer = function (context) {
                 } else {
                     $('.modalBody').find('.previous').removeClass('previous');
                     $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('previous');
-                    $('.modalBody').find('.next').fadeIn().removeClass('next').addClass('current');
-                    $(this).prop('disabled', true);
+                    $('.modalBody').find('.next').removeClass('next').addClass('current');
+                    $(this).css('display', 'none');
+                    $('.modalFooter').find('#completed-btn').css('display', 'inline');
                 }
             });
             d3.select('#previous-btn').on('click', function(){
@@ -1934,8 +1943,9 @@ iD.TelenavLayer = function (context) {
                     $('.modalBody').find('.next').removeClass('next');
                     $('.modalBody').find('.current').fadeOut().removeClass('current').addClass('next');
                     $('.modalBody').find('.previous').fadeIn().removeClass('previous').addClass('current').prev().addClass('previous');
-                    if($('.modalFooter').find('#next-btn').is(':disabled')) {
-                        $('.modalFooter').find('#next-btn').removeAttr('disabled')
+                    if($('.modalFooter').find('#completed-btn').is(':visible')) {
+                        $('.modalFooter').find('#completed-btn').css('display', 'none');
+                        $('.modalFooter').find('#next-btn').css('display', 'inline');
                     }
                 } else {
                     $('.modalBody').find('.next').removeClass('next');

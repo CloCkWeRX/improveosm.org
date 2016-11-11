@@ -906,6 +906,10 @@ MODAL POPUP FOR ONBOARDING TUTORIAL
     justify-content: center;
     color: white;
 }
+.modalWrapper .completed {
+    background: #ff0000;
+    display: none;
+}
 .modalWrapper .modalFooter {
     border-top: 1px solid #eee;
     text-align: right;
