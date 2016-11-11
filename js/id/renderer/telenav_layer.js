@@ -1441,11 +1441,31 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav-active').style('opacity', '1');
                 d3.select('#telenav-inactive').on('click', _editPanel.toggleEditable);
                 d3.select('#telenav-active').on('click', _editPanel.toggleEditable);
+
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'hidden');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'hidden');
+
+                d3.select('#telenav_roadMr').classed('showShade', true);
+                d3.select('#telenav_parkingMr').classed('showShade', true);
+                d3.select('#telenav_bothMr').classed('showShade', true);
+                d3.select('#telenav_waterMr').classed('showShade', true);
+                d3.select('#telenav_pathMr').classed('showShade', true);
             } else {
                 d3.select('#telenav-inactive').style('opacity', '0.2');
                 d3.select('#telenav-active').style('opacity', '0.2');
                 d3.select('#telenav-inactive').on('click', null);
                 d3.select('#telenav-active').on('click', null);
+
+                d3.select('#telenav-oneWay-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-missingRoad-headerDot').style('visibility', 'visible');
+                d3.select('#telenav-turnRestriction-headerDot').style('visibility', 'visible');
+
+                d3.select('#telenav_roadMr').classed('showShade', false);
+                d3.select('#telenav_parkingMr').classed('showShade', false);
+                d3.select('#telenav_bothMr').classed('showShade', false);
+                d3.select('#telenav_waterMr').classed('showShade', false);
+                d3.select('#telenav_pathMr').classed('showShade', false);
             }
             switchEnabled = newSwitchEnabled;
         };
