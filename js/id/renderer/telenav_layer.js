@@ -1742,7 +1742,7 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'mrFilter');
             var mrHeadWrap = missing_form.append('label')
                 .attr('class', 'form-label')
-                .attr('for', 'missingRoadType');
+                .attr('for', 'missingRoads');
             mrHeadWrap.append('span')
                 .text('Missing roads');
             mrHeadWrap.append('span')
@@ -1823,7 +1823,7 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'trFilter');
             var trHeadWrap = restriction_form.append('label')
                 .attr('class', 'form-label')
-                .attr('for', 'missingRoads');
+                .attr('for', 'turnRestriction');
             trHeadWrap.append('span')
                 .text('Turn Restriction - Confidence')
             trHeadWrap.append('span')
