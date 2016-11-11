@@ -1698,7 +1698,8 @@ iD.TelenavLayer = function (context) {
             owHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
-                .attr('id', 'telenav-oneWay-headerDot');
+                .attr('id', 'telenav-oneWay-headerDot')
+                .attr('class', 'circle-icon_i');
 
             owHeadWrap.append('div')
                 .attr('class', 'form-label-button-wrap')
@@ -1748,7 +1749,8 @@ iD.TelenavLayer = function (context) {
             mrHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
-                .attr('id', 'telenav-missingRoad-headerDot');
+                .attr('id', 'telenav-missingRoad-headerDot')
+                .attr('class', 'circle-icon_i');
 
             mrHeadWrap.append('div')
                 .attr('class', 'form-label-button-wrap')
@@ -1768,21 +1770,33 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'ROAD')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
-            missing_roadContainer.append('label')
-                .attr('id', 'telenav_roadMr')
-                .attr('for', 'ROAD')
+            var telenav_roadMr = missing_roadContainer.append('label')
+                //.attr('id', 'telenav_roadMr')
+                .attr('for', 'ROAD');
+            telenav_roadMr.append('span')
                 .text('Show Roads');
+            telenav_roadMr.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
+                .attr('id', 'telenav_roadMr')
+                .attr('class', 'circle-icon_i')
             var missing_parkingContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow')
                 .append('span');
             missing_parkingContainer.append('input')
                 .attr('id', 'PARKING')
                 .attr('type', 'checkbox');
-            missing_parkingContainer.append('label')
-                .attr('id', 'telenav_parkingMr')
+            var telenav_parkingMr = missing_parkingContainer.append('label')
+                //.attr('id', 'telenav_parkingMr')
                 .attr('for', 'PARKING')
-                .text('Show Parking');
 
+            telenav_parkingMr.append('span')
+                .text('Show Parking');
+            telenav_parkingMr.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
+                .attr('id', 'telenav_parkingMr')
+                .attr('class', 'circle-icon_i');
 /*
             var missing_bothContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline')
@@ -1803,19 +1817,32 @@ iD.TelenavLayer = function (context) {
             missing_waterContainer.append('input')
                 .attr('id', 'WATER')
                 .attr('type', 'checkbox');
-            missing_waterContainer.append('label')
-                .attr('id', 'telenav_waterMr')
-                .attr('for', 'WATER')
+            var telenav_waterMr = missing_waterContainer.append('label')
+                //.attr('id', 'telenav_waterMr')
+                .attr('for', 'WATER');
+            telenav_waterMr.append('span')
                 .text('Show Water Trail');
+            telenav_waterMr.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
+                .attr('id', 'telenav_waterMr')
+                .attr('class', 'circle-icon_i');
+
             var missing_pathContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             missing_pathContainer.append('input')
                 .attr('id', 'PATH')
                 .attr('type', 'checkbox');
-            missing_pathContainer.append('label')
-                .attr('id', 'telenav_pathMr')
+            var telenav_pathMr = missing_pathContainer.append('label')
+                //.attr('id', 'telenav_pathMr')
                 .attr('for', 'PATH')
+            telenav_pathMr.append('span')
                 .text('Show Path Trail');
+            telenav_pathMr.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
+                .attr('id', 'telenav_pathMr')
+                .attr('class', 'circle-icon_i');
 
 
             var restriction_form = presetFormContainer.append('div')
@@ -1829,7 +1856,8 @@ iD.TelenavLayer = function (context) {
             trHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
-                .attr('id', 'telenav-turnRestriction-headerDot');
+                .attr('id', 'telenav-turnRestriction-headerDot')
+                .attr('class', 'circle-icon_i');
 
             trHeadWrap.append('div')
                 .attr('class', 'form-label-button-wrap')

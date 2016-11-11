@@ -2127,9 +2127,10 @@ text.gpx {
     display: inline-block;
     margin-left: 8px;
 }
-#telenav-oneWay-headerDot,
-#telenav-missingRoad-headerDot,
-#telenav-turnRestriction-headerDot {
+.filterForm .circle-icon {
+    vertical-align: middle;
+}
+.circle-icon_i {
    display: block;
     width: 10px;
     height: 10px;
