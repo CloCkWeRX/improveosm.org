@@ -1672,15 +1672,17 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'dofFilter');
             var owHeadWrap = direction_form.append('label')
                 .attr('class', 'form-label')
-                .attr('for', 'oneWay')
-                .text('OneWay - Confidence')
-                .append('div')
-                .attr('class', 'form-label-button-wrap')
-/*
-            owHeadWrap.append('span').append('i')
+                .attr('for', 'oneWay');
+            owHeadWrap.append('span')
+                .text('OneWay - Confidence');
+            owHeadWrap.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
                 .attr('id', 'telenav-oneWay-headerDot');
-*/
+
             owHeadWrap.append('div')
+                .attr('class', 'form-label-button-wrap')
+                .append('div')
                 .attr('class', 'input')
                 .append('input')
                 .attr('type', 'checkbox')
@@ -1720,15 +1722,17 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'mrFilter');
             var mrHeadWrap = missing_form.append('label')
                 .attr('class', 'form-label')
-                .attr('for', 'missingRoadType')
-                .text('Missing roads')
-                .append('div')
-                .attr('class', 'form-label-button-wrap');
-/*
-            mrHeadWrap.append('span').append('i')
+                .attr('for', 'missingRoadType');
+            mrHeadWrap.append('span')
+                .text('Missing roads');
+            mrHeadWrap.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
                 .attr('id', 'telenav-missingRoad-headerDot');
-*/
+
             mrHeadWrap.append('div')
+                .attr('class', 'form-label-button-wrap')
+                .append('div')
                 .attr('class', 'input')
                 .append('input')
                 .attr('type', 'checkbox')
@@ -1799,15 +1803,17 @@ iD.TelenavLayer = function (context) {
                 .attr('id', 'trFilter');
             var trHeadWrap = restriction_form.append('label')
                 .attr('class', 'form-label')
-                .attr('for', 'missingRoads')
+                .attr('for', 'missingRoads');
+            trHeadWrap.append('span')
                 .text('Turn Restriction - Confidence')
-                .append('div')
-                .attr('class', 'form-label-button-wrap');
-/*
-            trHeadWrap.append('span').append('i')
+            trHeadWrap.append('span')
+                .attr('class', 'circle-icon')
+                .append('i')
                 .attr('id', 'telenav-turnRestriction-headerDot');
-*/
+
             trHeadWrap.append('div')
+                .attr('class', 'form-label-button-wrap')
+                .append('div')
                 .attr('class', 'input')
                 .append('input')
                 .attr('type', 'checkbox')
