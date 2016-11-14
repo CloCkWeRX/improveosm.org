@@ -772,14 +772,23 @@ button.save.has-count .count::before {
 #toggleEditMode .preset-list-button:hover .label  {
     background: #f6f6f6;
 }
-.telenavwrap .optionsContainer{
+.telenavwrap .optionsContainer,
+.telenavwrap .feedbackContainer{
     overflow-y: hidden;
-    border-radius: 0 0 4px 4px;
-    border-width: 0 1px 1px;
     border-color: #ccc;
-    border-style: none solid solid;
     background-color: white;
     padding: 0;
+}
+.telenavwrap .optionsContainer {
+    border-style: none solid solid;
+    border-radius: 0 0 4px 4px;
+    border-width: 0 1px 1px;
+}
+.telenavwrap .feedbackContainer {
+    border-style: solid;
+    border-radius: 4px;
+    border-width: 1px;
+    color: #333;
 }
 .telenavwrap .optionsContainer.trList {
     padding-left: 0;
@@ -792,6 +801,33 @@ button.save.has-count .count::before {
 }
 .telenav-wrap .optionsContainer {
     font-family: Helvetica-Neue;
+}
+.telenav-wrap .filterForm .helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.telenav-wrap .filterForm .feedback-icon {
+    width: 28px; height: 28px;
+    display: inline;
+    background: #c95a3f;
+    border-right: 0px solid;
+}
+.telenav-wrap .filterForm .feedback-icon img {
+    vertical-align: middle;
+}
+.telenav-wrap .feedback-content {
+    display: inline;
+    font-size: 12px;
+    line-height: 26px;
+    font-weight: normal;
+}
+#feedback a .feedbackContainer {
+    transition: .2s;
+}
+#feedback a:hover .feedbackContainer {
+    background: #c95a3f;
+    color: white;
 }
 label .form-label-button-wrap .input {
     background: #f6f6f6;

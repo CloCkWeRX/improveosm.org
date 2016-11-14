@@ -1889,6 +1889,28 @@ iD.TelenavLayer = function (context) {
                 .text('Normal');
             //  END 2st container div
 
+            //START feedback link panel
+            var feedback_form = presetFormContainer.append('div')
+                .attr('class', 'form-field')
+                .attr('id', 'feedback')
+                .append('a')
+                .attr('href', 'https://github.com/Telenav/improveosm.org/issues')
+                .attr('target', '_blank');
+            var feedback_formWrap = feedback_form.append('div')
+                .attr('class', 'filterForm feedbackContainer');
+            var feedback_formWrapDiv = feedback_formWrap.append('div')
+                .attr('class', 'feedback-icon');
+            feedback_formWrapDiv.append('span')
+                .attr('class', 'helper');
+            feedback_formWrapDiv.append('img')
+                .attr('src', context.imagePath('feedback.png'));
+
+            feedback_formWrap.append('div')
+                .attr('class', 'feedback-content')
+                .text('Ideas & Feedback');
+
+
+
             var modal = div.enter().append('div')
                 .attr('class', 'modalWrapper')
                 .append('div')
