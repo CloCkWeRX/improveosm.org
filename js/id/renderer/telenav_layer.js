@@ -262,7 +262,6 @@ iD.TelenavLayer = function (context) {
     var keyPressHandler = new KeyPressHandler();
     keyPressHandler.enable();
 
-
     // ==============================
     // ==============================
     // VisibleItems
@@ -1332,6 +1331,7 @@ iD.TelenavLayer = function (context) {
     // EditPanel
     // ==============================
     // ==============================
+
     var EditPanel = function() {
 
         var switchActive = null;
@@ -1469,6 +1469,10 @@ iD.TelenavLayer = function (context) {
             }
             switchEnabled = newSwitchEnabled;
         };
+
+        window.addEventListener('resize', function(){
+            renderMinimized(minimized)
+        });
 
         var renderMinimized = function(newMinimized) {
 
