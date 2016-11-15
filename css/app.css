@@ -680,6 +680,7 @@ button.save.has-count .count::before {
     height: 60px;
     overflow: hidden;
     background-color: white;
+    width: 100%;
 }
 .telenavwrap .header {
     border-top: 1px solid #ddd;
@@ -742,6 +743,14 @@ button.save.has-count .count::before {
 }
 .pane-telenav .header .telenav-header-button.selected span {
     color: white;
+}
+.pane-telenav label .form-label-button-wrap .input {
+    min-width: 25px;
+    padding: 5px 0;
+    text-align: center;
+}
+.pane-telenav label .form-label-button-wrap .input input {
+    margin-right: 0;
 }
 
 .telenav-body{
@@ -926,7 +935,7 @@ label .form-label-button-wrap .input {
 .pane-telenav.hidden {
     display: none;
 }
-#sidebar.telenavPaneActive {
+/*#sidebar.telenavPaneActive {
     height: calc(100% - 60px);
 }
 /**

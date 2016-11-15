@@ -1521,8 +1521,8 @@ iD.TelenavLayer = function (context) {
             var div = d3.selectAll('.pane_telenav')
                 .data([0]);
 
-            var enter = div.enter().append('div')
-                .attr('class', 'pane-telenav col4 hidden');
+            var enter = context.container().select('#sidebar').append('div')
+                .attr('class', 'pane-telenav hidden');
             var telenavWrapPanel = enter.append('div')
                 .attr('class', 'telenav-wrap');
             var telenavWrap = telenavWrapPanel.append('div')
