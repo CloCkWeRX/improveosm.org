@@ -1877,19 +1877,19 @@ iD.TelenavLayer = function (context) {
             var restriction_highlyProbableContainer = restriction_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             restriction_highlyProbableContainer.append('input')
-                .attr('id', 'C1')
+                .attr('id', 'C1-Turn')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
             restriction_highlyProbableContainer.append('label')
-                .attr('for', 'C1')
+                .attr('for', 'C1-Turn')
                 .text('High');
             var restriction_probableContainer = restriction_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             restriction_probableContainer.append('input')
-                .attr('id', 'C2')
+                .attr('id', 'C2-Turn')
                 .attr('type', 'checkbox');
             restriction_probableContainer.append('label')
-                .attr('for', 'C2')
+                .attr('for', 'C2-Turn')
                 .text('Normal');
             //  END 2st container div
 
@@ -2142,14 +2142,14 @@ iD.TelenavLayer = function (context) {
                     selectedTypes.push('tr');
                     //---
                     trSelectedDetails = trDetails.slice(0);
-                    d3.select('#trFilter #C1').property('checked', true);
-                    d3.select('#trFilter #C2').property('checked', true);
+                    d3.select('#trFilter #C1-Turn').property('checked', true);
+                    d3.select('#trFilter #C2-Turn').property('checked', true);
                 } else {
                     selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
                     //---
                     trSelectedDetails.length = 0;
-                    d3.select('#trFilter #C1').property('checked', false);
-                    d3.select('#trFilter #C2').property('checked', false);
+                    d3.select('#trFilter #C1-Turn').property('checked', false);
+                    d3.select('#trFilter #C2-Turn').property('checked', false);
                 }
                 render(d3.select('.layer-telenav'));
             });
