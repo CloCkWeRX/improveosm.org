@@ -767,7 +767,8 @@ button.save.has-count .count::before {
     font-family: Helvetica-Neue-Bold;
     color: #333;
 }
-.telenav-body input[type="checkbox"], input[type="radio"] {
+.telenav-body input[type="checkbox"],
+.telenav-body input[type="radio"] {
     float: none;
     vertical-align: -1px;
 }
