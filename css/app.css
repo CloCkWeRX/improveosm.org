@@ -664,7 +664,7 @@ button.save.has-count .count::before {
     height: 100%;
     right: 0%;
     /*right: -200%;*/
-    transition: transform .3s ease-in-out;
+    /*transition: transform .3s ease-in-out;*/
     font-family: Helvetica-Neue-Bold;
 }
 .telenavwrap .pane {
