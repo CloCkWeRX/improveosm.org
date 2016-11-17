@@ -40,6 +40,20 @@ iD.TelenavLayer = function (context) {
         [20,30,40,50]
     ];
 
+    var FILTER_IDS_MAPPING = {
+        'oneWay_super': 'C1',
+        'oneWay_high': 'C2',
+        'oneWay_okay': 'C3',
+
+        'missingRoads_road': 'ROAD',
+        'missingRoads_parking': 'PARKING',
+        'missingRoads_waterTrail': 'WATER',
+        'missingRoads_pathTrail': 'PATH',
+
+        'turnRestriction_high': 'C1',
+        'turnRestriction_normal': 'C2'
+    };
+
     var enable = true, //shows the telenav layer by default
         svg,
         requestQueue = [],
@@ -1583,7 +1597,8 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-label-button-wrap');
 
             detailedInfo_form.append('form')
-                .attr('class', 'filterForm optionsContainer itemDetails');
+                .attr('class', 'filterForm optionsContainer itemDetails')
+                .attr('id', 'status-form');
 
             var statusUpdate_form = userContainer.append('div')
                 .attr('class', 'form-field');
@@ -1715,31 +1730,33 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'filterActivation')
                 .attr('id', 'oneWay');
             var direction_formWrap = direction_form.append('form')
-                .attr('class', 'filterForm optionsContainer');
+                .attr('class', 'filterForm optionsContainer')
+                .attr('id', 'directionOfFlow_form')
+                .attr('name', 'directionOfFlow_form');
             var direction_highlyProbableContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_highlyProbableContainer.append('input')
-                .attr('id', 'C1')
+                .attr('id', 'oneWay_super')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
             direction_highlyProbableContainer.append('label')
-                .attr('for', 'C1')
+                .attr('for', 'oneWay_super')
                 .text('Super');
             var direction_mostLikelyContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_mostLikelyContainer.append('input')
-                .attr('id', 'C2')
+                .attr('id', 'oneWay_high')
                 .attr('type', 'checkbox');
             direction_mostLikelyContainer.append('label')
-                .attr('for', 'C2')
+                .attr('for', 'oneWay_high')
                 .text('High');
             var direction_probableContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_probableContainer.append('input')
-                .attr('id', 'C3')
+                .attr('id', 'oneWay_okay')
                 .attr('type', 'checkbox');
             direction_probableContainer.append('label')
-                .attr('for', 'C3')
+                .attr('for', 'oneWay_okay')
                 .text('Okay');
 
             var missing_form = presetFormContainer.append('div')
@@ -1766,17 +1783,18 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'filterActivation')
                 .attr('id', 'missingRoads');
             var missing_formWrap = missing_form.append('form')
-                .attr('class', 'filterForm optionsContainer');
+                .attr('class', 'filterForm optionsContainer')
+                .attr('id', 'missingRoads_form')
+                .attr('name', 'missingRoads_form');
             var missing_roadContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow')
                 .append('span');
             missing_roadContainer.append('input')
-                .attr('id', 'ROAD')
+                .attr('id', 'missingRoads_road')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
             var telenav_roadMr = missing_roadContainer.append('label')
-                //.attr('id', 'telenav_roadMr')
-                .attr('for', 'ROAD');
+                .attr('for', 'missingRoads_road');
             telenav_roadMr.append('span')
                 .text('Show Roads');
             telenav_roadMr.append('span')
@@ -1788,11 +1806,10 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'tel_displayInline twoPerRow')
                 .append('span');
             missing_parkingContainer.append('input')
-                .attr('id', 'PARKING')
+                .attr('id', 'missingRoads_parking')
                 .attr('type', 'checkbox');
             var telenav_parkingMr = missing_parkingContainer.append('label')
-                //.attr('id', 'telenav_parkingMr')
-                .attr('for', 'PARKING')
+                .attr('for', 'missingRoads_parking');
 
             telenav_parkingMr.append('span')
                 .text('Show Parking');
@@ -1801,29 +1818,17 @@ iD.TelenavLayer = function (context) {
                 .append('i')
                 .attr('id', 'telenav_parkingMr')
                 .attr('class', 'circle-icon_i');
-/*
-            var missing_bothContainer = missing_formWrap.append('div')
-                .attr('class', 'tel_displayInline')
-                .append('span');
-            missing_bothContainer.append('input')
-                .attr('id', 'BOTH')
-                .attr('type', 'checkbox');
-            missing_bothContainer.append('label')
-                .attr('id', 'telenav_bothMr')
-                .attr('for', 'BOTH')
-                .text('Both');
-*/
+
             missing_formWrap.append('label')
                 .attr('class', 'form-subLabel tel_displayBlock')
                 .text('Filters');
             var missing_waterContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             missing_waterContainer.append('input')
-                .attr('id', 'WATER')
+                .attr('id', 'missingRoads_waterTrail')
                 .attr('type', 'checkbox');
             var telenav_waterMr = missing_waterContainer.append('label')
-                //.attr('id', 'telenav_waterMr')
-                .attr('for', 'WATER');
+                .attr('for', 'missingRoads_waterTrail');
             telenav_waterMr.append('span')
                 .text('Show Water Trail');
             telenav_waterMr.append('span')
@@ -1835,11 +1840,10 @@ iD.TelenavLayer = function (context) {
             var missing_pathContainer = missing_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             missing_pathContainer.append('input')
-                .attr('id', 'PATH')
+                .attr('id', 'missingRoads_pathTrail')
                 .attr('type', 'checkbox');
             var telenav_pathMr = missing_pathContainer.append('label')
-                //.attr('id', 'telenav_pathMr')
-                .attr('for', 'PATH')
+                .attr('for', 'missingRoads_pathTrail')
             telenav_pathMr.append('span')
                 .text('Show Path Trail');
             telenav_pathMr.append('span')
@@ -1856,7 +1860,7 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-label')
                 .attr('for', 'turnRestriction');
             trHeadWrap.append('span')
-                .text('Turn Restriction - Confidence')
+                .text('Turn Restriction - Confidence');
             trHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
@@ -1873,23 +1877,25 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'filterActivation')
                 .attr('id', 'turnRestriction');
             var restriction_formWrap = restriction_form.append('form')
-                .attr('class', 'filterForm optionsContainer');
+                .attr('class', 'filterForm optionsContainer')
+                .attr('id', 'turnRestriction_form')
+                .attr('name', 'turnRestriction_form');
             var restriction_highlyProbableContainer = restriction_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             restriction_highlyProbableContainer.append('input')
-                .attr('id', 'C1')
+                .attr('id', 'turnRestriction_high')
                 .attr('type', 'checkbox')
                 .attr('checked', 'checked');
             restriction_highlyProbableContainer.append('label')
-                .attr('for', 'C1')
+                .attr('for', 'turnRestriction_high')
                 .text('High');
             var restriction_probableContainer = restriction_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             restriction_probableContainer.append('input')
-                .attr('id', 'C2')
+                .attr('id', 'turnRestriction_normal')
                 .attr('type', 'checkbox');
             restriction_probableContainer.append('label')
-                .attr('for', 'C2')
+                .attr('for', 'turnRestriction_normal')
                 .text('Normal');
             //  END 2st container div
 
@@ -2035,25 +2041,6 @@ iD.TelenavLayer = function (context) {
                 }
             });
 
-            d3.select('#oneWay').on('click', function() {
-                if (d3.select('#oneWay').property('checked')) {
-                    selectedTypes.push('dof');
-                    //---
-                    dofSelectedDetails = dofDetails.slice(0);
-                    d3.select('#dofFilter #C1').property('checked', true);
-                    d3.select('#dofFilter #C2').property('checked', true);
-                    d3.select('#dofFilter #C3').property('checked', true);
-                } else {
-                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
-                    //---
-                    dofSelectedDetails.length = 0;
-                    d3.select('#dofFilter #C1').property('checked', false);
-                    d3.select('#dofFilter #C2').property('checked', false);
-                    d3.select('#dofFilter #C3').property('checked', false);
-                }
-                render(d3.select('.layer-telenav'));
-            });
-
             d3.selectAll('#dofFilter form input').on('click', function() {
                 var allCheckboxes = d3.selectAll('#dofFilter form input')[0];
                 if (d3.select('#dofFilter #' + d3.event.target.id).property('checked')) {
@@ -2061,7 +2048,7 @@ iD.TelenavLayer = function (context) {
                         d3.select('#oneWay').property('checked', true);
                         selectedTypes.push('dof');
                     }
-                    dofSelectedDetails.push(d3.event.target.id);
+                    dofSelectedDetails.push(FILTER_IDS_MAPPING[d3.event.target.id]);
                 } else {
                     var noneSelected = true;
                     var checkedItems = d3.selectAll('#dofFilter form input:checked')[0];
@@ -2081,7 +2068,7 @@ iD.TelenavLayer = function (context) {
                         d3.select('#missingRoads').property('checked', true);
                         selectedTypes.push('mr');
                     }
-                    mrSelectedDetails.push(d3.event.target.id);
+                    mrSelectedDetails.push(FILTER_IDS_MAPPING[d3.event.target.id]);
                 } else {
                     var noneSelected = true;
                     var checkedItems = d3.selectAll('#mrFilter form input:checked')[0];
@@ -2101,7 +2088,7 @@ iD.TelenavLayer = function (context) {
                         d3.select('#turnRestriction').property('checked', true);
                         selectedTypes.push('tr');
                     }
-                    trSelectedDetails.push(d3.event.target.id);
+                    trSelectedDetails.push(FILTER_IDS_MAPPING[d3.event.target.id]);
                 } else {
                     var noneSelected = true;
                     var checkedItems = d3.selectAll('#trFilter form input:checked')[0];
@@ -2114,25 +2101,42 @@ iD.TelenavLayer = function (context) {
                 render(d3.select('.layer-telenav'));
             });
 
+            d3.select('#oneWay').on('click', function() {
+                if (d3.select('#oneWay').property('checked')) {
+                    selectedTypes.push('dof');
+                    //---
+                    dofSelectedDetails = dofDetails.slice(0);
+                    d3.select('#dofFilter #oneWay_super').property('checked', true);
+                    d3.select('#dofFilter #oneWay_high').property('checked', true);
+                    d3.select('#dofFilter #oneWay_okay').property('checked', true);
+                } else {
+                    selectedTypes.splice(selectedTypes.indexOf('dof'), 1);
+                    //---
+                    dofSelectedDetails.length = 0;
+                    d3.select('#dofFilter #oneWay_super').property('checked', false);
+                    d3.select('#dofFilter #oneWay_high').property('checked', false);
+                    d3.select('#dofFilter #oneWay_okay').property('checked', false);
+                }
+                render(d3.select('.layer-telenav'));
+            });
+
             d3.select('#missingRoads').on('click', function() {
                 if (d3.select('#missingRoads').property('checked')) {
                     selectedTypes.push('mr');
                     //---
                     mrSelectedDetails = mrDetails.slice(0);
-                    d3.select('#mrFilter #ROAD').property('checked', true);
-                    d3.select('#mrFilter #PARKING').property('checked', true);
-                    d3.select('#mrFilter #BOTH').property('checked', true);
-                    d3.select('#mrFilter #WATER').property('checked', true);
-                    d3.select('#mrFilter #PATH').property('checked', true);
+                    d3.select('#mrFilter #missingRoads_road').property('checked', true);
+                    d3.select('#mrFilter #missingRoads_parking').property('checked', true);
+                    d3.select('#mrFilter #missingRoads_waterTrail').property('checked', true);
+                    d3.select('#mrFilter #missingRoads_pathTrail').property('checked', true);
                 } else {
                     selectedTypes.splice(selectedTypes.indexOf('mr'), 1);
                     //---
                     mrSelectedDetails.length = 0;
-                    d3.select('#mrFilter #ROAD').property('checked', false);
-                    d3.select('#mrFilter #PARKING').property('checked', false);
-                    d3.select('#mrFilter #BOTH').property('checked', false);
-                    d3.select('#mrFilter #WATER').property('checked', false);
-                    d3.select('#mrFilter #PATH').property('checked', false);
+                    d3.select('#mrFilter #missingRoads_road').property('checked', false);
+                    d3.select('#mrFilter #missingRoads_parking').property('checked', false);
+                    d3.select('#mrFilter #missingRoads_waterTrail').property('checked', false);
+                    d3.select('#mrFilter #missingRoads_pathTrail').property('checked', false);
                 }
                 render(d3.select('.layer-telenav'));
             });
@@ -2142,14 +2146,14 @@ iD.TelenavLayer = function (context) {
                     selectedTypes.push('tr');
                     //---
                     trSelectedDetails = trDetails.slice(0);
-                    d3.select('#trFilter #C1').property('checked', true);
-                    d3.select('#trFilter #C2').property('checked', true);
+                    d3.select('#trFilter #turnRestriction_high').property('checked', true);
+                    d3.select('#trFilter #turnRestriction_normal').property('checked', true);
                 } else {
                     selectedTypes.splice(selectedTypes.indexOf('tr'), 1);
                     //---
                     trSelectedDetails.length = 0;
-                    d3.select('#trFilter #C1').property('checked', false);
-                    d3.select('#trFilter #C2').property('checked', false);
+                    d3.select('#trFilter #turnRestriction_high').property('checked', false);
+                    d3.select('#trFilter #turnRestriction_normal').property('checked', false);
                 }
                 render(d3.select('.layer-telenav'));
             });
