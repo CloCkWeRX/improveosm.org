@@ -1643,13 +1643,14 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'main-header')
                 .text('Improve OSM');
             var switchWrapper = generalWindowsWindowHeader.append('div')
-                .attr('class', 'button-wrap joined fr')
+                .attr('class', 'button-wrap single joined fr')
             switchWrapper.append('button')
                 .attr('class', 'telenav-header-button active hidden')
                 .attr('id', 'telenav-active')
                 .append('span')
                 .text('Activate');
             switchWrapper.append('button')
+                .attr('class', 'fr preset-close')
                 .attr('id', 'telenav-inactive')
                 .call(iD.svg.Icon('#icon-close'));
             var generalSettingsBody = generalSettingsWindow.append('div')

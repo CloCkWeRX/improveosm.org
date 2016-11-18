@@ -704,13 +704,7 @@ button.save.has-count .count::before {
     margin: 10px 0;
     height: calc(100% - 20px);
 }
-.pane-telenav .header .button-wrap button:first-child {
-    border-radius: 4px 0 0 4px;
-}
-.pane-telenav .header .button-wrap button:last-child {
-    border-radius: 0 4px 4px 0;
-}
-.pane-telenav .header .button-wrap.single button:last-child {
+.pane-telenav .header .button-wrap.single button {
     border-radius: 4px 4px 4px 4px;
 }
 
