@@ -1648,9 +1648,8 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'telenav-header-button active hidden')
                 .attr('id', 'telenav-active')
                 .append('span')
-                .text('Active');
+                .text('Activate');
             switchWrapper.append('button')
-                // .attr('class', 'fr preset-close')
                 .attr('id', 'telenav-inactive')
                 .call(iD.svg.Icon('#icon-close'));
             var generalSettingsBody = generalSettingsWindow.append('div')
