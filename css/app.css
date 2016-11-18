@@ -714,9 +714,6 @@ button.save.has-count .count::before {
     border-radius: 4px 4px 4px 4px;
 }
 
-/*.pane-telenav .header .telenav-header-button:focus {*/
-    /*background: none;*/
-/*}*/
 .pane-telenav .header .telenav-header-button {
     border-radius: 0px;
     min-width: 75px;
@@ -735,15 +732,7 @@ button.save.has-count .count::before {
     font-size: 14px;
 
 }
-.pane-telenav .header .telenav-header-button.active.selected{
-    background: #8ad258;
-}
-.pane-telenav .header .telenav-header-button.inactive.selected {
-    background: #e26d5b;
-}
-.pane-telenav .header .telenav-header-button.selected span {
-    color: white;
-}
+
 .pane-telenav label .form-label-button-wrap .input {
     min-width: 25px;
     padding: 5px 0;
