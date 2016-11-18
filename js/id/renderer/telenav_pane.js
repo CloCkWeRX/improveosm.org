@@ -1,9 +1,7 @@
-iD.TelenavPane = function(context) {
-    //var id;
-    var enable = false,
-        div;
+iD.TelenavPane = function() {
+    var enable = false;
 
-    function render(selection) {
+    function render() {
     }
 
     render.enable = function(_) {
@@ -12,21 +10,9 @@ iD.TelenavPane = function(context) {
         return render;
     };
 
-    render.dimensions = function(_) {
-        if (!arguments.length) return svg.dimensions();
-        //svg.dimensions(_);
+    render.dimensions = function() {
         return render;
     };
 
     return render;
-
-/*
-telenavPane.entityID = function(_) {
-    if (!arguments.length) return id;
-    id = _;
-    return telenavPane;
-};
-
-return telenavPane;
-*/
 };
