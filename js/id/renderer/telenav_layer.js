@@ -2211,6 +2211,14 @@ iD.TelenavLayer = function (context) {
                     if (a.id < b.id) return 1;
                     return 0;
                 });
+                var clickHandler = function() {
+                    var item = visibleItems.items.find(function(item) {
+                        return item.id === d3.event.currentTarget.attributes[0].nodeValue;
+                    });
+                    if (item) {
+                        item.handleSelection();
+                    }
+                };
                 for (var i = 0; i < siblings.length; i++) {
                     var element = listElement.append('li').attr('data-id', siblings[i].id);
                     if (selected === siblings[i].id) {
@@ -2235,15 +2243,7 @@ iD.TelenavLayer = function (context) {
                     span4
                         .text(siblings[i].numberOfPasses);
 
-                    element.on('click', function() {
-                        var item = null;
-                        for (var i = 0; i < visibleItems.items.length; i++) {
-                            if (visibleItems.items[i].id === d3.event.currentTarget.attributes[0].nodeValue) {
-                                item = visibleItems.items[i];
-                            }
-                        }
-                        item.handleSelection();
-                    });
+                    element.on('click', clickHandler);
                 }
             } else {
                 d3.select('#siblingsPanel').classed('hide', true);
