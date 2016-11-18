@@ -45,7 +45,7 @@ window.iD = function () {
         mode,
         container,
         ui = iD.ui(context),
-        connection = iD.Connection(),
+        connection = iD.Connection(true),//true -> use https only (https anywhere extension problem) WEBEU-1220 #2
         locale = iD.detect().locale,
         localePath;
 
