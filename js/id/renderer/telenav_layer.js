@@ -1509,7 +1509,7 @@ iD.TelenavLayer = function (context) {
 
             userWindowHeader.append('h3')
                 .attr('class', 'main-header')
-                .text('Improve OSM panel');
+                .text('Improve OSM');
             var backDeselectWrapper = userWindowHeader.append('div')
                 .attr('class', 'button-wrap single joined fr');
             backDeselectWrapper.append('button')
@@ -1610,7 +1610,7 @@ iD.TelenavLayer = function (context) {
 
             generalWindowsWindowHeader.append('h3')
                 .attr('class', 'main-header')
-                .text('Improve OSM panel');
+                .text('Improve OSM');
             var switchWrapper = generalWindowsWindowHeader.append('div')
                 .attr('class', 'button-wrap joined fr');
             switchWrapper.append('button')
