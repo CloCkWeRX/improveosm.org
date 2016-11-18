@@ -1912,7 +1912,7 @@ iD.TelenavLayer = function (context) {
             var sectionThreeInfo = sectionThree.append('div')
                 .attr('class', 'info-text');
             sectionThreeInfo.append('p')
-                .text('1) Press SPACE or click the ACTIVATION toggle buttons to switch the ImproveOSM layer to thee inactive (transparent) state');
+                .text('1) Press SPACE or click the ACTIVATION toggle buttons to switch the ImproveOSM layer to the inactive (transparent) state');
             sectionThreeInfo.append('p')
                 .text('2) Use the iD\'s tooling to make the desired edit that would solve the ImproveOSM issue');
             sectionThreeInfo.append('p')
