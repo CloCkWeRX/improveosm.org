@@ -936,6 +936,12 @@ label .form-label-button-wrap .input {
 .pane-telenav.hidden {
     display: none;
 }
+#statusSetter .tel_displayInline {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 /*#sidebar.telenavPaneActive {
     height: calc(100% - 60px);
 }
