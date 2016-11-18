@@ -422,6 +422,24 @@ en:
   telenav:
     tooltip: "Improve OSM"
     title: "Improve OSM"
+    reported_status: "Reported Status"
+    statuses:
+      open: "Open"
+      solved: "Solved"
+      invalid: "Invalid"
+    one_way: "One Way - Confidence"
+    missing_roads: "Missing Roads"
+    turn_restriction: "Turn Restriction - Confidence"
+    feedback: "Ideas & Feedback"
+    show_parking: "Show parking"
+    show_roads: "Show roads"
+    show_water_trails: "Show water trails"
+    show_path_trails: "Show path trails"
+    confidence:
+      super: "Super"
+      high: "High"
+      okay: "Okay"
+      normal: "Normal"
   help:
     title: "Help"
     help: |

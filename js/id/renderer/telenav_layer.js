@@ -1682,7 +1682,7 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-field');
             presetForm.append('label')
                 .attr('class', 'form-label')
-                .text('Reported Status');
+                .text(t('telenav.reported_status'));
             var statusForm = presetForm.append('form')
                 .attr('class', 'filterForm optionsContainer')
                 .attr('id', 'statusFilter');
@@ -1690,19 +1690,19 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'OPEN' ? ' selected' : ''))
                 .attr('data-filter-type', 'OPEN');
             statusDivOpen.append('span')
-                .text('Open');
+                .text(t('telenav.statuses.open'));
 
             var statusDivSolved = statusForm.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'SOLVED' ? ' selected' : ''))
                 .attr('data-filter-type', 'SOLVED');
             statusDivSolved.append('span')
-                .text('Solved');
+                .text(t('telenav.statuses.solved'));
 
             var statusDivInvalid = statusForm.append('div')
                 .attr('class', 'tel_displayInline' + (_editPanel.status === 'INVALID' ? ' selected' : ''))
                 .attr('data-filter-type', 'INVALID');
             statusDivInvalid.append('span')
-                .text('Invalid');
+                .text(t('telenav.statuses.invalid'));
             //  END 1st container div
 
             //  START 2st container div
@@ -1713,7 +1713,7 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-label')
                 .attr('for', 'oneWay');
             owHeadWrap.append('span')
-                .text('OneWay - Confidence');
+                .text(t('telenav.one_way'));
             owHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
@@ -1741,7 +1741,7 @@ iD.TelenavLayer = function (context) {
                 .attr('checked', 'checked');
             direction_highlyProbableContainer.append('label')
                 .attr('for', 'oneWay_super')
-                .text('Super');
+                .text(t('telenav.confidence.super'));
             var direction_mostLikelyContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_mostLikelyContainer.append('input')
@@ -1749,7 +1749,7 @@ iD.TelenavLayer = function (context) {
                 .attr('type', 'checkbox');
             direction_mostLikelyContainer.append('label')
                 .attr('for', 'oneWay_high')
-                .text('High');
+                .text(t('telenav.confidence.high'));
             var direction_probableContainer = direction_formWrap.append('div')
                 .attr('class', 'tel_displayInline');
             direction_probableContainer.append('input')
@@ -1757,7 +1757,7 @@ iD.TelenavLayer = function (context) {
                 .attr('type', 'checkbox');
             direction_probableContainer.append('label')
                 .attr('for', 'oneWay_okay')
-                .text('Okay');
+                .text(t('telenav.confidence.okay'));
 
             var missing_form = presetFormContainer.append('div')
                 .attr('class', 'form-field')
@@ -1766,7 +1766,7 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-label')
                 .attr('for', 'missingRoads');
             mrHeadWrap.append('span')
-                .text('Missing roads');
+                .text(t('telenav.missing_roads'));
             mrHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
@@ -1860,7 +1860,7 @@ iD.TelenavLayer = function (context) {
                 .attr('class', 'form-label')
                 .attr('for', 'turnRestriction');
             trHeadWrap.append('span')
-                .text('Turn Restriction - Confidence');
+                .text(t('telenav.turn_restriction'))
             trHeadWrap.append('span')
                 .attr('class', 'circle-icon')
                 .append('i')
@@ -1888,7 +1888,7 @@ iD.TelenavLayer = function (context) {
                 .attr('checked', 'checked');
             restriction_highlyProbableContainer.append('label')
                 .attr('for', 'turnRestriction_high')
-                .text('High');
+                .text(t('telenav.confidence.high'));
             var restriction_probableContainer = restriction_formWrap.append('div')
                 .attr('class', 'tel_displayInline twoPerRow');
             restriction_probableContainer.append('input')
@@ -1896,7 +1896,7 @@ iD.TelenavLayer = function (context) {
                 .attr('type', 'checkbox');
             restriction_probableContainer.append('label')
                 .attr('for', 'turnRestriction_normal')
-                .text('Normal');
+                .text(t('telenav.confidence.normal'));
             //  END 2st container div
 
             //START feedback link panel
@@ -1917,7 +1917,7 @@ iD.TelenavLayer = function (context) {
 
             feedback_formWrap.append('div')
                 .attr('class', 'feedback-content')
-                .text('Ideas & Feedback');
+                .text(t('telenav.feedback'));
 
 
 
