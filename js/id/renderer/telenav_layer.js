@@ -2484,18 +2484,19 @@ iD.TelenavLayer = function (context) {
                 }
                 var comment = d3.select('#commentText').property('value');
 
+                var dataToPost = {
+                    username: 'Tudor009',
+                    text: comment
+                };
+
+                var responseHandler = function (/*err, rawData*/) {
+                    // var data = JSON.parse(rawData.response);
+                    d3.select('#commentText').value('');
+                };
+
                 for (var i = 0; i < visibleItems.totalSelectedItems.length; i++) {
                     var currentItem = visibleItems.getTotalSelectionItem(i);
 
-                    var dataToPost = {
-                        username: 'Tudor009',
-                        text: comment
-                    };
-
-                    var responseHandler = function (/*err, rawData*/) {
-                        // var data = JSON.parse(rawData.response);
-                        d3.select('#commentText').value('');
-                    };
 
                     switch (currentItem.className) {
                         case 'DirectionOfFlowItem':
