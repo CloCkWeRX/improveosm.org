@@ -148,7 +148,7 @@ iD.TelenavLayer = function (context) {
         while (rawSegments.length > 0) {
             for (var i = 0; i < rawSegments.length; i++) {
                 var item = rawSegments[i][0];
-                if (currentAnchor.lat === item.lat && currentAnchor.lon === item.lon) {
+                if (Utils.arePointsEqual(currentAnchor, item)) {
                     break;
                 }
             }
@@ -197,6 +197,9 @@ iD.TelenavLayer = function (context) {
     };
     Utils.getSegmentAngle = function(p1, p2) {
         return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+    };
+    Utils.arePointsEqual = function(p1, p2) {
+        return (p1.lat === p2.lat) && (p1.lon === p2.lon);
     };
     Utils.splitSegment = function(segment) {
         var length = 0;
@@ -372,10 +375,7 @@ iD.TelenavLayer = function (context) {
             for (var i = 0; i < this.clusteredItems.length; i++) {
                 var checkedItem = this.clusteredItems[i];
                 // compare for equality
-                if (
-                    (checkedItem.lat === item.point.lat) &&
-                    (checkedItem.lon === item.point.lon)
-                ) {
+                if (Utils.arePointsEqual(checkedItem, item.point)) {
                     for (var j = 0; j < checkedItem.items.length; j++) {
                         if (checkedItem.items[j].id === item.id) {
                             checkedItem.items.splice(j , 1);
@@ -446,10 +446,7 @@ iD.TelenavLayer = function (context) {
                 for (var i = 0; i < this.clusteredItems.length; i++) {
                     var checkedItem = this.clusteredItems[i];
                     // compare for equality
-                    if (
-                        (checkedItem.point.lat === item.point.lat) &&
-                        (checkedItem.point.lon === item.point.lon)
-                    ) {
+                    if (Utils.arePointsEqual(checkedItem.point, item.point)) {
                         return true;
                     }
                 }
@@ -464,10 +461,7 @@ iD.TelenavLayer = function (context) {
                 for (var i = 0; i < this.clusteredItems.length; i++) {
                     var checkedItem = this.clusteredItems[i];
                     // compare for equality
-                    if (
-                        (checkedItem.lat === item.point.lat) &&
-                        (checkedItem.lon === item.point.lon)
-                    ) {
+                    if (Utils.arePointsEqual(checkedItem, item.point)) {
                         checkedItem.items.push(item);
                     }
                 }
@@ -552,10 +546,7 @@ iD.TelenavLayer = function (context) {
                             var checkedItem = this.items[j];
                             if (checkedItem.className === 'TurnRestrictionItem') {
                                 // compare for equality
-                                if (
-                                    (checkedItem.point.lat === item.point.lat) &&
-                                    (checkedItem.point.lon === item.point.lon)
-                                ) {
+                                if (Utils.arePointsEqual(checkedItem.point, item.point)) {
                                     siblingsFound.push(checkedItem);
                                 }
                             }
