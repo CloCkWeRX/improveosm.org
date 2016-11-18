@@ -1415,8 +1415,8 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav_waterMr').classed('editMode', true);
                 d3.select('#telenav_pathMr').classed('editMode', true);
 
-                d3.select('#telenav-active').classed('selected', true);
-                d3.select('#telenav-inactive').classed('selected', false);
+                d3.select('#telenav-active').classed('hidden', true);
+                d3.select('#telenav-inactive').classed('hidden', false);
                 d3.select('.layer-telenav').classed('editMode', true);
 
             } else {
@@ -1426,8 +1426,8 @@ iD.TelenavLayer = function (context) {
                 d3.select('#telenav_waterMr').classed('editMode', false);
                 d3.select('#telenav_pathMr').classed('editMode', false);
 
-                d3.select('#telenav-active').classed('selected', false);
-                d3.select('#telenav-inactive').classed('selected', true);
+                d3.select('#telenav-active').classed('hidden', false);
+                d3.select('#telenav-inactive').classed('hidden', true);
                 d3.select('.layer-telenav').classed('editMode', false);
 
             }
@@ -1645,15 +1645,14 @@ iD.TelenavLayer = function (context) {
             var switchWrapper = generalWindowsWindowHeader.append('div')
                 .attr('class', 'button-wrap joined fr')
             switchWrapper.append('button')
-                .attr('class', 'telenav-header-button active selected')
+                .attr('class', 'telenav-header-button active hidden')
                 .attr('id', 'telenav-active')
                 .append('span')
                 .text('Active');
             switchWrapper.append('button')
-                .attr('class', 'telenav-header-button inactive')
+                // .attr('class', 'fr preset-close')
                 .attr('id', 'telenav-inactive')
-                .append('span')
-                .text('Inactive');
+                .call(iD.svg.Icon('#icon-close'));
             var generalSettingsBody = generalSettingsWindow.append('div')
                 .attr('class', 'telenav-body');
 

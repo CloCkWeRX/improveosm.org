@@ -933,7 +933,7 @@ label .form-label-button-wrap .input {
 .typeForm > div {
     margin-left: 5px;
 }
-.pane-telenav.hidden {
+.pane-telenav .hidden {
     display: none;
 }
 /*#sidebar.telenavPaneActive {
