@@ -209,10 +209,10 @@ iD.TelenavLayer = function (context) {
         var target = length / 2;
         length = 0;
         var location = 0;
-        for (var i = 0; i < segment.length - 1; i++) {
-            length += distances[i];
+        for (var j = 0; j < segment.length - 1; j++) {
+            length += distances[j];
             if (length > target) {
-                location = i;
+                location = j;
                 break;
             }
         }
