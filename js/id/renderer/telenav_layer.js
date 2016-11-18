@@ -1647,9 +1647,9 @@ iD.TelenavLayer = function (context) {
             switchWrapper.append('button')
                 .attr('class', 'telenav-header-button active hidden')
                 .attr('id', 'telenav-active')
-                .attr('title', 'Hint: Use spacebar to toggle quickly')
+                .attr('title', t('telenav.toggle_hint'))
                 .append('span')
-                .text('Activate');
+                .text(t('telenav.activate'));
             switchWrapper.append('button')
                 .attr('class', 'fr preset-close')
                 .attr('id', 'telenav-inactive')

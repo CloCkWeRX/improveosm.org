@@ -422,6 +422,8 @@ en:
   telenav:
     tooltip: "Improve OSM"
     title: "Improve OSM"
+    activate: "Activate"
+    toggle_hint: "Hint: Use spacebar to toggle quickly"
   help:
     title: "Help"
     help: |
