@@ -504,28 +504,29 @@ iD.TelenavLayer = function (context) {
         };
 
         this.update = function() {
+            var self = this;
 
             // ===
             // we need to check what items were selected before and add them to the selected group
             // ===
             this.normalItems.length = 0;
             this.selectedItems.length = 0;
+
             // for each new item, find out if it's already in the TOTAL selected item list
-            for (var i = 0; i < this.items.length; i++) {
-                var found = false;
-                for (var j = 0; j < this.totalSelectedItems.length; j++) {
-                    // if we find a new item that should be selected, we add it to the CURRENT selected items
-                    if (this.items[i].id === this.totalSelectedItems[j].id) {
-                        this.selectedItems.push(this.items[i]);
-                        found = true;
-                        break;
-                    }
-                }
-                // else we add it to the normalItems
-                if (!found) {
-                    this.normalItems.push(this.items[i]);
-                }
-            }
+            var isItemAlreadySelected = function (item) {
+                return self.totalSelectedItems.find(function (existingItem) {
+                    return item.id == existingItem.id;
+                })
+            };
+            // if we found a new item that should be selected, we add it to the CURRENT selected items
+            this.items.filter(isItemAlreadySelected).forEach(function (item) {
+                this.selectedItems.push(item);
+            });
+            // else we add it to the normalItems
+            this.items.filter(!isItemAlreadySelected).forEach(function (item) {
+                this.normalItems.push(item);
+            });
+
 
             var nodeMap = {};
             // for all items
