@@ -372,17 +372,13 @@ iD.TelenavLayer = function (context) {
         };
 
         this._removeItemFromClusters = function(item) {
-            for (var i = 0; i < this.clusteredItems.length; i++) {
-                var checkedItem = this.clusteredItems[i];
-                // compare for equality
-                if (Utils.arePointsEqual(checkedItem, item.point)) {
-                    for (var j = 0; j < checkedItem.items.length; j++) {
-                        if (checkedItem.items[j].id === item.id) {
-                            checkedItem.items.splice(j , 1);
-                        }
-                    }
-                }
-            }
+            this.clusteredItems.filter(function (checkedItem) {
+                return Utils.arePointsEqual(checkedItem, item.point);
+            }).forEach(function (checkedItem) {
+                checkedItem.items = checkedItem.items.filter(function (candidateForRemoval) {
+                    return candidateForRemoval.id !== item.id;
+                });
+            });
         };
 
         this._handleItemSelection = function(item) {
