@@ -2522,34 +2522,6 @@ iD.TelenavLayer = function (context) {
     };
     var _editPanel = null;
 
-    var _synchCallbacks = function(error, data) {
-
-        if (error) {
-            clearAllLayers();
-            return;
-        }
-
-        if (data.hasOwnProperty('roadSegments')) {
-            visibleItems.loadOneWays(data.roadSegments);
-        }
-        if (data.hasOwnProperty('tiles')) {
-            visibleItems.loadMissingRoads(data.tiles);
-        }
-        if (data.hasOwnProperty('entities')) {
-            visibleItems.loadTurnRestrictions(data.entities);
-        }
-
-        if (!--requestCount) {
-
-            visibleItems.update();
-
-            drawItems('normal');
-            drawClusteredItems();
-            drawItems('selected');
-        }
-
-    };
-
     function drawClusteredItems() {
         var data = svg.select('g.clusteredItemsLayer').selectAll('g.item')
             .data(visibleItems.clusteredItems, function(item) {
@@ -2901,8 +2873,7 @@ iD.TelenavLayer = function (context) {
         if (!enable) {
 
             clearAllLayers();
-            svg.selectAll('g.cluster')
-                .remove();
+            clearAllClusters();
 
             return;
         }
@@ -3056,8 +3027,36 @@ iD.TelenavLayer = function (context) {
         visibleItems.items.length = 0;
 
         if ((zoomHandler.getZoom() > 14) && (requestUrlQueue.length !== 0)) {
-            svg.selectAll('g.cluster')
-                .remove();
+            clearAllClusters();
+
+            var _synchCallbacks = function(error, data) {
+
+                if (error) {
+                    clearAllLayers();
+                    return;
+                }
+
+                if (data.hasOwnProperty('roadSegments')) {
+                    visibleItems.loadOneWays(data.roadSegments);
+                }
+                if (data.hasOwnProperty('tiles')) {
+                    visibleItems.loadMissingRoads(data.tiles);
+                }
+                if (data.hasOwnProperty('entities')) {
+                    visibleItems.loadTurnRestrictions(data.entities);
+                }
+
+                if (!--requestCount) {
+
+                    visibleItems.update();
+
+                    drawItems('normal');
+                    drawClusteredItems();
+                    drawItems('selected');
+                }
+
+            };
+
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
             }
@@ -3113,8 +3112,7 @@ iD.TelenavLayer = function (context) {
 
                     if (!--requestCount) {
                         if (error) {
-                            svg.selectAll('g.cluster')
-                                .remove();
+                            clearAllClusters();
                             return;
                         }
                         heatMap.categorizeClusters();
@@ -3127,8 +3125,7 @@ iD.TelenavLayer = function (context) {
             }
         } else {
             clearAllLayers();
-            svg.selectAll('g.cluster')
-                .remove();
+            clearAllClusters();
         }
         if (zoomHandler.indicatesZoomSwitch()) {
             _editPanel.toggleZoom(zoomHandler.getZoomSwitchType());
@@ -3165,6 +3162,10 @@ iD.TelenavLayer = function (context) {
         svg.select('g.clusteredItemsLayer').selectAll('g')
             .remove();
         svg.select('g.normalItemsLayer').selectAll('g.item')
+            .remove();
+    }
+    function clearAllClusters() {
+        svg.selectAll('g.cluster')
             .remove();
     }
 
