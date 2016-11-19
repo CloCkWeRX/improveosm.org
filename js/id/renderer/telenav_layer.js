@@ -530,34 +530,37 @@ iD.TelenavLayer = function (context) {
 
             var nodeMap = {};
             // for all items
-            for (var i = 0; i < this.items.length; i++) {
-                var item = this.items[i];
-                if (item.className === 'TurnRestrictionItem') {
-                    // build a comparison key
-                    var key = item.point.lat + ',' + item.point.lon;
-                    // if the key is a fresh one, not searched before
-                    if (!nodeMap.hasOwnProperty(key)) {
-                        var siblingsFound = [];
-                        // search other instances of the fresh key
-                        for (var j = i + 1; j < this.items.length; j++) {
-                            var checkedItem = this.items[j];
-                            if (checkedItem.className === 'TurnRestrictionItem') {
-                                // compare for equality
-                                if (Utils.arePointsEqual(checkedItem.point, item.point)) {
-                                    siblingsFound.push(checkedItem);
-                                }
-                            }
-                        }
-                        // mark new found siblings
-                        if (siblingsFound.length > 0) {
-                            if (typeof nodeMap[key] === 'undefined') {
-                                nodeMap[key] = siblingsFound;
-                            }
-                            nodeMap[key].unshift(item);// check WEBEU-1122
-                        }
+            var turnRestrictionItems = this.items.filter(function (item) {
+                return item.className !== 'TurnRestrictionItem';
+            })
+
+            turnRestrictionItems.forEach(function(item, i) {
+                // build a comparison key
+                var key = item.point.lat + ',' + item.point.lon;
+                // Ensure the key is a fresh one, not searched before
+                if (nodeMap.hasOwnProperty(key)) {
+                    return;
+                }
+
+                var siblingsFound = [];
+                // search other instances of the fresh key
+                for (var j = i + 1; j < turnRestrictionItems.length; j++) {
+                    var checkedItem = turnRestrictionItems[j];  
+                    // compare for equality
+                    if (Utils.arePointsEqual(checkedItem.point, item.point)) {
+                        siblingsFound.push(checkedItem);
                     }
                 }
-            }
+                // mark new found siblings
+                if (siblingsFound.length === 0) {
+                    return;
+                }
+                // Isn't this covered by nodeMap.hasOwnProperty(key) above?
+                if (typeof nodeMap[key] === 'undefined') {
+                    nodeMap[key] = siblingsFound;
+                }
+                nodeMap[key].unshift(item);// check WEBEU-1122
+            });
 
             // ===
             // for every selected items, if there is a corresponding cluster, move it to selectedClusters and remove it
