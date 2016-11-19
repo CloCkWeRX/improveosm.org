@@ -3028,7 +3028,6 @@ iD.TelenavLayer = function (context) {
         }
 
         var requestUrlQueue = [];
-        var pushedTypes = [];
         selectedTypes.forEach(function (selectedType) {
             var typesFragments = '';
             switch (selectedType) {
@@ -3048,7 +3047,6 @@ iD.TelenavLayer = function (context) {
             requestUrlQueue.push(
                 types[selectedType] + boundingBoxUrlFragments + typesFragments + '&status=' + _editPanel.status + '&client=WEBAPP&version=1.2'
             );
-            pushedTypes.push(selectedType); // Isn't this just selectedTypes.copy?
         });
 
         // TODO This may be better as a promise array, so that
@@ -3125,7 +3123,7 @@ iD.TelenavLayer = function (context) {
                 });
             };
             for (var j = 0; j < requestUrlQueue.length; j++) {
-                 requestQueue[j] = requestBuilder(pushedTypes[j], requestUrlQueue[j], heatMap);
+                 requestQueue[j] = requestBuilder(selectedTypes[j], requestUrlQueue[j], heatMap);
             }
         } else {
             clearAllLayers();
