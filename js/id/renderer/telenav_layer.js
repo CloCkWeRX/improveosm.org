@@ -612,6 +612,17 @@ iD.TelenavLayer = function (context) {
             });
         };
 
+        this.loadFromJSON = function(data) {
+            if (data.hasOwnProperty('roadSegments')) {
+                this.loadOneWays(data.roadSegments);
+            }
+            if (data.hasOwnProperty('tiles')) {
+                this.loadMissingRoads(data.tiles);
+            }
+            if (data.hasOwnProperty('entities')) {
+                this.loadTurnRestrictions(data.entities);
+            }                  
+        };
     };
     var visibleItems = new VisibleItems();
 
@@ -3020,32 +3031,35 @@ iD.TelenavLayer = function (context) {
             );
         });
 
+
+        // Decide based on the number of requests and zoom level
+        // if we are clearing all layers, clusters
+        if (requestUrlQueue.length === 0) {
+            clearAllLayers();
+        }
+        if (requestUrlQueue.length !== 0) {
+            if (zoomHandler.getZoom() <= 14) {
+                clearAllLayers();
+            }
+        }
+
+        if (requestUrlQueue.length === 0) {
+            clearAllClusters();
+        }
+        if (requestUrlQueue.length !== 0) {
+            if (zoomHandler.getZoom() > 14) {
+                clearAllClusters();
+            }
+        }
+
         // TODO This may be better as a promise array, so that
         //      we execute all requests and re-render after the last one
         //      instead of shared state in 
         requestCount = requestUrlQueue.length;
         visibleItems.items.length = 0;
 
-        if (requestUrlQueue.length === 0) {
-            clearAllLayers();
-            clearAllClusters();
-        }
-
         if (requestUrlQueue.length !== 0) {
             if (zoomHandler.getZoom() > 14) {
-                clearAllClusters();
-
-                var loadVisibleItems = function(data) {
-                    if (data.hasOwnProperty('roadSegments')) {
-                        visibleItems.loadOneWays(data.roadSegments);
-                    }
-                    if (data.hasOwnProperty('tiles')) {
-                        visibleItems.loadMissingRoads(data.tiles);
-                    }
-                    if (data.hasOwnProperty('entities')) {
-                        visibleItems.loadTurnRestrictions(data.entities);
-                    }                  
-                };
 
                 var renderVisibleItems = function () {
                     if (!--requestCount) {
@@ -3060,18 +3074,15 @@ iD.TelenavLayer = function (context) {
                 for (var i = 0; i < requestUrlQueue.length; i++) {
                     requestQueue[i] = d3.json(requestUrlQueue[i])
                                         .on('error', clearAllLayers)
-                                        .on('load.data', loadVisibleItems)
+                                        .on('load.data', visibleItems.loadFromJSON)
                                         .on('load.final', renderVisibleItems);
                 }
                 //_editPanel.enableActivationSwitch(true);
             } else {
-                clearAllLayers();
                 heatMap = new HeatMap(zoomHandler.getZoom());
                 //_editPanel.enableActivationSwitch(false);
                 _editPanel.deselectAll(false);
                 var renderHeatmap = function (data, heatMap) {
-
-
                     var g = svg.selectAll('g.cluster')
                         .data(heatMap.clusters, function(cluster) {
                             return cluster.id;
