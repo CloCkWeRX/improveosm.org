@@ -515,7 +515,7 @@ iD.TelenavLayer = function (context) {
             // for each new item, find out if it's already in the TOTAL selected item list
             var isItemAlreadySelected = function (item) {
                 return self.totalSelectedItems.find(function (existingItem) {
-                    return item.id == existingItem.id;
+                    return item.id === existingItem.id;
                 })
             };
             // if we found a new item that should be selected, we add it to the CURRENT selected items
@@ -563,7 +563,6 @@ iD.TelenavLayer = function (context) {
             // for every selected items, if there is a corresponding cluster, move it to selectedClusters and remove it
             // ===
             this.selectedClusteredItems.length = 0;
-            var self = this; // TODO Should this shift way up?
 
             // Find the applicable selected items to move
             this.selectedItems.filter(function(item) {
