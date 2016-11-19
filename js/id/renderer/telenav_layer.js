@@ -516,7 +516,7 @@ iD.TelenavLayer = function (context) {
             var isItemAlreadySelected = function (item) {
                 return self.totalSelectedItems.find(function (existingItem) {
                     return item.id === existingItem.id;
-                })
+                });
             };
             // if we found a new item that should be selected, we add it to the CURRENT selected items
             this.items.filter(isItemAlreadySelected).forEach(function (item) {
