@@ -3068,9 +3068,9 @@ iD.TelenavLayer = function (context) {
             });
 
         if (requestQueue.length > 0) {
-            for (var i = 0; i < requestQueue.length; i++) {
-                requestQueue[i].abort();
-            }
+            requestQueue.forEach(function (request) { 
+                request.abort(); 
+            });
             requestQueue.length = 0;
         }
 
