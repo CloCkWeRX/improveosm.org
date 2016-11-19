@@ -343,19 +343,19 @@ iD.TelenavLayer = function (context) {
         this.unselectItem = function(itemId) {
             // item must be removed from both total and current selection arrays
             // item must be added to the normal items, OR to the cluster items, if inside a cluster
-            var item = null;
-            for (var i = 0; i < this.totalSelectedItems.length; i++) {
-                if (this.totalSelectedItems[i].id === itemId) {
-                    item = this.totalSelectedItems[i];
-                    this.totalSelectedItems.splice(i, 1);
-                }
-            }
-            for (var i = 0; i < this.selectedItems.length; i++) {
-                if (this.selectedItems[i].id === itemId) {
-                    item = this.selectedItems[i];
-                    this.selectedItems.splice(i, 1);
-                }
-            }
+            var query = function (candidate) {
+                return candidate.id === itemId;
+            };
+
+            // Find all possible matching items, then only grab the last to make sure we cluster it
+            // once only
+            var items = this.totalSelectedItems.concat(this.selectedItems).filter(query);
+            var item = items[items.length-1];
+
+            // Leave all of the unmatched items
+            this.totalSelectedItems = this.totalSelectedItems.filter(!query);
+            this.selectedItems = this.selectedItems.filter(!query);
+
             // insert item in normal or cluster arrays
             if (this.isItemPartOfClusters(item)) {
                 this.addItemToClusters(item);
