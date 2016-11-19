@@ -2522,53 +2522,6 @@ iD.TelenavLayer = function (context) {
     };
     var _editPanel = null;
 
-    var _synchClusterCallbacks = function(error, data, type) {
-
-        if (data.hasOwnProperty('clusters')) {
-            heatMap.loadClusters(data.clusters, type);
-        }
-
-        if (!--requestCount) {
-
-            if (error) {
-                svg.selectAll('g.cluster')
-                    .remove();
-                return;
-            }
-            heatMap.categorizeClusters();
-            var g = svg.selectAll('g.cluster')
-                .data(heatMap.clusters, function(cluster) {
-                    return cluster.id;
-                });
-
-            var enter = g.enter().append('g')
-                .attr('class', function(item) {
-                    return item.transformClass();
-                })
-                .classed('cluster', true)
-                .attr('id', function(item) {
-                    return item.transformId();
-                });
-
-            enter.append('circle')
-                .attr('class', function(item) {
-                    return item.transformType();
-                })
-                .attr('cx', function(item) {
-                    return item.transformX();
-                })
-                .attr('cy', function(item) {
-                    return item.transformY();
-                })
-                .attr('r', function(item) {
-                    return item.transformR();
-                });
-
-            g.exit()
-                .remove();
-        }
-    };
-
     var _synchCallbacks = function(error, data) {
 
         if (error) {
@@ -3098,6 +3051,9 @@ iD.TelenavLayer = function (context) {
             pushedTypes.push(selectedType); // Isn't this just selectedTypes.copy?
         });
 
+        // TODO This may be better as a promise array, so that
+        //      we execute all requests and re-render after the last one
+        //      instead of shared state in 
         requestCount = requestUrlQueue.length;
         visibleItems.items.length = 0;
 
@@ -3113,16 +3069,63 @@ iD.TelenavLayer = function (context) {
             heatMap = new HeatMap(zoomHandler.getZoom());
             //_editPanel.enableActivationSwitch(false);
             _editPanel.deselectAll(false);
+            var renderHeatmap = function (error, data, heatMap) {
 
-            var requestBuilder = function (type, url) {
+
+                var g = svg.selectAll('g.cluster')
+                    .data(heatMap.clusters, function(cluster) {
+                        return cluster.id;
+                    });
+
+                var enter = g.enter().append('g')
+                    .attr('class', function(item) {
+                        return item.transformClass();
+                    })
+                    .classed('cluster', true)
+                    .attr('id', function(item) {
+                        return item.transformId();
+                    });
+
+                enter.append('circle')
+                    .attr('class', function(item) {
+                        return item.transformType();
+                    })
+                    .attr('cx', function(item) {
+                        return item.transformX();
+                    })
+                    .attr('cy', function(item) {
+                        return item.transformY();
+                    })
+                    .attr('r', function(item) {
+                        return item.transformR();
+                    });
+
+                g.exit()
+                    .remove();
+            };
+
+            var requestBuilder = function (type, url, heatMap) {
                 return d3.json(url, function (error, data) {
-                    if (typeof data != 'undefined') {
-                        _synchClusterCallbacks(error, data, type);
+                    if (typeof data == 'undefined') {
+                        return;
+                    }
+                    if (data.hasOwnProperty('clusters')) {
+                        heatMap.loadClusters(data.clusters, type);
+                    }
+
+                    if (!--requestCount) {
+                        if (error) {
+                            svg.selectAll('g.cluster')
+                                .remove();
+                            return;
+                        }
+                        heatMap.categorizeClusters();
+                        renderHeatmap(error, data, heatMap);
                     }
                 });
             };
             for (var j = 0; j < requestUrlQueue.length; j++) {
-                 requestQueue[j] = requestBuilder(pushedTypes[j], requestUrlQueue[j]);
+                 requestQueue[j] = requestBuilder(pushedTypes[j], requestUrlQueue[j], heatMap);
             }
         } else {
             clearAllLayers();
