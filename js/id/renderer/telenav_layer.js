@@ -3026,107 +3026,112 @@ iD.TelenavLayer = function (context) {
         requestCount = requestUrlQueue.length;
         visibleItems.items.length = 0;
 
-        if ((zoomHandler.getZoom() > 14) && (requestUrlQueue.length !== 0)) {
-            clearAllClusters();
-
-            var _synchCallbacks = function(error, data) {
-
-                if (error) {
-                    clearAllLayers();
-                    return;
-                }
-
-                if (data.hasOwnProperty('roadSegments')) {
-                    visibleItems.loadOneWays(data.roadSegments);
-                }
-                if (data.hasOwnProperty('tiles')) {
-                    visibleItems.loadMissingRoads(data.tiles);
-                }
-                if (data.hasOwnProperty('entities')) {
-                    visibleItems.loadTurnRestrictions(data.entities);
-                }
-
-                if (!--requestCount) {
-
-                    visibleItems.update();
-
-                    drawItems('normal');
-                    drawClusteredItems();
-                    drawItems('selected');
-                }
-
-            };
-
-            for (var i = 0; i < requestUrlQueue.length; i++) {
-                requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
-            }
-            //_editPanel.enableActivationSwitch(true);
-        } else if (requestUrlQueue.length !== 0) {
-            clearAllLayers();
-            heatMap = new HeatMap(zoomHandler.getZoom());
-            //_editPanel.enableActivationSwitch(false);
-            _editPanel.deselectAll(false);
-            var renderHeatmap = function (error, data, heatMap) {
-
-
-                var g = svg.selectAll('g.cluster')
-                    .data(heatMap.clusters, function(cluster) {
-                        return cluster.id;
-                    });
-
-                var enter = g.enter().append('g')
-                    .attr('class', function(item) {
-                        return item.transformClass();
-                    })
-                    .classed('cluster', true)
-                    .attr('id', function(item) {
-                        return item.transformId();
-                    });
-
-                enter.append('circle')
-                    .attr('class', function(item) {
-                        return item.transformType();
-                    })
-                    .attr('cx', function(item) {
-                        return item.transformX();
-                    })
-                    .attr('cy', function(item) {
-                        return item.transformY();
-                    })
-                    .attr('r', function(item) {
-                        return item.transformR();
-                    });
-
-                g.exit()
-                    .remove();
-            };
-
-            var requestBuilder = function (type, url, heatMap) {
-                return d3.json(url, function (error, data) {
-                    if (typeof data == 'undefined') {
-                        return;
-                    }
-                    if (data.hasOwnProperty('clusters')) {
-                        heatMap.loadClusters(data.clusters, type);
-                    }
-
-                    if (!--requestCount) {
-                        if (error) {
-                            clearAllClusters();
-                            return;
-                        }
-                        heatMap.categorizeClusters();
-                        renderHeatmap(error, data, heatMap);
-                    }
-                });
-            };
-            for (var j = 0; j < requestUrlQueue.length; j++) {
-                 requestQueue[j] = requestBuilder(selectedTypes[j], requestUrlQueue[j], heatMap);
-            }
-        } else {
+        if (requestUrlQueue.length === 0) {
             clearAllLayers();
             clearAllClusters();
         }
+
+        if (requestUrlQueue.length !== 0) {
+            if (zoomHandler.getZoom() > 14) {
+                clearAllClusters();
+
+                var _synchCallbacks = function(error, data) {
+
+                    if (error) {
+                        clearAllLayers();
+                        return;
+                    }
+
+                    if (data.hasOwnProperty('roadSegments')) {
+                        visibleItems.loadOneWays(data.roadSegments);
+                    }
+                    if (data.hasOwnProperty('tiles')) {
+                        visibleItems.loadMissingRoads(data.tiles);
+                    }
+                    if (data.hasOwnProperty('entities')) {
+                        visibleItems.loadTurnRestrictions(data.entities);
+                    }
+
+                    if (!--requestCount) {
+
+                        visibleItems.update();
+
+                        drawItems('normal');
+                        drawClusteredItems();
+                        drawItems('selected');
+                    }
+
+                };
+
+                for (var i = 0; i < requestUrlQueue.length; i++) {
+                    requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
+                }
+                //_editPanel.enableActivationSwitch(true);
+            } else {
+                clearAllLayers();
+                heatMap = new HeatMap(zoomHandler.getZoom());
+                //_editPanel.enableActivationSwitch(false);
+                _editPanel.deselectAll(false);
+                var renderHeatmap = function (error, data, heatMap) {
+
+
+                    var g = svg.selectAll('g.cluster')
+                        .data(heatMap.clusters, function(cluster) {
+                            return cluster.id;
+                        });
+
+                    var enter = g.enter().append('g')
+                        .attr('class', function(item) {
+                            return item.transformClass();
+                        })
+                        .classed('cluster', true)
+                        .attr('id', function(item) {
+                            return item.transformId();
+                        });
+
+                    enter.append('circle')
+                        .attr('class', function(item) {
+                            return item.transformType();
+                        })
+                        .attr('cx', function(item) {
+                            return item.transformX();
+                        })
+                        .attr('cy', function(item) {
+                            return item.transformY();
+                        })
+                        .attr('r', function(item) {
+                            return item.transformR();
+                        });
+
+                    g.exit()
+                        .remove();
+                };
+
+                var requestBuilder = function (type, url, heatMap) {
+                    return d3.json(url, function (error, data) {
+                        if (typeof data == 'undefined') {
+                            return;
+                        }
+                        if (data.hasOwnProperty('clusters')) {
+                            heatMap.loadClusters(data.clusters, type);
+                        }
+
+                        if (!--requestCount) {
+                            if (error) {
+                                clearAllClusters();
+                                return;
+                            }
+                            heatMap.categorizeClusters();
+                            renderHeatmap(error, data, heatMap);
+                        }
+                    });
+                };
+                for (var j = 0; j < requestUrlQueue.length; j++) {
+                     requestQueue[j] = requestBuilder(selectedTypes[j], requestUrlQueue[j], heatMap);
+                }
+            }
+        }
+
         if (zoomHandler.indicatesZoomSwitch()) {
             _editPanel.toggleZoom(zoomHandler.getZoomSwitchType());
         }
