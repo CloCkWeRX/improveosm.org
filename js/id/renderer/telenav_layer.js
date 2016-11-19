@@ -3113,15 +3113,16 @@ iD.TelenavLayer = function (context) {
             heatMap = new HeatMap(zoomHandler.getZoom());
             //_editPanel.enableActivationSwitch(false);
             _editPanel.deselectAll(false);
+
+            var requestBuilder = function (type, url) {
+                return d3.json(url, function (error, data) {
+                    if (typeof data != 'undefined') {
+                        _synchClusterCallbacks(error, data, type);
+                    }
+                });
+            };
             for (var i = 0; i < requestUrlQueue.length; i++) {
-                var type = pushedTypes[i];
-                requestQueue[i] = function (type, url) {
-                    return d3.json(url, function (error, data) {
-                        if (typeof data != 'undefined') {
-                            _synchClusterCallbacks(error, data, type);
-                        }
-                    });
-                }(type, requestUrlQueue[i]);
+                 requestQueue[i] = requestBuilder(pushedTypes[i], requestUrlQueue[i]);
             }
         } else {
             clearAllLayers();
