@@ -3035,13 +3035,7 @@ iD.TelenavLayer = function (context) {
             if (zoomHandler.getZoom() > 14) {
                 clearAllClusters();
 
-                var _synchCallbacks = function(error, data) {
-
-                    if (error) {
-                        clearAllLayers();
-                        return;
-                    }
-
+                var loadVisibleItems = function(data) {
                     if (data.hasOwnProperty('roadSegments')) {
                         visibleItems.loadOneWays(data.roadSegments);
                     }
@@ -3050,21 +3044,24 @@ iD.TelenavLayer = function (context) {
                     }
                     if (data.hasOwnProperty('entities')) {
                         visibleItems.loadTurnRestrictions(data.entities);
-                    }
+                    }                  
+                };
 
+                var renderVisibleItems = function () {
                     if (!--requestCount) {
-
                         visibleItems.update();
 
                         drawItems('normal');
                         drawClusteredItems();
                         drawItems('selected');
                     }
-
                 };
 
                 for (var i = 0; i < requestUrlQueue.length; i++) {
-                    requestQueue[i] = d3.json(requestUrlQueue[i], _synchCallbacks);
+                    requestQueue[i] = d3.json(requestUrlQueue[i])
+                                        .on('error', clearAllLayers)
+                                        .on('load.data', loadVisibleItems)
+                                        .on('load.final', renderVisibleItems);
                 }
                 //_editPanel.enableActivationSwitch(true);
             } else {
@@ -3072,7 +3069,7 @@ iD.TelenavLayer = function (context) {
                 heatMap = new HeatMap(zoomHandler.getZoom());
                 //_editPanel.enableActivationSwitch(false);
                 _editPanel.deselectAll(false);
-                var renderHeatmap = function (error, data, heatMap) {
+                var renderHeatmap = function (data, heatMap) {
 
 
                     var g = svg.selectAll('g.cluster')
@@ -3108,23 +3105,25 @@ iD.TelenavLayer = function (context) {
                 };
 
                 var requestBuilder = function (type, url, heatMap) {
-                    return d3.json(url, function (error, data) {
+                    var xhr = d3.json(url);
+                    xhr.on('error', function () {
+                       if (!--requestCount) { clearAllClusters(); } 
+                    });
+                    xhr.on('load.data', function (data) {
                         if (typeof data == 'undefined') {
                             return;
                         }
                         if (data.hasOwnProperty('clusters')) {
                             heatMap.loadClusters(data.clusters, type);
                         }
-
+                    });
+                    xhr.on('load.final', function (data) { 
                         if (!--requestCount) {
-                            if (error) {
-                                clearAllClusters();
-                                return;
-                            }
                             heatMap.categorizeClusters();
-                            renderHeatmap(error, data, heatMap);
+                            renderHeatmap(data, heatMap);
                         }
                     });
+                    return xhr;
                 };
                 for (var j = 0; j < requestUrlQueue.length; j++) {
                      requestQueue[j] = requestBuilder(selectedTypes[j], requestUrlQueue[j], heatMap);
