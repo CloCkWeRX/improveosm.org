@@ -3115,13 +3115,13 @@ iD.TelenavLayer = function (context) {
             _editPanel.deselectAll(false);
             for (var i = 0; i < requestUrlQueue.length; i++) {
                 var type = pushedTypes[i];
-                !function (type) {
-                    requestQueue[i] = d3.json(requestUrlQueue[i], function (error, data) {
+                requestQueue[i] = function (type, url) {
+                    return d3.json(url, function (error, data) {
                         if (typeof data != 'undefined') {
                             _synchClusterCallbacks(error, data, type);
                         }
                     });
-                }(type);
+                }(type, requestUrlQueue[i]);
             }
         } else {
             clearAllLayers();
