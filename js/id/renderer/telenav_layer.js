@@ -532,7 +532,7 @@ iD.TelenavLayer = function (context) {
             // for all items
             var turnRestrictionItems = this.items.filter(function (item) {
                 return item.className !== 'TurnRestrictionItem';
-            })
+            });
 
             turnRestrictionItems.forEach(function(item, i) {
                 // build a comparison key
@@ -883,24 +883,21 @@ iD.TelenavLayer = function (context) {
             return Math.floor(context.projection([this.point.lon, this.point.lat])[1]);
         };
         this.transformLinePointsOut = function() {
-            var rawSegments = [];
-            for (var i = 1; i < this.segments.length; i++) {
-                var rawPoints = [];
-                for (var j = 0; j < this.segments[i].points.length; j++) {
-                    rawPoints.push(this.segments[i].points[j]);
-                }
-                rawSegments.push(rawPoints);
-            }
-
             var segments = Utils.orderSegments(rawSegments, this.point);
 
+            var rawSegments = segments.map(function (segment) {
+                return segment.points;
+            });
+
+            // TODO array.flatten?
             var stringPoints = [];
-            for (var i = 0; i < segments.length; i++) {
-                for (var j = 0; j < segments[i].length; j++) {
-                    var point = context.projection([segments[i][j].lon, segments[i][j].lat]);
-                    stringPoints.push(point.toString());
-                }
-            }
+            segments.forEach(function (segment) {
+                var points = segment.map(function (coordinates) {
+                    return context.projection([coordinates.lon, coordinates.lat]).toString();
+                });
+
+                stringPoints = stringPoints.concat(points);
+            });
 
             return stringPoints.join(' ');
         };
