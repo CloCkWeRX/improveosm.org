@@ -3121,8 +3121,8 @@ iD.TelenavLayer = function (context) {
                     }
                 });
             };
-            for (var i = 0; i < requestUrlQueue.length; i++) {
-                 requestQueue[i] = requestBuilder(pushedTypes[i], requestUrlQueue[i]);
+            for (var j = 0; j < requestUrlQueue.length; j++) {
+                 requestQueue[j] = requestBuilder(pushedTypes[j], requestUrlQueue[j]);
             }
         } else {
             clearAllLayers();
