@@ -90,7 +90,6 @@ iD.operations.Slide = function(selectedIds, context) {
         d3.json(slideOperationURI + '?data_tiles=' + heatType() + '&path=' + encodeURIComponent(polylineEncode(path)), 
             function(error, json) {
                 loading.close();
-                if (error) return console.warn(error);
 
                 var action = iD.actions.Slide({
                     way: way,
