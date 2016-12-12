@@ -13,12 +13,13 @@ iD.operations.Slide = function(selectedIds, context) {
         
         // nodes selected case
         wayIds = _.pluck(graph.parentWays(graph.entity(nodeIds[0])), 'id');
+        var matcher = function(id) { return id === wayIds[j]; };
         for (i = 1; i < nodeIds.length; i++) {
             var vertexWayIds = _.pluck(graph.parentWays(graph.entity(nodeIds[i])), 'id');
 
             for (j = 0; j < wayIds.length; j++) {
                 // this is wayId is not part of this vertex, remove it from wayIds
-                if (!_.any(vertexWayIds, function(id) { return id === wayIds[j]; })) {
+                if (!_.any(vertexWayIds, matcher)) {
                     wayIds.splice(j, 1);
                     j--;
                 }
