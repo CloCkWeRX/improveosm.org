@@ -1,5 +1,5 @@
 iD.operations.Slide = function(selectedIds, context) {
-    var slideOperationURI = window.location.hostname === 'localhost' ? "http://localhost:8200/slide" : "https://gometry.strava.com/slide";
+    var slideOperationURI = window.location.hostname === 'localhost' ? 'http://localhost:8200/slide' : 'https://gometry.strava.com/slide';
 
     function sharedWayId(nodeIds) {
         var graph = context.graph(),
@@ -33,17 +33,17 @@ iD.operations.Slide = function(selectedIds, context) {
 
     function heatType() {
         var backgrounds = context.background().overlayLayerSources(),
-            hasBoth = _.any(backgrounds, function(b) { return (b.sourcetag === "Strava Global Heat"); }),
-            hasCycling = _.any(backgrounds, function(b) { return (b.sourcetag === "Strava Cycling Heat"); }),
-            hasRunning = _.any(backgrounds, function(b) { return (b.sourcetag === "Strava Running Heat"); }),
-            heat = "both";
+            hasBoth = _.any(backgrounds, function(b) { return (b.sourcetag === 'Strava Global Heat'); }),
+            hasCycling = _.any(backgrounds, function(b) { return (b.sourcetag === 'Strava Cycling Heat'); }),
+            hasRunning = _.any(backgrounds, function(b) { return (b.sourcetag === 'Strava Running Heat'); }),
+            heat = 'both';
 
         if (hasBoth || (hasCycling && hasRunning)) {
-            heat = "both";
+            heat = 'both';
         } else if (hasCycling) {
-            heat = "cycling";
+            heat = 'cycling';
         } else {
-            heat = "running";
+            heat = 'running';
         }
 
         return heat;
@@ -140,7 +140,7 @@ iD.operations.Slide = function(selectedIds, context) {
     /****************************************************************
      * polyline encoding stuff */
     function polylineEncode(points) {
-        var factor = 1.0e6, pLat = 0, pLng = 0, result = "";
+        var factor = 1.0e6, pLat = 0, pLng = 0, result = '';
 
         for(var i = 0; i < points.length; i++) {
             var p = points[i],
@@ -159,7 +159,7 @@ iD.operations.Slide = function(selectedIds, context) {
     }
 
     function encodeNumber(num)  {
-        var nextValue, finalValue, encodeString = "";
+        var nextValue, finalValue, encodeString = '';
 
         while (num >= 0x20) {
             nextValue = (0x20 | (num & 0x1f)) + 63;
